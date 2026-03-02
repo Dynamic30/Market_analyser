@@ -65,7 +65,7 @@ def json_data(comapny_name,today):
 
     if not df_vol.empty:
         current_volume = df_vol['Volume'].iloc[-1]
-        avg_vol_20 = df_vol['Volume'].mean()
+        avg_vol_20 = df_vol['Volume'].tail(20).mean()
         if avg_vol_20 > 0:
             vol_ratio = (current_volume / avg_vol_20) 
         else:
