@@ -125,138 +125,7 @@ def json_data(comapny_name,today):
         delivery_conviction = "Unknown"
 
  # Pattern Recogonition (AI)
-        
-        # Data Prep (Need last 3 days for multi-candle patterns)
-        if len(df_vol) >= 3:
-            # Day 0 = Today (Latest), Day 1 = Yesterday, Day 2 = Day before yesterday
-            # Note: iloc[-1] is today, iloc[-2] is yesterday
-            
-            # Today's Data
-            c0 = df_vol['Close'].iloc[-1]
-            o0 = df_vol['Open'].iloc[-1]
-            h0 = df_vol['High'].iloc[-1]
-            l0 = df_vol['Low'].iloc[-1]
-            rng0 = h0 - l0
-            body0 = abs(c0 - o0)
-            
-            # Yesterday's Data
-            c1 = df_vol['Close'].iloc[-2]
-            o1 = df_vol['Open'].iloc[-2]
-            h1 = df_vol['High'].iloc[-2]
-            l1 = df_vol['Low'].iloc[-2]
-            rng1 = h1 - l1
-            body1 = abs(c1 - o1)
-            
-            # Day before Yesterday (for 3-candle patterns)
-            c2 = df_vol['Close'].iloc[-3]
-            o2 = df_vol['Open'].iloc[-3]
-            body2 = abs(c2 - o2)
-            
-            # --- 1. SINGLE CANDLE PATTERNS ---
-            
-            # Doji: Body is tiny (< 10% of range)
-            if rng0 > 0 and (body0 / rng0) < 0.1:
-                candlestick_signal = "Doji (Indecision)"
-                
-            # Hammer (Bullish Reversal): Long lower wick, small body at top
-            # Lower wick > 2x body AND Upper wick < 0.5x body
-            elif (min(o0, c0) - l0) > (2 * body0) and (h0 - max(o0, c0)) < (0.5 * body0):
-                candlestick_signal = "Hammer (Bullish Reversal)"
-                
-            # Shooting Star (Bearish Reversal): Long upper wick, small body at bottom
-            # Upper wick > 2x body AND Lower wick < 0.5x body
-            elif (h0 - max(o0, c0)) > (2 * body0) and (min(o0, c0) - l0) < (0.5 * body0):
-                candlestick_signal = "Shooting Star (Bearish Reversal)"
-                
-            # Marubozu: Body is huge (> 90% of range)
-            elif rng0 > 0 and (body0 / rng0) > 0.9:
-                if c0 > o0:
-                    candlestick_signal = "Bullish Marubozu (Strong Buy)"
-                else:
-                    candlestick_signal = "Bearish Marubozu (Strong Sell)"
-            
-            # --- 2. TWO-CANDLE PATTERNS (Engulfing) ---
-            
-            # Bullish Engulfing: Yesterday Red, Today Green & completely covers yesterday
-            elif c1 < o1 and c0 > o0 and c0 > o1 and o0 < c1:
-                candlestick_signal = "Bullish Engulfing (Strong Buy)"
-                
-            # Bearish Engulfing: Yesterday Green, Today Red & completely covers yesterday
-            elif c1 > o1 and c0 < o0 and c0 < o1 and o0 > c1:
-                candlestick_signal = "Bearish Engulfing (Strong Sell)"
-                
-            # --- 3. THREE-CANDLE PATTERNS (Morning/Evening Star) ---
-            
-            # Morning Star (Bullish): Big Red -> Gap Down Doji -> Big Green
-            elif c2 < o2 and (abs(c1 - o1) / rng1) < 0.3 and c0 > o0 and c0 > (o2 + c2)/2:
-                candlestick_signal = "Morning Star (Major Bottom)"
-                
-            # Evening Star (Bearish): Big Green -> Gap Up Doji -> Big Red
-            elif c2 > o2 and (abs(c1 - o1) / rng1) < 0.3 and c0 < o0 and c0 < (o2 + c2)/2:
-                candlestick_signal = "Evening Star (Major Top)"
-                
-            else:
-                candlestick_signal = "Normal"
-                
-        else:
-            candlestick_signal = "Insufficient Data"
 
-        #3. CHART PATTERNS (Algorithmic Proxies)
-        
-        # We need the 1-year 'df' for this, not just 'df_vol'
-        # Calculate Bollinger Bands using pandas_ta
-        # (Length=20, Std=2.0 is standard)
-        bb = ta.bbands(df['Close'], length=20, std=2.0)
-        
-        # Check if bands were calculated successfully
-        if bb is not None and not bb.empty:
-            # Extract Bandwidth: (Upper - Lower) / Middle
-            # 'BBP_20_2.0' is percentage bandwidth, 'BBB_20_2.0' is bandwidth
-            # pandas_ta column names can be tricky, so let's calculate manually to be safe
-            upper = bb[f"BBU_20_2.0"]
-            lower = bb[f"BBL_20_2.0"]
-            middle = bb[f"BBM_20_2.0"]
-            
-            bandwidth = (upper - lower) / middle * 100
-            
-            # Get the latest bandwidth and the average of the last 6 months (approx 120 days)
-            current_bw = bandwidth.iloc[-1]
-            avg_bw_120 = bandwidth.tail(120).mean()
-            
-            # PATTERN 1: Volatility Contraction (VCP) / Squeeze
-            # If current bandwidth is very low compared to history (e.g., < 70% of average)
-            if current_bw < (avg_bw_120 * 0.7):
-                chart_pattern = "Volatility Contraction (VCP) - Watch for Breakout"
-                
-            # PATTERN 2: Consolidation (Flat Base)
-            # If price is strictly between 20-day High and Low, and range is tight
-            elif current_bw < avg_bw_120: 
-                # Check if we are near a 52-week High (Base on High)
-                if (current_price / high_52w) > 0.95:
-                     chart_pattern = "High Tight Flag (Bullish)"
-                else:
-                    chart_pattern = "Consolidation (Range Bound)"
-            
-            # PATTERN 3: Breakout
-            # If Price > 20-Day High (Donchian Channel Breakout)
-            elif current_price >= df['High'].iloc[-21:-1].max(): # Exclude today to confirm breakout
-                chart_pattern = "Breakout (New 20-Day High)"
-                
-            else:
-                chart_pattern = "None"
-        else:
-            chart_pattern = "Insufficient Data"
-
-        # Gap signals 
-        prev_close = c1
-        gap_pct = ((o0 - prev_close) / prev_close)* 100
-
-        if gap_pct > 0.5:
-            gap_signal = f"Gap Up ({round(gap_pct, 2)}%)"
-        elif gap_pct < -0.5:
-            gap_signal = f"Gap Down ({round(gap_pct, 2)}%)"
-        else:
-            gap_signal = "None"
  # risk_management
 
  # fundamental_health 
@@ -316,9 +185,9 @@ def json_data(comapny_name,today):
             "closing_bias (close vs ema20)": closing_bias
         },
         "pattern_recognition": { 
-            "candlestick_signal": candlestick_signal,
-            "chart_pattern": chart_pattern,
-            "gap_signal": gap_signal
+            "candlestick_signal": "candlestick_signal",
+            "chart_pattern": "chart_pattern",
+            "gap_signal": "gap_signal"
         },
         "momentum": {
             "rsi_14": rsi_14, 
