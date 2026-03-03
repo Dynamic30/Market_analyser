@@ -139,6 +139,38 @@ def json_data(comapny_name,today):
     df['returns'] = df['Close'].pct_change()
     intraday_vol_pct = df['returns'].std()*100
 
+    # Support Resistance
+    if len(df) > 20:
+
+        prev_20_high = df['High'].iloc[-21:-1].max()
+        prev_20_low = df['Low'].iloc[-21:-1].min()
+
+        nearest_resistacne = round(prev_20_high, 2)
+        nearest_support = round(prev_20_low, 2)
+
+        resistance_distance = (nearest_resistacne - current_price)/current_price
+        support_distance = (current_price - nearest_support)/ current_price
+
+        buffer = atr if atr > 0 else (current_price*0.01)
+
+        if current_price > nearest_resistacne:
+            price_location = "Breakout (Above Resistance)"
+            nearest_support = nearest_resistacne
+        elif current_price < nearest_support:
+            price_location = "Breakdown (Below Support)"
+        elif (nearest_resistacne - current_price) < buffer:
+            price_location = "Testing Resistance"
+        elif (current_price - nearest_support) < buffer:
+            price_location = "Testing Support"
+        else:
+            price_location = "Mid Range"
+
+
+    
+    else:
+        nearest_support = "Unknown"
+        nearest_resistacne = "Unknown"
+        price_location = "Unknown"
  # risk_management
 
  # fundamental_health 
@@ -218,9 +250,9 @@ def json_data(comapny_name,today):
             "beta": beta
         },
         "support_resistance": {
-            "nearest_support": '',
-            "nearest_resistance": '',
-            "price_location": ""
+            "nearest_support": nearest_support,
+            "nearest_resistance": nearest_resistacne,
+            "price_location": price_location
         }
     },
 
