@@ -2,7 +2,7 @@
   "meta_data": {
     "symbol": "RELIANCE.NS",
     "company_name": "RELIANCE",
-    "Date": "2026-03-02",
+    "Date": "2026-03-03",
     "industry": "Oil & Gas Refining & Marketing",
     "sector": "Energy",
     "market_cap_category": 18377097609216,
@@ -53,14 +53,14 @@
       "liquidity_status": "Tier 1 (Institutional)"
     },
     "volatility": {
-      "atr_value": "",
-      "intraday_volatility_pct": "",
-      "beta": ""
+      "atr_value": 29.2,
+      "intraday_volatility_pct": 1.2658097768555432,
+      "beta": 0.205
     },
     "support_resistance": {
-      "nearest_support": "",
-      "nearest_resistance": "",
-      "price_location": ""
+      "nearest_support": 1335.5,
+      "nearest_resistance": 1489.5,
+      "price_location": "Testing Support"
     }
   },
   "fundamental_health": {

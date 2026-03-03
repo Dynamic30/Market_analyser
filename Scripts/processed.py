@@ -174,12 +174,39 @@ def json_data(comapny_name,today):
  # risk_management
 
  # fundamental_health 
-    
+    # valuation
+    trailing_pe = info.get('trailingPE',0)
+    forward_pe = info.get('forwardPE',0)
+    peg_ratio = info.get("trailingPegRatio",0)
+    price_to_book = info.get("priceToBook",0)
+    industry_pe_benchmark = "Not Configured" 
+
+    # profatibility
+
+
  # institutional_activity
+    insider_holding_pct = ticker.info['heldPercentInsiders']
+    institutional_holding_pct = ticker.info['heldPercentInstitutions']
+    float_shares = ticker.info['floatShares']
+    # flow analysis
+    df['ADL'] = ta.ad(df['High'],df['Low'],df['Close'],df['Volume'])
 
+    prev_price_5 = df['Close'].iloc[-6]
 
+    adl_now = df["ADL"].iloc[-1]
+    adl_prev = df["ADL"].iloc[-6]
 
+    sig_move = abs(current_price - prev_price_5) / prev_price_5 > 0.005
 
+    if sig_move:
+        if current_price > prev_price_5 and adl_now < adl_prev:
+            institutional_divergence = "Bearish (Price up, Money flowing OUT)"
+        elif current_price < prev_price_5 and adl_now > adl_prev:
+            institutional_divergence = "Bullish (Price down, Money flowing IN)"
+        else:
+            institutional_divergence = "In-Sync (Volume confirms Price)"
+    else:
+        institutional_divergence = "Neutral (No significant move)"
 
 
 
@@ -258,11 +285,11 @@ def json_data(comapny_name,today):
 
     "fundamental_health": {
         "valuation": {
-            "trailing_pe": '',
-            "forward_pe": '',
-            "peg_ratio": '',  
-            "price_to_book": '',
-            "industry_pe_benchmark": '' 
+            "trailing_pe": trailing_pe,
+            "forward_pe": forward_pe,
+            "peg_ratio": peg_ratio,  
+            "price_to_book": price_to_book,
+            "industry_pe_benchmark": industry_pe_benchmark
         },
         "profitability": {
             "profit_margins_pct": '',
@@ -278,13 +305,13 @@ def json_data(comapny_name,today):
 
     "institutional_activity": {
         "ownership": {
-            "insider_holding_pct": '',
-            "institution_holding_pct": '',
-            "float_shares": ''
+            "insider_holding_pct": insider_holding_pct,
+            "institution_holding_pct": institutional_holding_pct,
+            "float_shares": float_shares
         },
         "flow_analysis": { 
-            "institutional_divergence": "", 
-            "fii_trend": "",
+            "institutional_divergence": institutional_divergence, 
+            "fii_trend": '',
             "dii_trend": ""
         },
         "sentiment": {

@@ -26,3 +26,5 @@ print(df['ATRr_14'])
 df['returns'] = df['Close'].pct_change()
 intraday_vol_pct = df['returns'].std()*100
 print(intraday_vol_pct)
+insider_holding_pct = ticker.info['heldPercentInsiders']
+print(insider_holding_pct)
