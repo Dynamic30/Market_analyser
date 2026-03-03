@@ -1,7 +1,7 @@
 import yfinance as yf
 import pandas as pd
 import numpy as np
-import pandas_ta as ta # type: ignore
+import pandas_ta as ta 
 import pathlib
 import json
 from datetime import date
@@ -16,7 +16,8 @@ def market():
     # will contain market_context, 
     return 
 
-
+def pattern_recogonition(name):
+        return
 
 def json_data(comapny_name,today):
     name = comapny_name.upper()
@@ -124,7 +125,17 @@ def json_data(comapny_name,today):
         liquidity_status = "Unknown"
         delivery_conviction = "Unknown"
 
- # Pattern Recogonition (AI)
+ # Pattern Recogonition 
+    result = pattern_recogonition(name)
+
+    # Volatility 
+    beta = ticker.info['beta']
+    df.ta.atr(length=14,append=True)
+    if 'ATRr_14' in df.columns:
+        atr = round(df['ATRr_14'].iloc[-1] , 2)
+    else:
+        atr = "No value Extracted"
+    
 
  # risk_management
 
@@ -200,9 +211,9 @@ def json_data(comapny_name,today):
             "liquidity_status": liquidity_status
         },
         "volatility": {
-            "atr_value":'' ,
+            "atr_value":atr ,
             "intraday_volatility_pct":'' ,
-            "beta": ''
+            "beta": beta
         },
         "support_resistance": {
             "nearest_support": '',
