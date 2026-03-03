@@ -136,6 +136,8 @@ def json_data(comapny_name,today):
     else:
         atr = "No value Extracted"
     
+    df['returns'] = df['Close'].pct_change()
+    intraday_vol_pct = df['returns'].std()*100
 
  # risk_management
 
@@ -212,7 +214,7 @@ def json_data(comapny_name,today):
         },
         "volatility": {
             "atr_value":atr ,
-            "intraday_volatility_pct":'' ,
+            "intraday_volatility_pct":intraday_vol_pct,
             "beta": beta
         },
         "support_resistance": {
