@@ -65,11 +65,11 @@
   },
   "fundamental_health": {
     "valuation": {
-      "trailing_pe": "",
-      "forward_pe": "",
-      "peg_ratio": "",
-      "price_to_book": "",
-      "industry_pe_benchmark": ""
+      "trailing_pe": 22.074121,
+      "forward_pe": 20.78021,
+      "peg_ratio": null,
+      "price_to_book": 2.095291,
+      "industry_pe_benchmark": "Not Configured"
     },
     "profitability": {
       "profit_margins_pct": "",
@@ -84,12 +84,12 @@
   },
   "institutional_activity": {
     "ownership": {
-      "insider_holding_pct": "",
-      "institution_holding_pct": "",
-      "float_shares": ""
+      "insider_holding_pct": 0.51049,
+      "institution_holding_pct": 0.27896,
+      "float_shares": 6606391655
     },
     "flow_analysis": {
-      "institutional_divergence": "",
+      "institutional_divergence": "In-Sync (Volume confirms Price)",
       "fii_trend": "",
       "dii_trend": ""
     },

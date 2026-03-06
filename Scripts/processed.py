@@ -179,9 +179,39 @@ def json_data(comapny_name,today):
     forward_pe = info.get('forwardPE',0)
     peg_ratio = info.get("trailingPegRatio",0)
     price_to_book = info.get("priceToBook",0)
-    industry_pe_benchmark = "Not Configured" 
+    industry_pe_benchmark = "N Configured" 
 
     # profatibility
+    profit_margins_pct = round(info.get('profitMargins',0)*100, 2)
+    operating_margins_pct = round(info.get('operatingMargins')*100 ,2)
+    revenue_growth_yoy = round(info.get('revenueGrowth',0),2)
+
+    income_st = ticker.financials
+    balance_sheet = ticker.balance_sheet
+
+    ebit = income_st.loc['EBIT'].iloc[0] # earnings before interest and taxes
+    Total_Assets = balance_sheet.loc['Total Assets'].iloc[0]
+    current_liability = balance_sheet.loc['Total Liabilities Net Minority Interest'].iloc[0]
+    capital_employed = Total_Assets - current_liability
+    if capital_employed > 0:
+        roce = round((ebit / capital_employed)*100 , 2)
+    else:
+        roce = 0
+    
+    if roce > 15:
+        roce_quality = "High (>15%)"
+    elif roce > 8:
+        roce_quality = "Moderate (8-15%)"
+    else:
+        roce_quality = "Low (<8%)"
+
+    # solvency 
+    debt_to_equity_ratio = info.get("debtToEquity",0)
+    if debt_to_equity_ratio < 50:
+        health_status = f"Healthy ({debt_to_equity_ratio})"
+    else:
+        health_status = f"Leveraged ({debt_to_equity_ratio})"
+
 
 
  # institutional_activity
@@ -292,10 +322,10 @@ def json_data(comapny_name,today):
             "industry_pe_benchmark": industry_pe_benchmark
         },
         "profitability": {
-            "profit_margins_pct": '',
-            "operating_margins_pct": '',
-            "roce_quality": "", 
-            "revenue_growth_yoy": '' 
+            "profit_margins_pct": profit_margins_pct,
+            "operating_margins_pct": operating_margins_pct,
+            "roce_quality": roce_quality, 
+            "revenue_growth_yoy": revenue_growth_yoy 
         },
         "solvency": {
             "debt_to_equity_ratio": '', 
