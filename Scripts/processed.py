@@ -328,8 +328,8 @@ def json_data(comapny_name,today):
             "revenue_growth_yoy": revenue_growth_yoy 
         },
         "solvency": {
-            "debt_to_equity_ratio": '', 
-            "health_status": "" 
+            "debt_to_equity_ratio": debt_to_equity_ratio, 
+            "health_status": health_status 
         }
     },
 
