@@ -239,6 +239,18 @@ def json_data(comapny_name,today):
         institutional_divergence = "Neutral (No significant move)"
 
 
+    # Sentiments 
+    analyst_recommendation = info.get("recommendationKey", "N/A").capitalize()
+    target_price_mean = info.get("targetMeanPrice", 0)
+    if target_price_mean and current_price:
+        upside_potential_pct = round(
+            ((target_price_mean - current_price) / current_price) * 100, 2
+        )
+    else:
+        upside_potential_pct = 0
+
+    fii_trend = "No Data"
+    dii_trend = "No Data"
 
 
     json_str = {
@@ -341,13 +353,13 @@ def json_data(comapny_name,today):
         },
         "flow_analysis": { 
             "institutional_divergence": institutional_divergence, 
-            "fii_trend": '',
-            "dii_trend": ""
+            "fii_trend": fii_trend,
+            "dii_trend": dii_trend
         },
         "sentiment": {
-            "analyst_recommendation": "",
-            "target_price_mean": '',
-            "upside_potential_pct": ''
+            "analyst_recommendation": analyst_recommendation,
+            "target_price_mean": target_price_mean,
+            "upside_potential_pct": upside_potential_pct
         }
     },
 
