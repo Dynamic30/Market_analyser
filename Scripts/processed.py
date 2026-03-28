@@ -14,6 +14,7 @@ today = date.today()
 def market():
     
     # will contain market_context, 
+    # for api look into FMP , MARKET STACK, Breeze API , 
     return 
 
 def pattern_recogonition(name):
