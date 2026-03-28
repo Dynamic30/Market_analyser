@@ -17,6 +17,7 @@ def market():
     return 
 
 def pattern_recogonition(name):
+        # will work on this later on
         return
 
 def json_data(comapny_name,today):
