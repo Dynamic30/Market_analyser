@@ -40,6 +40,7 @@ def json_data(comapny_name,today):
     df["EMA_50"] = df["Close"].ewm(span=50, adjust=False).mean()
     df["EMA_200"] = df["Close"].ewm(span=200, adjust=False).mean()
     latest = df.iloc[-1]
+    market_date = df.index[-1].date()
 
     close = latest["Close"]
     ema20 = latest["EMA_20"]
@@ -230,6 +231,11 @@ def json_data(comapny_name,today):
 
     sig_move = abs(current_price - prev_price_5) / prev_price_5 > 0.005
 
+    # Risk Management
+    cal = ticker.calendar
+
+
+
     if sig_move:
         if current_price > prev_price_5 and adl_now < adl_prev:
             institutional_divergence = "Bearish (Price up, Money flowing OUT)"
@@ -259,7 +265,7 @@ def json_data(comapny_name,today):
     "meta_data": {
         "symbol": symbol,
         "company_name": name,
-        "Date" : today,
+        "Trading_Date" : market_date,
         "industry": industry,
         "sector": sector,
         "market_cap_category": market_cap,
@@ -301,9 +307,9 @@ def json_data(comapny_name,today):
             "closing_bias (close vs ema20)": closing_bias
         },
         "pattern_recognition": { 
-            "candlestick_signal": "candlestick_signal",
-            "chart_pattern": "chart_pattern",
-            "gap_signal": "gap_signal"
+            "candlestick_signal": "",
+            "chart_pattern": "",
+            "gap_signal": ""
         },
         "momentum": {
             "rsi_14": rsi_14, 
@@ -367,6 +373,8 @@ def json_data(comapny_name,today):
 
     "risk_management": { 
         "earnings_risk_days": '', 
+        "days_to_earning":'',
+        "volatility risk":'',
         "event_risk": "",
         "valuation_risk": ""
     }
@@ -374,6 +382,8 @@ def json_data(comapny_name,today):
 
     with open("script.json",'w',encoding="UTF-8") as f:
         json.dump(json_str, f,default=str,indent=2)
+    
+    print("Updated script.json")
 
 
 
