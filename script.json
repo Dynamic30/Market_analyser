@@ -1,0 +1,111 @@
+{
+  "meta_data": {
+    "symbol": "RELIANCE.NS",
+    "company_name": "RELIANCE",
+    "Trading_Date": "2026-04-01",
+    "industry": "Oil & Gas Refining & Marketing",
+    "sector": "Energy",
+    "market_cap_category": 18609856315392,
+    "current_price": 1375.2,
+    "currency": "INR"
+  },
+  "market_context": {
+    "NIFTY_50": {
+      "trend": "",
+      "change_pct": "",
+      "volatility_status": "",
+      "market_breadth": "",
+      "relative_strength_score": ""
+    },
+    "BANK_NIFTY": {
+      "trend": "",
+      "change_pct": "",
+      "volatility_status": "",
+      "market_breadth": ""
+    },
+    "NASDAQ": {
+      "trend": "",
+      "change_pct": "",
+      "volatility_status": "",
+      "market_breadth": ""
+    }
+  },
+  "technical_signals": {
+    "trend_summary": {
+      "short_term (20D)": "Bearish",
+      "medium_term (50D)": "Bearish",
+      "long_term (200D)": "Bearish",
+      "closing_bias (close vs ema20)": "Negative"
+    },
+    "pattern_recognition": {
+      "candlestick_signal": "",
+      "chart_pattern": "",
+      "gap_signal": ""
+    },
+    "momentum": {
+      "rsi_14": 44.98,
+      "distance_from_52w_high_pct": "-13.63",
+      "distance_from_52w_low_pct": "18.44"
+    },
+    "volume_dynamics": {
+      "volume_status": "Low (Dry)",
+      "delivery_conviction": "Weak (Lack of Intrest)",
+      "liquidity_status": "Tier 1 (Institutional)"
+    },
+    "volatility": {
+      "atr_value": 33.72,
+      "intraday_volatility_pct": 1.292498763468613,
+      "beta": 0.205
+    },
+    "support_resistance": {
+      "nearest_support": 1307.0,
+      "nearest_resistance": 1434.0,
+      "price_location": "Mid Range"
+    }
+  },
+  "fundamental_health": {
+    "valuation": {
+      "trailing_pe": 22.34281,
+      "forward_pe": 20.964178,
+      "peg_ratio": null,
+      "price_to_book": 2.1218293,
+      "industry_pe_benchmark": "N Configured"
+    },
+    "profitability": {
+      "profit_margins_pct": 8.12,
+      "operating_margins_pct": 11.85,
+      "roce_quality": "Moderate (8-15%)",
+      "revenue_growth_yoy": 0.1
+    },
+    "solvency": {
+      "debt_to_equity_ratio": 35.651,
+      "health_status": "Healthy (35.651)"
+    }
+  },
+  "institutional_activity": {
+    "ownership": {
+      "insider_holding_pct": 0.51049,
+      "institution_holding_pct": 0.27962,
+      "float_shares": 6606391655
+    },
+    "flow_analysis": {
+      "institutional_divergence": "In-Sync (Volume confirms Price)",
+      "fii_trend": "No Data",
+      "dii_trend": "No Data"
+    },
+    "sentiment": {
+      "analyst_recommendation": "Strong_buy",
+      "target_price_mean": 1719.9412,
+      "upside_potential_pct": 25.07
+    }
+  },
+  "risk_management": {
+    "earnings_risk_days": "Low (Earnings in 22d)",
+    "days_to_earning": 22,
+    "surprise_trend": "Mixed (Avg Surprise: 22.43%)",
+    "volatility risk": "Low",
+    "event_risk": "Elevated (10 recent news items)",
+    "governance_risk": "High (Score: 10/10)",
+    "valuation_risk": "Fair (PE < 35)"
+  }
+}

@@ -174,7 +174,6 @@ def json_data(comapny_name,today):
         nearest_support = "Unknown"
         nearest_resistacne = "Unknown"
         price_location = "Unknown"
- # risk_management
 
  # fundamental_health 
     # valuation
@@ -233,6 +232,75 @@ def json_data(comapny_name,today):
 
     # Risk Management
     cal = ticker.calendar
+    earnings_date = cal.get('Earnings Date')
+    if earnings_date:
+        next_earning = pd.Timestamp(earnings_date[0])
+        days_to_earnings = (next_earning - pd.Timestamp.today()).days
+        if days_to_earnings <= 7:
+            earnings_risk = f"High (Earnings in {days_to_earnings}d)"
+        elif days_to_earnings <= 21:
+            earnings_risk = f"Moderate (Earnings in {days_to_earnings}d)"
+        else:
+            earnings_risk = f"Low (Earnings in {days_to_earnings}d)"
+    else:
+        days_to_earnings = None
+        earnings_risk = "No Data"
+    
+    try:
+        ed = ticker.earnings_dates
+        recent = ed[ed['Reported EPS'].notna()].head(4)
+        misses = (recent['Surprise(%)'] < 0).sum()
+        beats  = (recent['Surprise(%)'] > 0).sum()
+        avg_surprise = round(recent['Surprise(%)'].mean(), 2)
+
+        if misses >= 3:
+            surprise_trend = f"Weak (Missed {misses}/4, Avg: {avg_surprise}%)"
+        elif beats >= 3:
+            surprise_trend = f"Strong (Beat {beats}/4, Avg: {avg_surprise}%)"
+        else:
+            surprise_trend = f"Mixed (Avg Surprise: {avg_surprise}%)"
+    except:
+        surprise_trend = "No Data"
+
+    trailing_pe = info.get('trailingPE', 0)
+    forward_pe  = info.get('forwardPE', 0)
+    ptb         = info.get('priceToBook', 0)
+
+    if trailing_pe > 60:
+        valuation_risk = "High (PE > 60)"
+    elif trailing_pe > 35:
+        valuation_risk = "Moderate (PE 35–60)"
+    elif trailing_pe > 0:
+        valuation_risk = "Fair (PE < 35)"
+    else:
+        valuation_risk = "Negative Earnings"
+
+    if beta > 1.5 or intraday_vol_pct > 2.5:
+        volatility_risk = "High"
+    elif beta > 1.0 or intraday_vol_pct > 1.5:
+        volatility_risk = "Moderate"
+    else:
+        volatility_risk = "Low"
+
+    overall_risk       = info.get('overallRisk', 0)        # 1–10
+    audit_risk         = info.get('auditRisk', 0)
+    board_risk         = info.get('boardRisk', 0)
+    compensation_risk  = info.get('compensationRisk', 0)
+
+    if overall_risk >= 8:
+        governance_risk = f"High (Score: {overall_risk}/10)"
+    elif overall_risk >= 5:
+        governance_risk = f"Moderate (Score: {overall_risk}/10)"
+    else:
+        governance_risk = f"Low (Score: {overall_risk}/10)"
+
+    news_count = len(ticker.news)
+    if news_count >= 8:
+        event_risk = f"Elevated ({news_count} recent news items)"
+    elif news_count >= 3:
+        event_risk = f"Moderate ({news_count} recent news items)"
+    else:
+        event_risk = f"Low ({news_count} recent news items)"
 
 
 
@@ -313,8 +381,8 @@ def json_data(comapny_name,today):
         },
         "momentum": {
             "rsi_14": rsi_14, 
-            "distance_from_52w_high_pct": distance_from_52w_high_pct,
-            "distance_from_52w_low_pct": distance_from_52w_low_pct
+            "distance_from_52w_high_pct": f"{distance_from_52w_high_pct}",
+            "distance_from_52w_low_pct": f"{distance_from_52w_low_pct}"
         },
         "volume_dynamics": { 
             "volume_status": volume_status,
@@ -372,11 +440,13 @@ def json_data(comapny_name,today):
     },
 
     "risk_management": { 
-        "earnings_risk_days": '', 
-        "days_to_earning":'',
-        "volatility risk":'',
-        "event_risk": "",
-        "valuation_risk": ""
+        "earnings_risk_days": earnings_risk, 
+        "days_to_earning":days_to_earnings,
+        "surprise_trend": surprise_trend,
+        "volatility risk":volatility_risk,
+        "event_risk": event_risk,
+        "governance_risk": governance_risk,
+        "valuation_risk": valuation_risk
     }
     }
 
