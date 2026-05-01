@@ -98,7 +98,3 @@ async def yahoo_finance(stock_name):
 asyncio.run(yahoo_finance())
 
 
-
-# Will give overall News | Run Once per day 
-async def google_news():
-    return

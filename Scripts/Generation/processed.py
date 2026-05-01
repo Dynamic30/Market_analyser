@@ -4,10 +4,100 @@ import numpy as np
 import pandas_ta as ta 
 import pathlib
 import json
-from datetime import date
+from datetime import date, datetime, timedelta
+from dotenv import load_dotenv
+import os
+import pymongo
+from nsepython import (
+    nse_fiidii, nse_blockdeal, nse_optionchain_scrapper, pcr,
+    nse_eq, nse_fno, equity_history, nse_quote_meta
+)
+
+
+try:
+    _FNO = set(pd.read_csv(
+        "https://nsearchives.nseindia.com/content/fo/fo_mktlots.csv",
+        skiprows=1
+    ).iloc[:, 1].str.strip())
+except Exception:
+    _FNO = set()
+
+
+_SECTOR_MAP = {
+    "Banking":    "NIFTYBANK",
+    "IT":         "NIFTYIT",
+    "Pharma":     "NIFTYPHARMA",
+    "Auto":       "NIFTYAUTO",
+    "FMCG":       "NIFTYFMCG",
+    "Metal":      "NIFTYMETAL",
+    "Energy":     "NIFTYENERGY",
+    "Realty":     "NIFTYREALTY",
+}
+
+
+
+load_dotenv()
+
+database_url = os.getenv("DATABASE")
+
+db_cleint = pymongo.MongoClient(database_url)
+print(db_cleint.list_database_names())
 
 
 today = date.today()
+
+
+
+def data_from_nsepython(symbol, sector=None):
+    """
+    USE THIS CODE TO PULL THESE VALUES FROM YFINANCE
+    1. fii_trend
+    2. dii_trend
+    3. delivery_conviction (real delivery %, replaces your candle-body proxy)
+    4. institutional_divergence (from bulk/block deals, replaces your ADL proxy)
+    5. pcr_oi (F&O stocks only)
+    6. max_pain (F&O stocks only)
+    7. asm_status
+    8. fno_ban_status
+    9. sector_rs (sector relative strength)
+    10. Beta (yfinance is pulling from s&p so this one will pull from Nifty50)
+    """
+
+    fii_trend = "No Data"
+    dii_trend = "No Data"
+    try:
+        df = nse_fiidii(mode="pandas")
+        fii_net = df.loc[df['category'].str.contains('FII', case=False), 'netValue'].sum()
+        dii_net = df.loc[df['category'].str.contains('DII', case=False), 'netValue'].sum()
+        # Thresholds in INR crores. Tune to your taste.
+        fii_trend = "Bullish" if fii_net > 500 else "Bearish" if fii_net < -500 else "Neutral"
+        dii_trend = "Bullish" if dii_net > 500 else "Bearish" if dii_net < -500 else "Neutral"
+    except Exception:
+        pass
+
+    delivery_conviction = "No Data"
+    try:
+        end = datetime.today()
+        start = end - timedelta(days=15)  # 15-day buffer for weekends/holidays
+        hist = equity_history(symbol, "EQ",
+                            start.strftime("%d-%m-%Y"),
+                            end.strftime("%d-%m-%Y"))
+        # Column name varies by nsepython version; find it dynamically.
+        dcol = next(c for c in hist.columns if 'Deliv' in c or 'Dly' in c)
+        latest = float(hist[dcol].iloc[-1])
+        price_up = hist['Close'].iloc[-1] > hist['Close'].iloc[-2]
+
+        if   latest > 60 and price_up: delivery_conviction = f"Strong Accumulation ({latest:.0f}%)"
+        elif latest > 60:              delivery_conviction = f"Distribution ({latest:.0f}%)"
+        elif latest < 30:              delivery_conviction = f"Speculative ({latest:.0f}%)"
+        else:                          delivery_conviction = f"Normal ({latest:.0f}%)"
+    except Exception:
+        pass
+
+
+
+
+    return
 
 
 
@@ -17,12 +107,9 @@ def market():
     # for api look into FMP , MARKET STACK, Breeze API , 
     return 
 
-def pattern_recogonition(name):
-        # will work on this later on
-        return
 
-def json_data(comapny_name,today):
-    name = comapny_name.upper()
+def json_data(company_name,today):
+    name = company_name.upper()
     symbol = f"{name}.NS"
     ticker = yf.Ticker(f"{name}.NS")
     info = ticker.info
@@ -128,8 +215,6 @@ def json_data(comapny_name,today):
         liquidity_status = "Unknown"
         delivery_conviction = "Unknown"
 
- # Pattern Recogonition 
-    result = pattern_recogonition(name)
 
     # Volatility 
     beta = ticker.info['beta']
@@ -330,10 +415,11 @@ def json_data(comapny_name,today):
 
 
     json_str = {
+    
     "meta_data": {
         "symbol": symbol,
         "company_name": name,
-        "Trading_Date" : market_date,
+        "Trading_Date" : str(market_date),
         "industry": industry,
         "sector": sector,
         "market_cap_category": market_cap,
@@ -374,11 +460,11 @@ def json_data(comapny_name,today):
             "long_term (200D)": long_term ,   # 200 day average (EMA) 
             "closing_bias (close vs ema20)": closing_bias
         },
-        "pattern_recognition": { 
-            "candlestick_signal": "",
-            "chart_pattern": "",
-            "gap_signal": ""
-        },
+        # "pattern_recognition": { 
+        #     "candlestick_signal": "",
+        #     "chart_pattern": "",
+        #     "gap_signal": ""
+        # },
         "momentum": {
             "rsi_14": rsi_14, 
             "distance_from_52w_high_pct": f"{distance_from_52w_high_pct}",
@@ -449,13 +535,23 @@ def json_data(comapny_name,today):
         "valuation_risk": valuation_risk
     }
     }
+    
+
+    return json_str, str(market_date)
 
     with open("script.json",'w',encoding="UTF-8") as f:
         json.dump(json_str, f,default=str,indent=2)
     
     print("Updated script.json")
 
+def main_script(company_name):
+   
+    financial_data , trading_date = json_data(company_name,today)
+
+    database_= db_cleint['market_analyser']
+    collection_= database_['Financial_Data']
+
+    collection_.update_one({"_id":company_name},{"$set":{trading_date:financial_data}},upsert=True)
 
 
-
-json_data("RELIANCE",today)
+main_script("RELIANCE")

@@ -15,3 +15,12 @@ DATA
         date/company_name/json_files.json
     Sentiments_Data
     Outputs
+
+MongoDB Database Strucutre
+    Format 
+    /collections
+        /documents
+    
+    Financial_Data
+    News_Sentiment
+    Social_media_sentiments
