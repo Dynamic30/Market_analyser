@@ -1,100 +1,115 @@
 import asyncio
-from playwright.async_api import async_playwright
 import time
-from crawl4ai import BrowserConfig , CrawlerRunConfig , AsyncWebCrawler,VirtualScrollConfig
-from crawl4ai.async_configs import CacheMode
-from bs4 import BeautifulSoup
-import requests
+import curl_cffi
+from trafilatura import extract
+import feedparser   
+from googlenewsdecoder import gnewsdecoder
+
 import html
+import os
+import pymongo
+from urllib.parse import urlparse
+from datetime import datetime, date
+import random
 
 
 
 
+database_url = os.getenv("DATABASE")
+db_cleint = pymongo.MongoClient(database_url)
+database_= db_cleint['market_analyser']
+collections = database_['Sentiments']
 
+# Push sentiments data to mongodb
+def push_sentiments_db(stock_name, article_url, title, source, content_md,
+                       published_date=None, is_top_news=True, trading_date=None):
 
-# Per Stock | Run Per stock
-async def yahoo_finance(stock_name):
-    url = f'https://finance.yahoo.com/quote/{stock_name}.NS/news/'
+    article = {
+        "title": title,
+        "source": source,
+        "url": article_url,
+        "published_date": published_date,
+        "scraped_date": trading_date or str(date.today()),
+        "is_top_news": is_top_news,
+        "content_md": content_md,
+    }
 
-    # Using Playwright to get html from yahoo finance news
-
-    async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=False)
-        page = await browser.new_page()
-        await page.goto(url,timeout=60000)
-        await page.evaluate("""
-            async () => {
-                await new Promise((resolve) => {
-                    let lastHeight = document.body.scrollHeight;
-                    
-                    const scrollInterval = setInterval(async () => {
-                        let currentPos = window.scrollY;
-                        let targetPos = document.body.scrollHeight;
-                        while (currentPos < targetPos) {
-                            currentPos += 150; // Scroll 150px at a time
-                            window.scrollTo(0, currentPos);
-                            await new Promise(r => setTimeout(r, 20)); // 20ms delay between increments
-                            targetPos = document.body.scrollHeight; // Recalculate in case it grows
-                        }
-                        
-                        // 2. Wait for 5 seconds to allow lazy loading
-                        await new Promise(r => setTimeout(r, 5000));
-                        
-                        // 3. Check if the height has changed
-                        let newHeight = document.body.scrollHeight;
-                        
-                        if (newHeight === lastHeight) {
-                            // No more content loading, clear interval and finish
-                            clearInterval(scrollInterval);
-                            resolve();
-                        }
-                        
-                        lastHeight = newHeight;
-                        console.log('Scroll height updated, continuing...');
-                    }, 100); 
-                });
-            }
-        """)
-
-        html_data = await page.content()
-    
-    # Using BS4 to get List Urls
-
-    soup = BeautifulSoup(html_data,'html.parser')
-    content_container = soup.find('div',class_="column-container yf-1m8w4l1")
-    individual_url_container = (content_container.find_all('li',class_="stream-item story-item yf-ydpc1"))
-    print(len(individual_url_container))
-
-
-    urls = []
-    for url_href in individual_url_container:
-        url_data = url_href.find('a',class_="subtle-link fin-size-small thumb yf-119g04z")
-        count = 1
-        while True:
-            try:
-                urls.append(url_data['href'])
-                break
-            except Exception as e:
-                print(f"No data ERROR -> {e}")
-                count+=1
-                if count == 4:
-                    break
-    
-    print(urls)
-
-    # Using Crawl4AI to get metadata for all the website
-    browser_config = BrowserConfig
-    run_config = CrawlerRunConfig
+    collections.update_one(
+        {"_id": f"{stock_name}.NS"},
+        {
+            "$set": {"company_name": stock_name, "last_updated": str(date.today())},
+            "$push": {"articles": article},
+        },
+        upsert=True,
+    )
     
 
+# GOOGLE NEWS RSS 
 
+def google_news(stock_name,trading_date=None):
+
+    time.sleep(random.uniform(0.5,2))
+    rss_url = f"https://news.google.com/rss/search?q={stock_name}&hl=en-IN&gl=IN&ceid=IN:en"
+    feed = feedparser.parse(rss_url)
+    urls = [entry.link for entry in feed.entries[:20]]
+    # print(urls)
+
+    for i, gnews_url in enumerate(urls):
         
+        time.sleep(random.uniform(0.5,2))
+        entry = feed.entries[i]    # ← was `entry = feed`, that was the bug
+        title = entry.title
+        source = entry.source.title if hasattr(entry, "source") else "Unknown"
+        published_date = entry.published
+        is_top_news = i < 8
+        markdown = entry.summary
 
+        interval_time = 1
+        try:
+            decoded = gnewsdecoder(gnews_url, interval=interval_time)
 
+            if not decoded.get("status"):
+                print(f"DECODE FAILED: {decoded.get('message', 'unknown')}")
+                # continue
+            url = decoded["decoded_url"]
+            response = curl_cffi.get(url,impersonate="chrome110")
+            html = (response.content)
+            extracted = extract(html, with_metadata=True, favor_precision=True)
+            paywall_signals = [
+                "click the box below",
+                "you are not a robot",
+                "subscribe now",
+                "to continue reading",
+                "sign in to continue",
+            ]
+            if (
+                extracted
+                and len(extracted) >= 300
+                and not any(sig in extracted.lower() for sig in paywall_signals)
+            ):
+                markdown = extracted
 
-    return
+            
+        except Exception as e:
+            print(f"ERROR -> {e}")
+
+        push_sentiments_db(
+            stock_name=stock_name,
+            article_url=gnews_url,
+            title=title,
+            source=source,
+            content_md=markdown,
+            published_date=published_date,
+            is_top_news=is_top_news,
+            trading_date=trading_date,
+        )
+
     
+    return
 
-asyncio.run(yahoo_finance())
+google_news("Reliance")
+
+
+
 
 

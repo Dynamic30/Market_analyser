@@ -9,19 +9,10 @@ from dotenv import load_dotenv
 import os
 import pymongo
 from nsepython import (
-    nse_fiidii, nse_blockdeal, nse_optionchain_scrapper, pcr,
-    nse_eq, nse_fno, equity_history, nse_quote_meta
+    nse_fiidii, nse_largedeals_historical,nse_optionchain_scrapper, equity_history, nse_quote_meta
 )
 
-
-try:
-    _FNO = set(pd.read_csv(
-        "https://nsearchives.nseindia.com/content/fo/fo_mktlots.csv",
-        skiprows=1
-    ).iloc[:, 1].str.strip())
-except Exception:
-    _FNO = set()
-
+print("Its working")
 
 _SECTOR_MAP = {
     "Banking":    "NIFTYBANK",
@@ -67,13 +58,24 @@ def data_from_nsepython(symbol, sector=None):
     dii_trend = "No Data"
     try:
         df = nse_fiidii(mode="pandas")
-        fii_net = df.loc[df['category'].str.contains('FII', case=False), 'netValue'].sum()
-        dii_net = df.loc[df['category'].str.contains('DII', case=False), 'netValue'].sum()
-        # Thresholds in INR crores. Tune to your taste.
+
+        # netValue / buyValue / sellValue come back as strings — coerce to float
+        df['netValue'] = pd.to_numeric(
+            df['netValue'].astype(str)
+            .str.replace(',', '', regex=False)
+            .str.replace('₹', '', regex=False)
+            .str.strip(),
+            errors='coerce'
+        )
+
+        fii_net = df.loc[df['category'].str.contains('FII', case=False, na=False), 'netValue'].sum()
+        dii_net = df.loc[df['category'].str.contains('DII', case=False, na=False), 'netValue'].sum()
+
         fii_trend = "Bullish" if fii_net > 500 else "Bearish" if fii_net < -500 else "Neutral"
         dii_trend = "Bullish" if dii_net > 500 else "Bearish" if dii_net < -500 else "Neutral"
-    except Exception:
-        pass
+    except Exception as e:
+        print(f"data fetch failed {type(e).__name__}: {e}")
+
 
     delivery_conviction = "No Data"
     try:
@@ -91,13 +93,87 @@ def data_from_nsepython(symbol, sector=None):
         elif latest > 60:              delivery_conviction = f"Distribution ({latest:.0f}%)"
         elif latest < 30:              delivery_conviction = f"Speculative ({latest:.0f}%)"
         else:                          delivery_conviction = f"Normal ({latest:.0f}%)"
-    except Exception:
-        pass
+    except Exception as e:
+        print(f"data fetch failed {type(e).__name__}: {e}")
+
+    # 3. Bulk deal flow over last 5 sessions
+    institutional_divergence = "No Data"
+    try:
+        end = datetime.today()
+        start = end - timedelta(days=5)
+        df = nse_largedeals_historical(
+            start.strftime("%d-%m-%Y"),
+            end.strftime("%d-%m-%Y"),
+            mode="bulk_deals"
+        )
+        df = df[df['symbol'] == symbol]
+        b = df['buySell'].str.upper().str.startswith('B').sum()
+        s = df['buySell'].str.upper().str.startswith('S').sum()
+        if   b > s and b >= 2:    institutional_divergence = f"Bullish ({b}B in 5d)"
+        elif s > b and s >= 2:    institutional_divergence = f"Bearish ({s}S in 5d)"
+        elif b == 0 and s == 0:   institutional_divergence = "No deals"
+        else:                     institutional_divergence = f"Mixed ({b}B / {s}S)"
+    except Exception as e:
+        print(f"data fetch failed {type(e).__name__}: {e}")
 
 
+    # 4 & 5. PCR and Max Pain (F&O stocks only; cash-only stocks get None)
+    pcr_oi = "NO DATA COLLECTED"
+    max_pain = "NO DATA COLLECTED"
 
+    # 6. Sector relative strength (only computed if sector is mapped)
+    sector_rs = None
+    idx = _SECTOR_MAP.get(sector) if sector else None
+    if idx:
+        try:
+            end = datetime.today()
+            start = end - timedelta(days=35)
+            stk = equity_history(symbol, "EQ",
+                                start.strftime("%d-%m-%Y"),
+                                end.strftime("%d-%m-%Y"))
+            sec = equity_history(idx, "EQ",
+                                start.strftime("%d-%m-%Y"),
+                                end.strftime("%d-%m-%Y"))
+            # 20-session return diff: stock minus sector
+            sr = (stk['Close'].iloc[-1] / stk['Close'].iloc[-20] - 1) * 100
+            br = (sec['Close'].iloc[-1] / sec['Close'].iloc[-20] - 1) * 100
+            diff = round(sr - br, 1)
+            label = "Outperform" if diff > 2 else "Underperform" if diff < -2 else "In-line"
+            sector_rs = f"{label} ({diff:+.1f}%)"
+        except Exception as e:
+            print(f"data fetch failed {type(e).__name__}: {e}")
 
-    return
+    # 7. Beta vs NIFTY 50 (yfinance defaults to S&P 500 which is wrong for NSE stocks)
+    beta_nifty = None
+    try:
+        stock = yf.Ticker(f"{symbol}.NS").history(period="1y")['Close']
+        nifty = yf.Ticker("^NSEI").history(period="1y")['Close']
+        joined = pd.concat([stock.rename('stk'), nifty.rename('nf')], axis=1).dropna()
+        r_stk = joined['stk'].pct_change()
+        r_nf  = joined['nf'].pct_change()
+        valid = pd.concat([r_stk, r_nf], axis=1).dropna().tail(250)
+        if len(valid) >= 60:
+            cov = np.cov(valid.iloc[:, 0], valid.iloc[:, 1])[0][1]
+            var = np.var(valid.iloc[:, 1])
+            if var:
+                beta_nifty = round(float(cov / var), 2)
+
+    except Exception as e:
+        print(f"data fetch failed {type(e).__name__}: {e}")
+
+    return {
+        "fii_trend":                fii_trend,
+        "dii_trend":                dii_trend,
+        "delivery_conviction":      delivery_conviction,
+        "institutional_divergence": institutional_divergence,
+        "pcr_oi":                   pcr_oi,
+        "max_pain":                 max_pain,
+        "sector_rs":                sector_rs,
+        "beta_nifty":               beta_nifty,
+        # placeholders so downstream code doesn't break when you add later
+        "asm_status":               None,
+        "fno_ban_status":           None,
+    }
 
 
 
@@ -113,12 +189,16 @@ def json_data(company_name,today):
     symbol = f"{name}.NS"
     ticker = yf.Ticker(f"{name}.NS")
     info = ticker.info
+    if not info or info.get('regularMarketPrice') is None or info.get('marketCap') is None:
+        raise ValueError(f"No usable yfinance data for {symbol}")
+
     # Meta data
-    sector = ticker.info['sector']
-    industry = ticker.info['industry']
-    market_cap = ticker.info['marketCap']
-    current_price = ticker.info['currentPrice']
-    currency = ticker.info['financialCurrency']
+    sector = ticker.info.get('sector')
+    industry = ticker.info.get('industry')
+    market_cap_inr = ticker.info.get('marketCap')
+    current_price = ticker.info.get('currentPrice')
+    currency = ticker.info.get('financialCurrency')
+    market_cap = "Small Cap (<10K Cr)" if market_cap_inr < 100_000_000_000 else ("Mid Cap (10-50K Cr)" if market_cap_inr < 500_000_000_000 else ("Large Cap (50K-2L Cr)" if market_cap_inr < 2_000_000_000_000 else "Mega Cap (>2L Cr)"))
     
  # TECHNICAL SIGNALS 
 
@@ -201,23 +281,21 @@ def json_data(company_name,today):
                 direction = "Bullish"
             else:
                 direction = "Bearish"
-            delivery_conviction = f"Strong {direction} Accumulation"
-        elif vol_ratio > 1.5 and body_pct < 0.3:
-            delivery_conviction = "Churn (High Vol / No Move)"
-        elif vol_ratio < 0.6:
-            delivery_conviction = "Weak (Lack of Intrest)"
-        else:
-            delivery_conviction = "Neutral"
+            
 
 
     else:
         volume_status = "Unknown"
         liquidity_status = "Unknown"
-        delivery_conviction = "Unknown"
 
+    print("Getting Data From nsepython")
+    nse = data_from_nsepython(name, sector)
+    print(nse)
 
     # Volatility 
-    beta = ticker.info['beta']
+    beta = nse['beta_nifty'] if nse['beta_nifty'] is not None else 0
+
+
     df.ta.atr(length=14,append=True)
     if 'ATRr_14' in df.columns:
         atr = round(df['ATRr_14'].iloc[-1] , 2)
@@ -225,7 +303,7 @@ def json_data(company_name,today):
         atr = "No value Extracted"
     
     df['returns'] = df['Close'].pct_change()
-    intraday_vol_pct = df['returns'].std()*100
+    intraday_vol_pct = round(df['returns'].std()*100, 2)
 
     # Support Resistance
     if len(df) > 20:
@@ -266,7 +344,7 @@ def json_data(company_name,today):
     forward_pe = info.get('forwardPE',0)
     peg_ratio = info.get("trailingPegRatio",0)
     price_to_book = info.get("priceToBook",0)
-    industry_pe_benchmark = "N Configured" 
+    industry_pe_benchmark = "Not Configured" 
 
     # profatibility
     profit_margins_pct = round(info.get('profitMargins',0)*100, 2)
@@ -278,8 +356,10 @@ def json_data(company_name,today):
 
     ebit = income_st.loc['EBIT'].iloc[0] # earnings before interest and taxes
     Total_Assets = balance_sheet.loc['Total Assets'].iloc[0]
+    equity = balance_sheet.loc['Stockholders Equity'].iloc[0]
+    long_term_debt = balance_sheet.loc['Long Term Debt'].iloc[0]
     current_liability = balance_sheet.loc['Total Liabilities Net Minority Interest'].iloc[0]
-    capital_employed = Total_Assets - current_liability
+    capital_employed = equity + long_term_debt
     if capital_employed > 0:
         roce = round((ebit / capital_employed)*100 , 2)
     else:
@@ -302,18 +382,10 @@ def json_data(company_name,today):
 
 
  # institutional_activity
-    insider_holding_pct = ticker.info['heldPercentInsiders']
-    institutional_holding_pct = ticker.info['heldPercentInstitutions']
-    float_shares = ticker.info['floatShares']
+    insider_holding_pct = ticker.info.get('heldPercentInsiders')
+    institutional_holding_pct = ticker.info.get('heldPercentInstitutions')
+    float_shares = ticker.info.get('floatShares')
     # flow analysis
-    df['ADL'] = ta.ad(df['High'],df['Low'],df['Close'],df['Volume'])
-
-    prev_price_5 = df['Close'].iloc[-6]
-
-    adl_now = df["ADL"].iloc[-1]
-    adl_prev = df["ADL"].iloc[-6]
-
-    sig_move = abs(current_price - prev_price_5) / prev_price_5 > 0.005
 
     # Risk Management
     cal = ticker.calendar
@@ -389,16 +461,6 @@ def json_data(company_name,today):
 
 
 
-    if sig_move:
-        if current_price > prev_price_5 and adl_now < adl_prev:
-            institutional_divergence = "Bearish (Price up, Money flowing OUT)"
-        elif current_price < prev_price_5 and adl_now > adl_prev:
-            institutional_divergence = "Bullish (Price down, Money flowing IN)"
-        else:
-            institutional_divergence = "In-Sync (Volume confirms Price)"
-    else:
-        institutional_divergence = "Neutral (No significant move)"
-
 
     # Sentiments 
     analyst_recommendation = info.get("recommendationKey", "N/A").capitalize()
@@ -410,8 +472,10 @@ def json_data(company_name,today):
     else:
         upside_potential_pct = 0
 
-    fii_trend = "No Data"
-    dii_trend = "No Data"
+
+
+    
+
 
 
     json_str = {
@@ -422,7 +486,8 @@ def json_data(company_name,today):
         "Trading_Date" : str(market_date),
         "industry": industry,
         "sector": sector,
-        "market_cap_category": market_cap,
+        "market_cap_inr": market_cap_inr,
+        "market_cap_category":market_cap,
         "current_price": current_price,
         "currency": currency,
         # "target_risk_reward": 2.0  
@@ -430,6 +495,7 @@ def json_data(company_name,today):
     
     
     "market_context": { 
+        "sector_rs": nse['sector_rs'],
         "NIFTY_50": {
             "trend": "",
             "change_pct": "",
@@ -455,10 +521,10 @@ def json_data(company_name,today):
     
     "technical_signals": {
         "trend_summary": {
-            "short_term (20D)": short_term,  # 20 day average  (EMA)
-            "medium_term (50D)": medium_term, # 50 day average  (EMA)
-            "long_term (200D)": long_term ,   # 200 day average (EMA) 
-            "closing_bias (close vs ema20)": closing_bias
+            "short_term_20D": short_term,  # 20 day average  (EMA)
+            "medium_term_50D": medium_term, # 50 day average  (EMA)
+            "long_term_200D": long_term ,   # 200 day average (EMA) 
+            "closing_bias_vs_ema20 ": closing_bias
         },
         # "pattern_recognition": { 
         #     "candlestick_signal": "",
@@ -467,23 +533,31 @@ def json_data(company_name,today):
         # },
         "momentum": {
             "rsi_14": rsi_14, 
-            "distance_from_52w_high_pct": f"{distance_from_52w_high_pct}",
-            "distance_from_52w_low_pct": f"{distance_from_52w_low_pct}"
+            "distance_from_52w_high_pct": distance_from_52w_high_pct,
+            "distance_from_52w_low_pct": distance_from_52w_low_pct
         },
         "volume_dynamics": { 
             "volume_status": volume_status,
-            "delivery_conviction": delivery_conviction,
+            "delivery_conviction": nse['delivery_conviction'],
             "liquidity_status": liquidity_status
         },
         "volatility": {
             "atr_value":atr ,
             "intraday_volatility_pct":intraday_vol_pct,
-            "beta": beta
+            "beta_vs_nifty": nse['beta_nifty']
         },
+        "options_data": {
+            "pcr_oi":   nse['pcr_oi'],
+            "max_pain": nse['max_pain'],
+        },
+
         "support_resistance": {
             "nearest_support": nearest_support,
             "nearest_resistance": nearest_resistacne,
-            "price_location": price_location
+            "price_location": price_location,
+            "asm_status":     nse['asm_status'],
+            "fno_ban_status": nse['fno_ban_status'],
+
         }
     },
 
@@ -499,24 +573,24 @@ def json_data(company_name,today):
             "profit_margins_pct": profit_margins_pct,
             "operating_margins_pct": operating_margins_pct,
             "roce_quality": roce_quality, 
-            "revenue_growth_yoy": revenue_growth_yoy 
+            "revenue_growth_yoy_pct": round(revenue_growth_yoy*100,2)
         },
         "solvency": {
-            "debt_to_equity_ratio": debt_to_equity_ratio, 
+            "debt_to_equity_ratio": round(debt_to_equity_ratio/100, 2), 
             "health_status": health_status 
         }
     },
 
     "institutional_activity": {
         "ownership": {
-            "insider_holding_pct": insider_holding_pct,
-            "institution_holding_pct": institutional_holding_pct,
+            "insider_holding_pct": round(insider_holding_pct*100,2),
+            "institution_holding_pct": round(institutional_holding_pct*100,2),
             "float_shares": float_shares
         },
         "flow_analysis": { 
-            "institutional_divergence": institutional_divergence, 
-            "fii_trend": fii_trend,
-            "dii_trend": dii_trend
+            "institutional_divergence": nse['institutional_divergence'], 
+            "fii_trend": nse['fii_trend'],
+            "dii_trend": nse['dii_trend']
         },
         "sentiment": {
             "analyst_recommendation": analyst_recommendation,
@@ -529,9 +603,12 @@ def json_data(company_name,today):
         "earnings_risk_days": earnings_risk, 
         "days_to_earning":days_to_earnings,
         "surprise_trend": surprise_trend,
-        "volatility risk":volatility_risk,
-        "event_risk": event_risk,
-        "governance_risk": governance_risk,
+        "misses":float(misses),
+        "beats":float(beats),
+        "avg_surprise_pct":float(avg_surprise),
+        "volatility_risk":volatility_risk,
+        # "event_risk": event_risk, Will get this from sentiments itself
+        # "governance_risk": governance_risk, Removed as yfinace stats for non us stocks are tricky
         "valuation_risk": valuation_risk
     }
     }
@@ -546,12 +623,14 @@ def json_data(company_name,today):
 
 def main_script(company_name):
    
+    print("Getting Data")
     financial_data , trading_date = json_data(company_name,today)
 
+    print("Fetched Data, storing it in Mongo DB")
     database_= db_cleint['market_analyser']
     collection_= database_['Financial_Data']
 
     collection_.update_one({"_id":company_name},{"$set":{trading_date:financial_data}},upsert=True)
 
 
-main_script("RELIANCE")
+main_script("GCHOTELS")
