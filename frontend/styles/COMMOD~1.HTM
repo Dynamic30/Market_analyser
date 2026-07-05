@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Commodities — Market Analyser</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f8fafc; --surface:#ffffff; --surface2:#f1f5f9;
+    --text:#0f172a; --muted:#64748b; --border:#e2e8f0;
+    --accent:#0ea5e9; --accent2:#14b8a6;
+    --bull:#16a34a; --bull-bg:#dcfce7; --bear:#dc2626; --bear-bg:#fee2e2;
+    --neutral:#64748b; --neutral-bg:#f1f5f9;
+    --shadow:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+    --shadow-lg:0 10px 30px rgba(0,0,0,.12);
+  }
+  [data-theme="dark"]{
+    --bg:#0b1220; --surface:#161e2e; --surface2:#1e293b;
+    --text:#f1f5f9; --muted:#94a3b8; --border:#253044;
+    --accent:#38bdf8; --accent2:#2dd4bf;
+    --bull:#34d399; --bull-bg:#052e2b; --bear:#f87171; --bear-bg:#3b1113;
+    --neutral:#94a3b8; --neutral-bg:#1e293b;
+    --shadow:0 1px 3px rgba(0,0,0,.3);
+    --shadow-lg:0 16px 40px rgba(0,0,0,.5);
+  }
+  [data-theme="sepia"]{
+    --bg:#f4ecd8; --surface:#faf4e1; --surface2:#efe6cd;
+    --text:#43382b; --muted:#8a7a63; --border:#e5d9bf;
+    --accent:#b45309; --accent2:#0e7490;
+    --bull:#4d7c0f; --bull-bg:#e8efd6; --bear:#b91c1c; --bear-bg:#f3ddd5;
+    --neutral:#8a7a63; --neutral-bg:#efe6cd;
+    --shadow:0 1px 3px rgba(120,90,40,.12);
+    --shadow-lg:0 12px 34px rgba(120,90,40,.22);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:'Inter',system-ui,-apple-system,sans-serif;
+    background:var(--bg); color:var(--text);
+    -webkit-font-smoothing:antialiased; transition:background .25s,color .25s;
+  }
+  .wrap{max-width:1180px;margin:0 auto;padding:24px 20px 60px}
+
+  /* header */
+  header{display:flex;align-items:center;justify-content:space-between;margin-bottom:26px}
+  .logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:18px}
+  .logo .mark{width:30px;height:30px;border-radius:9px;
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
+    display:grid;place-items:center;color:#fff;font-size:15px}
+  .theme-btn{border:1px solid var(--border);background:var(--surface);color:var(--text);
+    padding:7px 13px;border-radius:9px;font:inherit;font-size:13px;font-weight:600;
+    cursor:pointer;display:flex;align-items:center;gap:7px;transition:all .15s}
+  .theme-btn:hover{background:var(--surface2)}
+
+  /* title block */
+  .title-row{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:4px}
+  h1{font-size:26px;font-weight:800;letter-spacing:-.02em}
+  .sub{color:var(--muted);font-size:13.5px;margin-bottom:18px}
+  .sub b{color:var(--text)}
+
+  /* filter chips */
+  .filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+  .chip{border:1px solid var(--border);background:var(--surface);color:var(--muted);
+    padding:7px 14px;border-radius:999px;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s}
+  .chip:hover{color:var(--text)}
+  .chip.active{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border-color:transparent}
+
+  /* group */
+  .group-label{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--muted);margin:26px 0 12px}
+
+  /* grid */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:15px;
+    padding:16px;cursor:pointer;transition:transform .12s,box-shadow .12s,border-color .12s;box-shadow:var(--shadow)}
+  .card:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg);border-color:var(--accent)}
+  .card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+  .cmd{display:flex;align-items:center;gap:10px}
+  .cmd .emoji{width:38px;height:38px;border-radius:10px;background:var(--surface2);
+    display:grid;place-items:center;font-size:19px}
+  .cmd .nm{font-weight:700;font-size:15px;line-height:1.15}
+  .cmd .sym{font-size:11.5px;color:var(--muted);font-weight:500}
+  .bias{font-size:11px;font-weight:700;padding:4px 9px;border-radius:999px;white-space:nowrap}
+  .bias.bull{color:var(--bull);background:var(--bull-bg)}
+  .bias.bear{color:var(--bear);background:var(--bear-bg)}
+  .bias.neutral{color:var(--neutral);background:var(--neutral-bg)}
+  .price-row{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:8px}
+  .price{font-size:21px;font-weight:800;letter-spacing:-.01em}
+  .price .unit{font-size:12px;font-weight:500;color:var(--muted);margin-left:3px}
+  .chg{font-size:13.5px;font-weight:700}
+  .chg.up{color:var(--bull)} .chg.down{color:var(--bear)}
+  .inr{font-size:11.5px;color:var(--muted);margin-bottom:8px}
+  .driver{font-size:12.5px;color:var(--muted);line-height:1.4;
+    border-top:1px solid var(--border);padding-top:10px}
+
+  /* modal */
+  .overlay{position:fixed;inset:0;background:rgba(15,23,42,.5);backdrop-filter:blur(2px);
+    display:none;align-items:center;justify-content:center;padding:20px;z-index:50}
+  .overlay.open{display:flex}
+  .modal{background:var(--surface);border:1px solid var(--border);border-radius:18px;
+    width:100%;max-width:540px;max-height:88vh;overflow:auto;box-shadow:var(--shadow-lg);position:relative}
+  .modal-in{padding:22px}
+  .x{position:absolute;top:14px;right:14px;width:32px;height:32px;border-radius:9px;border:1px solid var(--border);
+    background:var(--surface);color:var(--muted);cursor:pointer;display:grid;place-items:center;font-size:16px}
+  .x:hover{background:var(--surface2);color:var(--text)}
+  .m-head{display:flex;align-items:center;gap:12px;margin-bottom:4px}
+  .m-head .emoji{width:44px;height:44px;border-radius:12px;background:var(--surface2);display:grid;place-items:center;font-size:22px}
+  .m-head .nm{font-size:19px;font-weight:800}
+  .m-head .sym{font-size:12px;color:var(--muted)}
+  .m-price{display:flex;align-items:flex-end;gap:10px;margin:14px 0 4px}
+  .m-price .p{font-size:28px;font-weight:800}
+  .m-inr{font-size:12.5px;color:var(--muted);margin-bottom:16px}
+  .stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:16px}
+  .stat{background:var(--surface2);border-radius:11px;padding:10px 12px}
+  .stat .k{font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+  .stat .v{font-size:14.5px;font-weight:700;margin-top:2px}
+  .llm-card{border-radius:13px;padding:14px;margin-bottom:14px;
+    background:linear-gradient(135deg,color-mix(in srgb,var(--accent) 12%,var(--surface)),color-mix(in srgb,var(--accent2) 10%,var(--surface)));
+    border:1px solid var(--border)}
+  .llm-card .lab{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin-bottom:8px}
+  .llm-card p{font-size:13.5px;line-height:1.55}
+  .sec-lab{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 8px}
+  .risks{list-style:none;display:flex;flex-direction:column;gap:7px;margin-bottom:6px}
+  .risks li{font-size:13px;line-height:1.45;padding-left:20px;position:relative;color:var(--text)}
+  .risks li::before{content:"⚠";position:absolute;left:0;top:0;font-size:12px;color:var(--bear)}
+  .note{font-size:11.5px;color:var(--muted);text-align:center;margin-top:18px;line-height:1.5}
+  @media(max-width:520px){.stat-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body data-theme="light">
+<div class="wrap">
+  <header>
+    <div class="logo"><span class="mark">◈</span> Market Analyser</div>
+    <button class="theme-btn" id="themeBtn">☀ Light</button>
+  </header>
+
+  <div class="title-row">
+    <h1>Commodities</h1>
+  </div>
+  <div class="sub">
+    Today <b>Sunday, 21 Jun 2026</b> · Showing analysis for <b>Friday, 19 Jun 2026</b> (last session).
+    Prices from Yahoo Finance futures (USD). USD/INR ≈ <b>85.7</b>.
+  </div>
+
+  <div class="filters" id="filters">
+    <button class="chip active" data-cat="all">All</button>
+    <button class="chip" data-cat="Metals">Metals</button>
+    <button class="chip" data-cat="Energy">Energy</button>
+    <button class="chip" data-cat="Agriculture">Agriculture</button>
+    <button class="chip" data-cat="Livestock">Livestock</button>
+  </div>
+
+  <div id="groups"></div>
+</div>
+
+<!-- modal -->
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <button class="x" id="closeX">✕</button>
+    <div class="modal-in" id="modalBody"></div>
+  </div>
+</div>
+
+<script>
+/* ---- USD -> INR helpers ---- */
+const USDINR = 85.7;
+const OZ_G = 31.1035;                 // grams per troy ounce
+const inrPer10gGold = usdOz => (usdOz*USDINR/OZ_G*10);
+const inrPerKgSilver = usdOz => (usdOz*USDINR/OZ_G*1000);
+const fmt = n => n.toLocaleString('en-IN',{maximumFractionDigits:0});
+
+/* ---- All yfinance commodity futures ---- */
+const DATA = [
+  // METALS
+  {sym:'GC=F', name:'Gold',          cat:'Metals', emoji:'🥇', price:4182.40, unit:'/oz', chg:+0.9,  bias:'bull',    driver:'Fed rate-cut bets and steady central-bank buying keep the bid firm.',
+     rsi:61, trend:'Above 50 & 200 DMA', range52:'2,780 – 4,240', dayRange:'4,150 – 4,196',
+     analysis:'Gold remains in an established uptrend, trading above both its 50- and 200-day moving averages. The move is driven by expectations of Fed easing, a softer dollar, and record central-bank accumulation. Momentum is constructive but RSI in the low-60s leaves some room before overbought.',
+     risks:['A hawkish Fed surprise would lift real yields and pressure gold','Sharp dollar strength caps upside','Positioning is crowded — a long unwind could be sharp']},
+  {sym:'SI=F', name:'Silver',        cat:'Metals', emoji:'🥈', price:52.18,   unit:'/oz', chg:+1.6,  bias:'bull',    driver:'Industrial + solar demand firm on top of gold’s tailwind.',
+     rsi:64, trend:'Above 50 & 200 DMA', range52:'28.4 – 53.9', dayRange:'51.3 – 52.6',
+     analysis:'Silver is outperforming gold, helped by its dual role as both a precious and industrial metal. Solar and electronics demand underpins the physical market while investor flows track gold. Higher beta means larger swings in both directions.',
+     risks:['Silver’s industrial demand makes it sensitive to a growth slowdown','Higher volatility than gold','Gold/silver ratio mean-reversion could cap gains']},
+  {sym:'PL=F', name:'Platinum',      cat:'Metals', emoji:'⚪', price:1048.00, unit:'/oz', chg:-0.4,  bias:'neutral', driver:'Auto-catalyst demand soft as the EV shift continues.',
+     rsi:49, trend:'Near 50 DMA', range52:'880 – 1,120', dayRange:'1,040 – 1,058',
+     analysis:'Platinum is range-bound. Autocatalyst demand is under structural pressure from EV adoption, though supply discipline in South Africa provides a floor. No clear directional catalyst near term.',
+     risks:['EV adoption erodes long-term catalyst demand','South African supply is a swing factor','Thin, illiquid market amplifies moves']},
+  {sym:'PA=F', name:'Palladium',     cat:'Metals', emoji:'⚪', price:1121.50, unit:'/oz', chg:-1.1,  bias:'bear',    driver:'EV transition steadily eroding gasoline-catalyst demand.',
+     rsi:41, trend:'Below 50 DMA', range52:'860 – 1,340', dayRange:'1,110 – 1,138',
+     analysis:'Palladium remains under structural pressure as gasoline-engine catalyst demand fades with electrification. Rallies have been sold. Trend and momentum both lean bearish.',
+     risks:['Structural demand decline from EV shift','Substitution toward platinum','Supply shocks from Russia can spike prices unexpectedly']},
+  {sym:'HG=F', name:'Copper',        cat:'Metals', emoji:'🟠', price:5.24,    unit:'/lb', chg:+0.7,  bias:'bull',    driver:'China stimulus hopes and grid/EV demand support the “Dr. Copper” bid.',
+     rsi:58, trend:'Above 50 DMA', range52:'3.90 – 5.45', dayRange:'5.19 – 5.28',
+     analysis:'Copper is firm on expectations of Chinese stimulus and structural demand from electrification and grid build-out. As a growth bellwether it is sensitive to global PMI data.',
+     risks:['China demand disappointment is the key downside','Global recession would hit industrial metals hard','Mine supply additions could soften the deficit']},
+
+  // ENERGY
+  {sym:'CL=F', name:'Crude Oil (WTI)', cat:'Energy', emoji:'🛢️', price:76.54, unit:'/bbl', chg:+0.9, bias:'neutral', driver:'OPEC+ supply discipline balanced against soft demand signals.',
+     rsi:52, trend:'Near 50 DMA', range52:'62.1 – 89.4', dayRange:'75.6 – 77.2',
+     analysis:'WTI is caught between OPEC+ production restraint and demand concerns tied to global growth. Middle-East risk premium adds a floor. Broadly range-bound without a fresh catalyst.',
+     risks:['Demand slowdown from weaker global growth','OPEC+ policy shifts move the market sharply','Geopolitical escalation spikes prices']},
+  {sym:'BZ=F', name:'Brent Crude',   cat:'Energy', emoji:'🛢️', price:80.10,  unit:'/bbl', chg:-0.6, bias:'bear',    driver:'Middle-East risk premium easing after ceasefire progress.',
+     rsi:47, trend:'Near 50 DMA', range52:'66.0 – 92.8', dayRange:'79.4 – 81.0',
+     analysis:'Brent is softening as the geopolitical risk premium unwinds following diplomatic progress. Fundamentals point to a broadly balanced-to-soft market into next quarter.',
+     risks:['Renewed conflict would re-add a risk premium','Demand weakness in Asia','OPEC+ compliance slippage']},
+  {sym:'NG=F', name:'Natural Gas',   cat:'Energy', emoji:'🔥', price:3.78,   unit:'/MMBtu', chg:-2.3, bias:'bear',   driver:'Mild weather and high storage weigh on prices.',
+     rsi:38, trend:'Below 50 DMA', range52:'1.85 – 4.40', dayRange:'3.72 – 3.90',
+     analysis:'Natural gas is under pressure from mild weather and comfortable storage levels. The market is notoriously volatile and weather-driven; a cold snap can reverse the trend quickly.',
+     risks:['Weather is the dominant, unpredictable driver','LNG export demand can tighten balances fast','Extremely high volatility']},
+  {sym:'RB=F', name:'RBOB Gasoline', cat:'Energy', emoji:'⛽', price:2.31,   unit:'/gal', chg:+0.4, bias:'neutral', driver:'Summer driving-season demand vs ample refinery output.',
+     rsi:53, trend:'Near 50 DMA', range52:'1.92 – 2.68', dayRange:'2.29 – 2.34',
+     analysis:'Gasoline tracks crude with a seasonal demand overlay. Peak driving season supports the crack spread, offset by healthy refinery utilisation.',
+     risks:['Follows crude oil direction','Refinery outages spike prices','Demand destruction if pump prices climb']},
+  {sym:'HO=F', name:'Heating Oil',   cat:'Energy', emoji:'🔆', price:2.49,   unit:'/gal', chg:+0.2, bias:'neutral', driver:'Winter-demand build ahead; distillate inventories watched.',
+     rsi:51, trend:'Near 50 DMA', range52:'2.05 – 2.95', dayRange:'2.47 – 2.52',
+     analysis:'Heating oil is seasonally sensitive with winter demand approaching. Distillate inventories and diesel demand (a growth proxy) are the key watch-points.',
+     risks:['Warm winter cuts demand','Tied to crude and diesel spreads','Industrial slowdown hits distillate demand']},
+
+  // AGRICULTURE
+  {sym:'ZC=F', name:'Corn',          cat:'Agriculture', emoji:'🌽', price:431.25, unit:'¢/bu', chg:-0.8, bias:'bear', driver:'Strong harvest and ample global supply pressure prices.',
+     rsi:42, trend:'Below 50 DMA', range52:'388 – 512', dayRange:'428 – 436',
+     analysis:'Corn is soft on the back of a strong harvest and comfortable global stocks. Weather during the growing season and export demand are the swing factors.',
+     risks:['Weather shocks can reverse quickly','Export demand (esp. China) is volatile','Ethanol demand ties it to energy']},
+  {sym:'ZS=F', name:'Soybeans',      cat:'Agriculture', emoji:'🫘', price:1048.50, unit:'¢/bu', chg:+0.5, bias:'neutral', driver:'Chinese export demand steadies an otherwise well-supplied market.',
+     rsi:50, trend:'Near 50 DMA', range52:'960 – 1,190', dayRange:'1,040 – 1,056',
+     analysis:'Soybeans are balanced — South American supply is ample while Chinese import demand provides support. Trade-flow headlines drive short-term moves.',
+     risks:['China trade policy is the dominant driver','South American weather and harvest','Currency (BRL) affects competitiveness']},
+  {sym:'ZW=F', name:'Wheat',         cat:'Agriculture', emoji:'🌾', price:562.00, unit:'¢/bu', chg:+1.2, bias:'bull', driver:'Black Sea supply concerns add a risk premium.',
+     rsi:56, trend:'Above 50 DMA', range52:'498 – 690', dayRange:'554 – 568',
+     analysis:'Wheat carries a geopolitical risk premium from Black Sea supply uncertainty. Global stocks are adequate, so the market is headline-driven rather than trend-driven.',
+     risks:['Black Sea / export-corridor headlines','Global stocks remain adequate','Weather in major exporters']},
+  {sym:'KC=F', name:'Coffee',        cat:'Agriculture', emoji:'☕', price:321.40, unit:'¢/lb', chg:+2.1, bias:'bull', driver:'Brazil frost/drought risk tightening the arabica balance.',
+     rsi:67, trend:'Above 50 & 200 DMA', range52:'210 – 340', dayRange:'314 – 326',
+     analysis:'Coffee is in a strong uptrend on Brazilian weather risk (frost and drought) tightening the arabica supply outlook. Momentum is strong but RSI is approaching overbought.',
+     risks:['Weather premium can deflate fast if rains arrive','Overbought momentum','Speculative positioning is heavy']},
+  {sym:'CT=F', name:'Cotton',        cat:'Agriculture', emoji:'🧺', price:67.80, unit:'¢/lb', chg:-0.9, bias:'bear', driver:'Weak global textile demand caps prices.',
+     rsi:43, trend:'Below 50 DMA', range52:'60.2 – 82.5', dayRange:'67.1 – 68.6',
+     analysis:'Cotton is soft on subdued textile and apparel demand amid a cautious consumer. Supply is adequate; demand recovery is the missing catalyst.',
+     risks:['Consumer/apparel demand is weak','Tied to global growth','Polyester substitution']},
+  {sym:'SB=F', name:'Sugar',         cat:'Agriculture', emoji:'🍬', price:19.15, unit:'¢/lb', chg:+0.7, bias:'bull', driver:'India export curbs and firm ethanol demand support prices.',
+     rsi:55, trend:'Above 50 DMA', range52:'16.4 – 24.1', dayRange:'18.9 – 19.3',
+     analysis:'Sugar is supported by Indian export restrictions and strong Brazilian ethanol demand diverting cane. Global balance is tightening at the margin.',
+     risks:['India policy can flip supply quickly','Brazilian cane allocation shifts','Oil prices affect the ethanol/sugar mix']},
+  {sym:'CC=F', name:'Cocoa',         cat:'Agriculture', emoji:'🍫', price:7520.00, unit:'/MT', chg:+1.8, bias:'bull', driver:'Persistent West-African supply deficit keeps prices elevated.',
+     rsi:63, trend:'Above 50 DMA', range52:'5,900 – 9,800', dayRange:'7,410 – 7,590',
+     analysis:'Cocoa remains structurally tight due to poor West-African harvests (disease, weather, ageing trees). Prices are elevated and volatile as supply struggles to recover.',
+     risks:['Extreme volatility at high price levels','Demand destruction from high prices','A supply recovery would correct sharply']},
+  {sym:'OJ=F', name:'Orange Juice',  cat:'Agriculture', emoji:'🍊', price:372.10, unit:'¢/lb', chg:+0.3, bias:'bull', driver:'Florida crop disease and hurricane risk keep supply tight.',
+     rsi:59, trend:'Above 50 DMA', range52:'300 – 480', dayRange:'366 – 378',
+     analysis:'Orange juice supply is constrained by Florida citrus greening disease and hurricane damage. A thin, illiquid market means outsized moves on any supply news.',
+     risks:['Very thin, illiquid market','Weather / hurricane season','Demand elasticity at high prices']},
+
+  // LIVESTOCK
+  {sym:'LE=F', name:'Live Cattle',   cat:'Livestock', emoji:'🐄', price:188.30, unit:'¢/lb', chg:+0.6, bias:'bull', driver:'Tight cattle supply and low herd numbers support prices.',
+     rsi:60, trend:'Above 50 DMA', range52:'170 – 196', dayRange:'186 – 190',
+     analysis:'Live cattle are supported by a multi-year-low US herd and tight supply. Beef demand and feed costs are the key variables.',
+     risks:['Consumer beef demand at high retail prices','Feed (corn) cost swings','Herd rebuilding will eventually add supply']},
+  {sym:'HE=F', name:'Lean Hogs',     cat:'Livestock', emoji:'🐖', price:91.80, unit:'¢/lb', chg:-1.4, bias:'bear', driver:'Soft export demand and ample supply weigh on prices.',
+     rsi:40, trend:'Below 50 DMA', range52:'78 – 108', dayRange:'90.6 – 93.4',
+     analysis:'Lean hogs are pressured by weak export demand and comfortable supply. Seasonal demand patterns and Chinese buying are the swing factors.',
+     risks:['Export demand (China) is volatile','Disease outbreaks (ASF) shift supply','Feed cost changes']},
+  {sym:'GF=F', name:'Feeder Cattle', cat:'Livestock', emoji:'🐂', price:258.20, unit:'¢/lb', chg:+0.2, bias:'neutral', driver:'Herd rebuilding vs low supply keeps prices range-bound.',
+     rsi:52, trend:'Near 50 DMA', range52:'232 – 272', dayRange:'256 – 261',
+     analysis:'Feeder cattle balance tight supply against gradual herd rebuilding. Prices move inversely to feed costs and track the live-cattle complex.',
+     risks:['Inverse sensitivity to corn/feed prices','Tied to live-cattle direction','Drought affects grazing and placements']},
+];
+
+/* ---- render ---- */
+const CATS = ['Metals','Energy','Agriculture','Livestock'];
+const groupsEl = document.getElementById('groups');
+
+function biasLabel(b){return b==='bull'?'Bullish':b==='bear'?'Bearish':'Neutral';}
+
+function render(filter='all'){
+  groupsEl.innerHTML='';
+  const cats = filter==='all' ? CATS : [filter];
+  cats.forEach(cat=>{
+    const items = DATA.filter(d=>d.cat===cat);
+    if(!items.length) return;
+    const lab=document.createElement('div'); lab.className='group-label'; lab.textContent=cat;
+    groupsEl.appendChild(lab);
+    const grid=document.createElement('div'); grid.className='grid';
+    items.forEach(d=>{
+      const up=d.chg>=0;
+      let inrLine='';
+      if(d.sym==='GC=F') inrLine=`<div class="inr">≈ ₹${fmt(inrPer10gGold(d.price))} / 10g</div>`;
+      if(d.sym==='SI=F') inrLine=`<div class="inr">≈ ₹${fmt(inrPerKgSilver(d.price))} / kg</div>`;
+      const card=document.createElement('div'); card.className='card';
+      card.innerHTML=`
+        <div class="card-top">
+          <div class="cmd">
+            <div class="emoji">${d.emoji}</div>
+            <div><div class="nm">${d.name}</div><div class="sym">${d.sym}</div></div>
+          </div>
+          <div class="bias ${d.bias}">${biasLabel(d.bias)}</div>
+        </div>
+        <div class="price-row">
+          <div class="price">${d.price<10?d.price.toFixed(2):fmt(d.price)}<span class="unit">${d.unit}</span></div>
+          <div class="chg ${up?'up':'down'}">${up?'▲':'▼'} ${Math.abs(d.chg).toFixed(1)}%</div>
+        </div>
+        ${inrLine}
+        <div class="driver">${d.driver}</div>`;
+      card.onclick=()=>openModal(d);
+      grid.appendChild(card);
+    });
+    groupsEl.appendChild(grid);
+  });
+}
+
+/* ---- modal ---- */
+const overlay=document.getElementById('overlay');
+const modalBody=document.getElementById('modalBody');
+function openModal(d){
+  const up=d.chg>=0;
+  let inrLine='';
+  if(d.sym==='GC=F') inrLine=`≈ ₹${fmt(inrPer10gGold(d.price))} / 10g (MCX-equivalent)`;
+  if(d.sym==='SI=F') inrLine=`≈ ₹${fmt(inrPerKgSilver(d.price))} / kg (MCX-equivalent)`;
+  modalBody.innerHTML=`
+    <div class="m-head">
+      <div class="emoji">${d.emoji}</div>
+      <div><div class="nm">${d.name}</div><div class="sym">${d.sym} · ${d.cat}</div></div>
+    </div>
+    <div class="m-price">
+      <div class="p">${d.price<10?d.price.toFixed(2):fmt(d.price)}<span class="unit" style="font-size:14px;color:var(--muted)"> USD${d.unit}</span></div>
+      <div class="chg ${up?'up':'down'}" style="font-size:16px">${up?'▲':'▼'} ${Math.abs(d.chg).toFixed(1)}%</div>
+    </div>
+    ${inrLine?`<div class="m-inr">${inrLine}</div>`:'<div style="height:6px"></div>'}
+    <div class="stat-grid">
+      <div class="stat"><div class="k">Trend</div><div class="v">${d.trend}</div></div>
+      <div class="stat"><div class="k">RSI (14)</div><div class="v">${d.rsi}</div></div>
+      <div class="stat"><div class="k">Day range</div><div class="v">${d.dayRange}</div></div>
+      <div class="stat"><div class="k">52-week range</div><div class="v">${d.range52}</div></div>
+    </div>
+    <div class="llm-card">
+      <div class="lab">LLM Analysis · ${biasLabel(d.bias)}</div>
+      <p>${d.analysis}</p>
+    </div>
+    <div class="sec-lab">Key Risks</div>
+    <ul class="risks">${d.risks.map(r=>`<li>${r}</li>`).join('')}</ul>
+    <div class="note">Price data: Yahoo Finance futures (${d.sym}), USD. Commodity analysis is driven by
+      macro factors (rates, USD, supply/demand, geopolitics) — not company fundamentals.</div>`;
+  overlay.classList.add('open');
+}
+document.getElementById('closeX').onclick=()=>overlay.classList.remove('open');
+overlay.onclick=e=>{if(e.target===overlay)overlay.classList.remove('open');};
+
+/* ---- filters ---- */
+document.getElementById('filters').addEventListener('click',e=>{
+  const chip=e.target.closest('.chip'); if(!chip)return;
+  document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+  chip.classList.add('active');
+  render(chip.dataset.cat);
+});
+
+/* ---- theme cycle (matches your dashboard) ---- */
+const themes=[['light','☀ Light'],['dark','☾ Dark'],['sepia','☕ Sepia']];
+let ti=0;
+const themeBtn=document.getElementById('themeBtn');
+themeBtn.onclick=()=>{ti=(ti+1)%themes.length;document.body.dataset.theme=themes[ti][0];themeBtn.textContent=themes[ti][1];};
+
+render();
+</script>
+</body>
+</html>
