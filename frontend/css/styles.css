@@ -1,0 +1,140 @@
+/* ============================================================
+   Stocksight — base styles
+   Tailwind utility classes carry the layout; this file holds
+   everything Tailwind can't express: fonts, theme overrides,
+   and the custom pill/popover components.
+   ============================================================ */
+
+body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; transition: background-color 0.2s ease, color 0.2s ease; }
+.drawer-enter { transform: translateX(100%); }
+.drawer-active { transform: translateX(0); transition: transform 0.25s ease-out; }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+
+/* ============================================================
+   THEME: DARK
+   ============================================================ */
+body.dark { background-color: #0b1220 !important; color: #e2e8f0 !important; }
+body.dark .bg-white          { background-color: #161e2e !important; }
+body.dark .bg-slate-50       { background-color: #0b1220 !important; }
+body.dark .bg-slate-50\/50   { background-color: #161e2e !important; }
+body.dark .bg-slate-100      { background-color: #1e293b !important; }
+body.dark .bg-sky-50         { background-color: rgba(14,165,233,.10) !important; }
+body.dark .bg-sky-50\/50     { background-color: rgba(14,165,233,.06) !important; }
+body.dark .bg-teal-50        { background-color: rgba(20,184,166,.10) !important; }
+body.dark .bg-emerald-50     { background-color: rgba(16,185,129,.12) !important; }
+body.dark .bg-emerald-50\/60 { background-color: rgba(16,185,129,.08) !important; }
+body.dark .bg-rose-50        { background-color: rgba(244,63,94,.12) !important; }
+body.dark .bg-rose-50\/60    { background-color: rgba(244,63,94,.08) !important; }
+body.dark .bg-amber-50       { background-color: rgba(251,191,36,.12) !important; }
+body.dark .bg-amber-50\/50   { background-color: rgba(251,191,36,.08) !important; }
+body.dark .bg-gradient-to-br.from-sky-50, body.dark .bg-gradient-to-r.from-sky-50 { background-image: linear-gradient(to bottom right, rgba(14,165,233,.10), rgba(20,184,166,.10)) !important; }
+
+body.dark .text-slate-900    { color: #f1f5f9 !important; }
+body.dark .text-slate-700    { color: #cbd5e1 !important; }
+body.dark .text-slate-600    { color: #94a3b8 !important; }
+body.dark .text-slate-500    { color: #94a3b8 !important; }
+body.dark .text-slate-400    { color: #64748b !important; }
+body.dark .text-sky-700      { color: #38bdf8 !important; }
+body.dark .text-sky-600      { color: #38bdf8 !important; }
+body.dark .text-teal-700     { color: #2dd4bf !important; }
+body.dark .text-emerald-700  { color: #34d399 !important; }
+body.dark .text-emerald-600  { color: #34d399 !important; }
+body.dark .text-rose-700     { color: #fb7185 !important; }
+body.dark .text-rose-600     { color: #fb7185 !important; }
+body.dark .text-rose-500     { color: #fb7185 !important; }
+body.dark .text-amber-700    { color: #fcd34d !important; }
+body.dark .text-amber-600    { color: #fcd34d !important; }
+
+body.dark .border-slate-200  { border-color: #2d3a52 !important; }
+body.dark .border-slate-100  { border-color: #1e293b !important; }
+body.dark .border-slate-300  { border-color: #475569 !important; }
+body.dark .border-sky-200    { border-color: #0369a1 !important; }
+body.dark .border-sky-100    { border-color: #075985 !important; }
+body.dark .border-emerald-200, body.dark .border-emerald-300 { border-color: #047857 !important; }
+body.dark .border-rose-200, body.dark .border-rose-300       { border-color: #be123c !important; }
+body.dark .border-amber-200, body.dark .border-amber-300     { border-color: #b45309 !important; }
+body.dark .border-amber-100  { border-color: #78350f !important; }
+
+body.dark .bg-slate-900      { background-color: #0f172a !important; }
+body.dark .hover\:bg-slate-100:hover { background-color: #1e293b !important; }
+body.dark .hover\:border-sky-300:hover { border-color: #38bdf8 !important; }
+body.dark ::-webkit-scrollbar-thumb { background: #475569; }
+body.dark code { background-color: #1e293b !important; color: #e2e8f0 !important; }
+
+/* ============================================================
+   THEME: SEPIA
+   ============================================================ */
+body.sepia { background-color: #f4ecd8 !important; color: #3e2f1d !important; }
+body.sepia .bg-white         { background-color: #faf4e1 !important; }
+body.sepia .bg-slate-50      { background-color: #efe5cb !important; }
+body.sepia .bg-slate-50\/50  { background-color: #ede2c5 !important; }
+body.sepia .bg-slate-100     { background-color: #e6d9b7 !important; }
+body.sepia .bg-sky-50        { background-color: #e9ddc4 !important; }
+body.sepia .bg-sky-50\/50    { background-color: #ede2c5 !important; }
+body.sepia .bg-teal-50       { background-color: #e3dab5 !important; }
+
+body.sepia .text-slate-900   { color: #3e2f1d !important; }
+body.sepia .text-slate-700   { color: #5c4429 !important; }
+body.sepia .text-slate-600   { color: #7a5d3a !important; }
+body.sepia .text-slate-500   { color: #8b6f4a !important; }
+body.sepia .text-slate-400   { color: #a08660 !important; }
+body.sepia .text-sky-700     { color: #8b6914 !important; }
+body.sepia .text-sky-600     { color: #8b6914 !important; }
+body.sepia .text-teal-700    { color: #856b3e !important; }
+
+body.sepia .border-slate-200 { border-color: #d4c5a0 !important; }
+body.sepia .border-slate-100 { border-color: #e2d6b3 !important; }
+body.sepia .border-slate-300 { border-color: #b8a37a !important; }
+body.sepia .border-sky-200   { border-color: #b8a37a !important; }
+body.sepia .border-sky-100   { border-color: #c8b890 !important; }
+
+body.sepia .bg-slate-900     { background-color: #5c4429 !important; }
+body.sepia .hover\:bg-slate-100:hover { background-color: #e6d9b7 !important; }
+body.sepia ::-webkit-scrollbar-thumb { background: #b8a37a; }
+
+/* Theme toggle button itself */
+.theme-btn { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 8px; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.2s; border: 1px solid transparent; }
+.theme-btn:hover { background-color: rgba(100,116,139,.10); }
+body.dark .theme-btn { color: #e2e8f0; }
+body.sepia .theme-btn { color: #5c4429; }
+
+/* ============================================================
+   HOLD-DURATION PILL + "Why hold this long?" popover
+   ============================================================ */
+.hold-pill {
+    display: inline-flex; align-items: center; cursor: pointer; user-select: none;
+    font-size: 11px; font-weight: 600; line-height: 1;
+    padding: 4px 8px; border-radius: 9999px;
+    color: #475569; background-color: #f1f5f9; border: 1px solid #e2e8f0;
+    transition: background-color .15s ease, border-color .15s ease, color .15s ease;
+}
+.hold-pill:hover { background-color: #e2e8f0; border-color: #cbd5e1; color: #1e293b; }
+/* Tiny inline variant for the history table */
+.hold-pill-mini { padding: 1px 5px; font-size: 10px; font-weight: 700; border-radius: 6px; }
+
+/* Clickable Combined action chip (keeps its own colour classes, adds an affordance) */
+.combo-chip { cursor: pointer; transition: filter .15s ease, box-shadow .15s ease; }
+.combo-chip:hover { filter: brightness(.97); box-shadow: 0 0 0 2px rgba(56,189,248,.30); }
+body.dark .combo-chip:hover { filter: brightness(1.12); }
+
+body.dark  .hold-pill { color: #94a3b8; background-color: #1e293b; border-color: #2d3a52; }
+body.dark  .hold-pill:hover { background-color: #2d3a52; border-color: #475569; color: #e2e8f0; }
+body.sepia .hold-pill { color: #7a5d3a; background-color: #e6d9b7; border-color: #d4c5a0; }
+body.sepia .hold-pill:hover { background-color: #ddcca3; border-color: #b8a37a; color: #3e2f1d; }
+
+#hold-popover {
+    width: 16rem; background-color: #ffffff; color: #334155;
+    border: 1px solid #e2e8f0; border-radius: 12px;
+    box-shadow: 0 12px 32px rgba(15,23,42,.22);
+}
+body.dark  #hold-popover { background-color: #161e2e; color: #cbd5e1; border-color: #2d3a52; box-shadow: 0 12px 32px rgba(0,0,0,.5); }
+body.sepia #hold-popover { background-color: #faf4e1; color: #5c4429; border-color: #d4c5a0; box-shadow: 0 12px 32px rgba(92,68,41,.2); }
+#hold-popover .hp-title  { color: #0f172a; }
+body.dark  #hold-popover .hp-title { color: #f1f5f9; }
+body.sepia #hold-popover .hp-title { color: #3e2f1d; }
+#hold-popover .hp-label  { color: #0284c7; }
+body.dark  #hold-popover .hp-label { color: #38bdf8; }
+body.sepia #hold-popover .hp-label { color: #8b6914; }
+#hold-popover .hp-close  { color: #94a3b8; cursor: pointer; }
+#hold-popover .hp-close:hover { color: inherit; }

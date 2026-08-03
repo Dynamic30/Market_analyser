@@ -1,0 +1,109 @@
+/* ============================================================
+   Stocksight Admin — styles specific to admin.html
+   Loads AFTER css/styles.css, which supplies the light/dark/sepia
+   theme overrides for the shared Tailwind utility classes.
+   ============================================================ */
+
+/* ---------- Sidebar nav ---------- */
+.admin-nav-item {
+    display: flex; align-items: center; gap: 10px;
+    width: 100%; padding: 9px 12px;
+    border-radius: 8px; border: 1px solid transparent;
+    font-size: 13.5px; font-weight: 500; color: #475569;
+    cursor: pointer; text-align: left;
+    transition: background-color .15s ease, color .15s ease;
+}
+.admin-nav-item:hover { background-color: #f1f5f9; color: #0f172a; }
+.admin-nav-item.active {
+    background-color: #0f172a; color: #ffffff; font-weight: 600;
+}
+.admin-nav-item .nav-icon { width: 16px; text-align: center; opacity: .85; }
+
+body.dark  .admin-nav-item { color: #94a3b8; }
+body.dark  .admin-nav-item:hover { background-color: #1e293b; color: #e2e8f0; }
+body.dark  .admin-nav-item.active { background-color: #38bdf8; color: #0b1220; }
+body.sepia .admin-nav-item { color: #7a5d3a; }
+body.sepia .admin-nav-item:hover { background-color: #e6d9b7; color: #3e2f1d; }
+body.sepia .admin-nav-item.active { background-color: #5c4429; color: #faf4e1; }
+
+/* ---------- Status dot ---------- */
+.dot { display: inline-block; width: 7px; height: 7px; border-radius: 9999px; flex: none; }
+.dot-ok      { background-color: #10b981; }
+.dot-warn    { background-color: #f59e0b; }
+.dot-error   { background-color: #f43f5e; }
+.dot-idle    { background-color: #94a3b8; }
+.dot-running { background-color: #0ea5e9; animation: dot-pulse 1.4s ease-in-out infinite; }
+@keyframes dot-pulse { 0%,100% { opacity: 1; } 50% { opacity: .25; } }
+
+/* ---------- Monospace editor (prompt body, JSON preview) ---------- */
+.admin-code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 12px; line-height: 1.6;
+    background-color: #f8fafc; color: #334155;
+    border: 1px solid #e2e8f0; border-radius: 10px;
+    padding: 14px; width: 100%; resize: vertical;
+    tab-size: 2;
+}
+.admin-code:focus { outline: none; border-color: #7dd3fc; box-shadow: 0 0 0 3px rgba(56,189,248,.18); }
+body.dark  .admin-code { background-color: #0f172a; color: #cbd5e1; border-color: #2d3a52; }
+body.sepia .admin-code { background-color: #f0e7ce; color: #5c4429; border-color: #d4c5a0; }
+
+/* ---------- Form controls ---------- */
+.admin-input, .admin-select {
+    width: 100%; padding: 8px 11px;
+    font-size: 13px; color: inherit;
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0; border-radius: 8px;
+    transition: border-color .15s ease, box-shadow .15s ease;
+}
+.admin-input:focus, .admin-select:focus { outline: none; border-color: #7dd3fc; box-shadow: 0 0 0 3px rgba(56,189,248,.18); }
+body.dark  .admin-input, body.dark  .admin-select { background-color: #0f172a; border-color: #2d3a52; color: #e2e8f0; }
+body.sepia .admin-input, body.sepia .admin-select { background-color: #faf4e1; border-color: #d4c5a0; color: #3e2f1d; }
+
+.admin-label {
+    display: block; margin-bottom: 5px;
+    font-size: 11px; font-weight: 600; letter-spacing: .04em;
+    text-transform: uppercase; color: #64748b;
+}
+body.dark .admin-label { color: #94a3b8; }
+body.sepia .admin-label { color: #8b6f4a; }
+
+.admin-hint { margin-top: 5px; font-size: 11px; color: #94a3b8; }
+
+/* ---------- Toggle switch ---------- */
+.switch { position: relative; display: inline-block; width: 38px; height: 21px; flex: none; cursor: pointer; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.switch .track {
+    position: absolute; inset: 0; border-radius: 9999px;
+    background-color: #cbd5e1; transition: background-color .2s ease;
+}
+.switch .thumb {
+    position: absolute; top: 3px; left: 3px;
+    width: 15px; height: 15px; border-radius: 9999px;
+    background-color: #ffffff; box-shadow: 0 1px 2px rgba(15,23,42,.25);
+    transition: transform .2s ease;
+}
+.switch input:checked + .track { background-color: #0ea5e9; }
+.switch input:checked + .track .thumb { transform: translateX(17px); }
+body.dark .switch .track { background-color: #334155; }
+
+/* ---------- Toast (mock save confirmation) ---------- */
+#admin-toast {
+    position: fixed; left: 50%; bottom: 28px; transform: translate(-50%, 16px);
+    display: flex; align-items: center; gap: 9px;
+    padding: 11px 16px; border-radius: 10px;
+    background-color: #0f172a; color: #f1f5f9;
+    font-size: 13px; font-weight: 500;
+    box-shadow: 0 12px 30px rgba(15,23,42,.28);
+    opacity: 0; pointer-events: none;
+    transition: opacity .18s ease, transform .18s ease;
+    z-index: 90;
+}
+#admin-toast.show { opacity: 1; transform: translate(-50%, 0); }
+body.dark #admin-toast { background-color: #1e293b; border: 1px solid #2d3a52; }
+
+/* ---------- Table rows ---------- */
+.admin-row { transition: background-color .12s ease; }
+.admin-row:hover { background-color: #f8fafc; }
+body.dark  .admin-row:hover { background-color: #1e293b; }
+body.sepia .admin-row:hover { background-color: #efe5cb; }

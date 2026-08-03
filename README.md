@@ -4,6 +4,7 @@
 
 ## !! always run like this -> python Scripts/main.py
 
+## Run Scripts/Generation/seed_db.py to create the postgress and its table
 Scripts
     main.py |OR| Dashboard.py
     processed.py
@@ -24,3 +25,7 @@ MongoDB Database Strucutre
     Financial_Data
     News_Sentiment
     Social_media_sentiments
+
+
+# Workflow
+should contain how to script should be runned and how to start up the project and all the other setups

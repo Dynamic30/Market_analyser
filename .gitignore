@@ -2,3 +2,6 @@
 /Financial_Data
 .env
 Scripts/Depcricated_code
+market.db
+logs/
+.vscode

@@ -1,0 +1,25 @@
+# Web / backend
+fastapi
+uvicorn
+
+# Databases
+pymongo
+SQLAlchemy
+psycopg[binary]
+
+# Data / analysis
+pandas
+numpy
+pandas_ta
+yfinance
+nsepython
+
+# News / scraping / HTTP
+feedparser
+trafilatura
+curl_cffi
+requests
+googlenewsdecoder
+
+# Config
+python-dotenv

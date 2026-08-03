@@ -8,12 +8,13 @@ from googlenewsdecoder import gnewsdecoder
 import html
 import os
 import pymongo
+from dotenv import load_dotenv
 from urllib.parse import urlparse
 from datetime import datetime, date
 import random
 
 
-
+load_dotenv()
 
 database_url = os.getenv("DATABASE")
 db_cleint = pymongo.MongoClient(database_url)
@@ -107,7 +108,8 @@ def google_news(stock_name,trading_date=None):
     
     return
 
-google_news("Reliance")
+if __name__ == "__main__":
+    google_news("Reliance")
 
 
 

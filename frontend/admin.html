@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stocksight Admin</title>
+    <!-- Same vendored Tailwind as index.html; falls back to the CDN only if the local copy is gone. -->
+    <script src="js/vendor/tailwind.play.js"
+            onerror="this.onerror=null;var s=document.createElement('script');s.src='https://cdn.tailwindcss.com';document.head.appendChild(s);"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/admin.css">
+</head>
+<body class="bg-slate-50 text-slate-900 antialiased">
+
+    <!-- ============== HEADER ============== -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto px-6 py-3.5 flex justify-between items-center">
+            <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 bg-gradient-to-br from-slate-700 to-slate-900 rounded-lg flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4.5 w-4.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" style="height:18px;width:18px">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-lg font-bold tracking-tight">Stocksight</span>
+                        <span class="text-[10px] font-bold uppercase tracking-widest text-rose-700 bg-rose-50 border border-rose-200 px-1.5 py-0.5 rounded">Admin</span>
+                    </div>
+                    <div class="text-[11px] text-slate-400 -mt-0.5">Internal control panel</div>
+                </div>
+            </div>
+            <div class="flex items-center gap-3 text-sm">
+                <span id="admin-identity" class="text-xs text-slate-500 hidden sm:inline"></span>
+                <span class="w-px h-5 bg-slate-200"></span>
+                <button id="theme-btn" onclick="cycleTheme()" class="theme-btn text-slate-600" title="Cycle theme: light → dark → sepia">
+                    <span id="theme-icon">☀</span>
+                    <span id="theme-label">Light</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="max-w-7xl mx-auto px-6 py-8 flex gap-8 items-start">
+
+        <!-- ============== SIDEBAR ============== -->
+        <aside class="w-52 shrink-0 sticky top-24 hidden md:block">
+            <nav class="space-y-1">
+                <button class="admin-nav-item active" data-section="overview" onclick="showAdminSection('overview')"><span class="nav-icon">▤</span> Overview</button>
+                <button class="admin-nav-item" data-section="stocks"   onclick="showAdminSection('stocks')"><span class="nav-icon">≡</span> Stocks</button>
+                <button class="admin-nav-item" data-section="runs"     onclick="showAdminSection('runs')"><span class="nav-icon">⟳</span> Pipeline runs</button>
+                <button class="admin-nav-item" data-section="users"    onclick="showAdminSection('users')"><span class="nav-icon">☺</span> Users</button>
+                <div class="pt-3 pb-1 px-3 text-[10px] font-bold uppercase tracking-widest text-slate-400">Configuration</div>
+                <button class="admin-nav-item" data-section="models"   onclick="showAdminSection('models')"><span class="nav-icon">◈</span> LLM models</button>
+                <button class="admin-nav-item" data-section="prompts"  onclick="showAdminSection('prompts')"><span class="nav-icon">✎</span> Prompts</button>
+                <button class="admin-nav-item" data-section="news"     onclick="showAdminSection('news')"><span class="nav-icon">⌁</span> News sources</button>
+                <button class="admin-nav-item" data-section="schedule" onclick="showAdminSection('schedule')"><span class="nav-icon">◷</span> Schedule</button>
+            </nav>
+
+            <div class="mt-6 pt-5 border-t border-slate-200">
+                <a href="index.html" class="text-xs text-slate-500 hover:text-sky-600 transition">← Back to dashboard</a>
+            </div>
+        </aside>
+
+        <!-- ============== CONTENT ============== -->
+        <main class="flex-1 min-w-0">
+
+            <!-- Mobile section picker (sidebar is hidden below md) -->
+            <div class="md:hidden mb-5">
+                <select class="admin-select" onchange="showAdminSection(this.value)">
+                    <option value="overview">Overview</option>
+                    <option value="stocks">Stocks</option>
+                    <option value="runs">Pipeline runs</option>
+                    <option value="users">Users</option>
+                    <option value="models">LLM models</option>
+                    <option value="prompts">Prompts</option>
+                    <option value="news">News sources</option>
+                    <option value="schedule">Schedule</option>
+                </select>
+            </div>
+
+            <!-- ========== OVERVIEW ========== -->
+            <section id="section-overview" class="admin-section">
+                <div class="mb-6">
+                    <h1 class="text-2xl font-bold tracking-tight">Overview</h1>
+                    <p class="text-sm text-slate-500 mt-1">Pipeline health for the most recent nightly run.</p>
+                </div>
+
+                <!-- ⚙️ Build notes — internal reminder, matches the convention used on index.html -->
+                <div class="bg-amber-50 border-2 border-dashed border-amber-300 rounded-xl px-5 py-4 mb-6 text-sm text-slate-800">
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="text-amber-700 font-bold">📌 BUILD NOTES (internal)</span>
+                        <span class="text-xs text-amber-600">— admin panel is UI-only right now</span>
+                    </div>
+                    <ul class="text-sm space-y-1.5 ml-1">
+                        <li><span class="text-amber-700 mr-2">●</span><b>Auth gate:</b> the <code class="bg-amber-100 px-1.5 py-0.5 rounded text-xs">users</code> table carries <code class="bg-amber-100 px-1.5 py-0.5 rounded text-xs">email</code> + a <code class="bg-amber-100 px-1.5 py-0.5 rounded text-xs">role</code>/admin flag. Every route below must check it server-side — hiding the page is not access control.</li>
+                        <li><span class="text-amber-700 mr-2">●</span><b>Backend:</b> none of these controls hit an API yet. Buttons mutate local mock arrays and show a toast; see <code class="bg-amber-100 px-1.5 py-0.5 rounded text-xs">js/admin.js</code> for the <code class="bg-amber-100 px-1.5 py-0.5 rounded text-xs">// TODO(api)</code> markers.</li>
+                        <li><span class="text-amber-700 mr-2">●</span><b>Prompt + model config</b> currently live in code (<code class="bg-amber-100 px-1.5 py-0.5 rounded text-xs">Scripts/Analysis/LLM_analysis.py</code>). To edit them from here they need to move into a config table the pipeline reads at run time.</li>
+                        <li><span class="text-amber-700 mr-2">●</span><b>Not linked</b> from index.html on purpose — reach it directly at <code class="bg-amber-100 px-1.5 py-0.5 rounded text-xs">/admin.html</code>.</li>
+                    </ul>
+                </div>
+
+                <div id="overview-stats" class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6"></div>
+
+                <div class="grid lg:grid-cols-2 gap-6">
+                    <div>
+                        <h2 class="text-sm font-semibold mb-3">Latest run · stage breakdown</h2>
+                        <div id="overview-stages" class="bg-white border border-slate-200 rounded-xl overflow-hidden"></div>
+                    </div>
+                    <div>
+                        <h2 class="text-sm font-semibold mb-3">Needs attention</h2>
+                        <div id="overview-attention" class="bg-white border border-slate-200 rounded-xl overflow-hidden"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ========== STOCKS ========== -->
+            <section id="section-stocks" class="admin-section hidden">
+                <div class="mb-6">
+                    <h1 class="text-2xl font-bold tracking-tight">Stocks</h1>
+                    <p class="text-sm text-slate-500 mt-1">The analysis universe — add symbols, pause noisy ones, re-run failures.</p>
+                </div>
+
+                <!-- Add stock -->
+                <div class="bg-white border border-slate-200 rounded-xl p-5 mb-6">
+                    <h2 class="text-sm font-semibold mb-4">Add stocks</h2>
+                    <div class="grid md:grid-cols-3 gap-4">
+                        <div class="md:col-span-2">
+                            <label class="admin-label" for="add-stock-symbol">NSE symbol(s)</label>
+                            <input id="add-stock-symbol" class="admin-input" placeholder="RELIANCE, TCS, GCHOTELS" onkeydown="if(event.key==='Enter') addStocks()">
+                            <p class="admin-hint">Comma or space separated. Metadata is pulled from nsepython + yfinance on add.</p>
+                        </div>
+                        <div class="flex items-end gap-2">
+                            <button onclick="addStocks()" class="flex-1 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white text-sm font-medium rounded-lg transition">Add &amp; fetch</button>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-slate-100 flex flex-wrap items-center gap-3 text-xs text-slate-500">
+                        <span>Bulk import:</span>
+                        <button onclick="adminToast('Would re-run Scripts/Generation/fetch_stock.py for the full NSE list')" class="px-3 py-1.5 border border-slate-200 hover:border-sky-300 rounded-md font-medium text-slate-700 transition">Sync full NSE list</button>
+                        <button onclick="adminToast('Would import stocks_seed.csv into the stocks table')" class="px-3 py-1.5 border border-slate-200 hover:border-sky-300 rounded-md font-medium text-slate-700 transition">Import stocks_seed.csv</button>
+                    </div>
+                </div>
+
+                <!-- Filters + table -->
+                <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
+                    <div id="stock-filters" class="flex flex-wrap gap-2"></div>
+                    <input id="stock-search" class="admin-input" style="width:14rem" placeholder="Search symbol or name…" oninput="renderAdminStocks()">
+                </div>
+                <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
+                    <div class="grid grid-cols-12 gap-3 px-5 py-3 bg-slate-50 border-b border-slate-200 text-[11px] font-semibold text-slate-500 uppercase tracking-wide">
+                        <div class="col-span-3">Symbol</div>
+                        <div class="col-span-2">Sector</div>
+                        <div class="col-span-2">Last analysis</div>
+                        <div class="col-span-2">Stage</div>
+                        <div class="col-span-1 text-right">News</div>
+                        <div class="col-span-2 text-right">Actions</div>
+                    </div>
+                    <div id="admin-stocks-list"></div>
+                </div>
+                <p id="admin-stocks-count" class="text-xs text-slate-500 mt-3"></p>
+            </section>
+
+            <!-- ========== PIPELINE RUNS ========== -->
+            <section id="section-runs" class="admin-section hidden">
+                <div class="mb-6 flex items-start justify-between flex-wrap gap-3">
+                    <div>
+                        <h1 class="text-2xl font-bold tracking-tight">Pipeline runs</h1>
+                        <p class="text-sm text-slate-500 mt-1">Nightly batch history. Click a run for its stage breakdown.</p>
+                    </div>
+                    <button onclick="adminToast('Would POST /admin/runs — triggers the orchestrator now')" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white text-sm font-medium rounded-lg transition">▶ Run now</button>
+                </div>
+
+                <div class="bg-white border border-slate-200 rounded-xl overflow-hidden mb-6">
+                    <div class="grid grid-cols-12 gap-3 px-5 py-3 bg-slate-50 border-b border-slate-200 text-[11px] font-semibold text-slate-500 uppercase tracking-wide">
+                        <div class="col-span-3">Run</div>
+                        <div class="col-span-2">Started</div>
+                        <div class="col-span-2">Duration</div>
+                        <div class="col-span-4">Result</div>
+                        <div class="col-span-1 text-right">Log</div>
+                    </div>
+                    <div id="admin-runs-list"></div>
+                </div>
+
+                <h2 class="text-sm font-semibold mb-3">Stage breakdown · <span id="runs-selected-label" class="text-slate-500 font-normal"></span></h2>
+                <div id="runs-stages" class="bg-white border border-slate-200 rounded-xl overflow-hidden"></div>
+            </section>
+
+            <!-- ========== USERS ========== -->
+            <section id="section-users" class="admin-section hidden">
+                <div class="mb-6">
+                    <h1 class="text-2xl font-bold tracking-tight">Users</h1>
+                    <p class="text-sm text-slate-500 mt-1">Accounts, roles, and what each user is holding. Click a row for the full position list.</p>
+                </div>
+
+                <div id="users-stats" class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6"></div>
+
+                <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
+                    <div class="grid grid-cols-12 gap-3 px-5 py-3 bg-slate-50 border-b border-slate-200 text-[11px] font-semibold text-slate-500 uppercase tracking-wide">
+                        <div class="col-span-4">User</div>
+                        <div class="col-span-2">Role</div>
+                        <div class="col-span-2">Joined</div>
+                        <div class="col-span-2">Last login</div>
+                        <div class="col-span-2 text-right">Holdings</div>
+                    </div>
+                    <div id="admin-users-list"></div>
+                </div>
+                <p class="admin-hint mt-3">Holdings come from the planned <code>user_holdings</code> table (symbol, entry_price, entry_date, qty, user_id).</p>
+            </section>
+
+            <!-- ========== LLM MODELS ========== -->
+            <section id="section-models" class="admin-section hidden">
+                <div class="mb-6">
+                    <h1 class="text-2xl font-bold tracking-tight">LLM models</h1>
+                    <p class="text-sm text-slate-500 mt-1">Which model runs the nightly analysis, and which small model handles divergent watchlist rows.</p>
+                </div>
+                <div id="models-forms" class="grid lg:grid-cols-2 gap-6"></div>
+            </section>
+
+            <!-- ========== PROMPTS ========== -->
+            <section id="section-prompts" class="admin-section hidden">
+                <div class="mb-6">
+                    <h1 class="text-2xl font-bold tracking-tight">Prompts</h1>
+                    <p class="text-sm text-slate-500 mt-1">Versioned prompt bodies. Exactly one version per target is active at a time.</p>
+                </div>
+
+                <div class="grid lg:grid-cols-4 gap-6">
+                    <div class="lg:col-span-1">
+                        <div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wide mb-2">Versions</div>
+                        <div id="prompt-versions" class="space-y-2"></div>
+                    </div>
+                    <div class="lg:col-span-3">
+                        <div id="prompt-editor"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ========== NEWS SOURCES ========== -->
+            <section id="section-news" class="admin-section hidden">
+                <div class="mb-6">
+                    <h1 class="text-2xl font-bold tracking-tight">News sources</h1>
+                    <p class="text-sm text-slate-500 mt-1">Feed, scraping and paywall settings used by <code class="text-xs">Scripts/Generation/Sentiments.py</code>.</p>
+                </div>
+                <div id="news-form"></div>
+            </section>
+
+            <!-- ========== SCHEDULE ========== -->
+            <section id="section-schedule" class="admin-section hidden">
+                <div class="mb-6">
+                    <h1 class="text-2xl font-bold tracking-tight">Schedule</h1>
+                    <p class="text-sm text-slate-500 mt-1">When the nightly batch fires and how hard it runs.</p>
+                </div>
+                <div id="schedule-form"></div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- ============== MODAL (user detail / run log) ============== -->
+    <div id="admin-modal-overlay" class="hidden fixed inset-0 bg-slate-900/50 z-40 items-center justify-center p-4" onclick="closeAdminModal()">
+        <div onclick="event.stopPropagation()" class="bg-white rounded-2xl w-full max-w-2xl max-h-[85vh] overflow-y-auto shadow-2xl relative">
+            <button onclick="closeAdminModal()" class="absolute top-4 right-4 z-10 w-8 h-8 flex items-center justify-center rounded-full text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition" title="Close">✕</button>
+            <div id="admin-modal-content" class="p-7 pt-9"></div>
+        </div>
+    </div>
+
+    <!-- ============== TOAST ============== -->
+    <div id="admin-toast"><span id="admin-toast-text"></span></div>
+
+    <!-- ============== SCRIPTS ==============
+         theme.js          — shared light/dark/sepia cycle
+         admin-mock-data.js— placeholder data for every panel
+         api.js            — shared fetch layer (still a stub)
+         admin.js          — admin routing, rendering and actions
+    -->
+    <script src="js/theme.js"></script>
+    <script src="js/admin-mock-data.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/admin.js"></script>
+</body>
+</html>
