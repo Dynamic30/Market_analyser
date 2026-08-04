@@ -28,4 +28,4 @@ MongoDB Database Strucutre
 
 
 # Workflow
-should contain how to script should be runned and how to start up the project and all the other setups (how to set up crontabs etc.)
+should contain how to script should be runned and how to start up the project and all the other setups (how to set up crontabs etc)
