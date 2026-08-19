@@ -1,13 +1,20 @@
 from fastapi import FastAPI
 from backend.routers import all_stocks
+# for lifespan 
+from contextlib import asynccontextmanager
+
 
 # server frontned
 from fastapi.staticfiles import StaticFiles
 
 from fastapi.middleware.cors import CORSMiddleware
 
+@asynccontextmanager
+async def lifespan():
+    return
 
-app = FastAPI()
+
+app = FastAPI(app="Stock Market Analyzer", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -15,6 +22,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 
 #app routers

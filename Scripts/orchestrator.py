@@ -1,0 +1,1 @@
+# main script to run generation  and analysis script , configured by cron and arglib

@@ -1,7 +1,6 @@
 import yfinance as yf
 import pandas as pd
 import numpy as np
-import pandas_ta as ta 
 import pathlib
 import json
 from datetime import date, datetime, timedelta
@@ -48,6 +47,26 @@ engine = create_engine(
 
 today = date.today()
 
+
+# RSI and ATR, previously from pandas_ta. Both use Wilder's smoothing (RMA):
+# an EWM with alpha = 1/length rather than the usual span-based decay. That is
+# what the `r` in pandas_ta's ATRr_14 denoted, so these match the old values.
+# Underscore-prefixed because json_data() binds a local named `atr`.
+def _rsi(close, length=14):
+    delta = close.diff()
+    gain = delta.clip(lower=0).ewm(alpha=1 / length, adjust=False).mean()
+    loss = (-delta.clip(upper=0)).ewm(alpha=1 / length, adjust=False).mean()
+    return 100 - 100 / (1 + gain / loss)
+
+
+def _atr(high, low, close, length=14):
+    prev_close = close.shift()
+    true_range = pd.concat([
+        high - low,
+        (high - prev_close).abs(),
+        (low - prev_close).abs(),
+    ], axis=1).max(axis=1)
+    return true_range.ewm(alpha=1 / length, adjust=False).mean()
 
 
 def data_from_nsepython(symbol, sector=None):
@@ -132,7 +151,7 @@ def data_from_nsepython(symbol, sector=None):
     pcr_oi = "NO DATA COLLECTED"
     max_pain = "NO DATA COLLECTED"
 
-    stock = yf.Ticker(f"{symbol}.NS").history(period="1y")['Close']
+    stock = yf.Ticker(f"{symbol}.NS" if not symbol.endswith(".NS") else symbol).history(period="1y")['Close']
 
     # 6. Sector relative strength (only computed if sector is mapped).
     # NSE's equity_history is 403-blocked, so both legs come from yfinance.
@@ -294,7 +313,7 @@ def json_data(company_name,today,market_ctx=None):
     
  # TECHNICAL SIGNALS 
 
-    df = ticker.history(period="1y")
+    df = ticker.history(period="2y")
     df["EMA_20"] = df["Close"].ewm(span=20, adjust=False).mean()
     df["EMA_50"] = df["Close"].ewm(span=50, adjust=False).mean()
     df["EMA_200"] = df["Close"].ewm(span=200, adjust=False).mean()
@@ -310,11 +329,25 @@ def json_data(company_name,today,market_ctx=None):
     long_term = "Bullish" if ema50 > ema200 else "Bearish"
     closing_bias = "Positive" if close > ema20 else "Negative"
     
-    df["RSI_14"] = ta.rsi(df["Close"], length=14)
+    df["RSI_14"] = _rsi(df["Close"], length=14)
     rsi_14 = round(df["RSI_14"].iloc[-1], 2)
+    # --- Ranking factors -------------------------------------------------
+    # 12-month return skipping the most recent month. The skip is deliberate:
+    # last month's move tends to reverse, so including it adds noise.
+    mom_12_1 = None
+    if len(df) >= 252:
+        mom_12_1 = round(float(df["Close"].iloc[-21] / df["Close"].iloc[-252] - 1), 4)
 
-    high_52w = df["Close"].max()
-    low_52w = df["Close"].min()
+    # Annualised volatility over the last 60 sessions.
+    vol_60 = None
+    if len(df) >= 61:
+        vol_60 = round(float(df["Close"].pct_change().tail(60).std() * (252 ** 0.5)), 4)
+
+    # beta_252 comes from data_from_nsepython (nse['beta_nifty']) — already
+    # computed against NIFTY there, no need to duplicate it.
+
+    high_52w = df["Close"].tail(252).max()
+    low_52w = df["Close"].tail(252).min()
     
     distance_from_52w_high_pct = round(
         ((close - high_52w) / high_52w) * 100, 2
@@ -366,14 +399,15 @@ def json_data(company_name,today,market_ctx=None):
     beta = nse['beta_nifty'] if nse['beta_nifty'] is not None else 0
 
 
-    df.ta.atr(length=14,append=True)
-    if 'ATRr_14' in df.columns:
-        atr = round(df['ATRr_14'].iloc[-1] , 2)
+    df['ATRr_14'] = _atr(df['High'], df['Low'], df['Close'], length=14)
+    atr_latest = df['ATRr_14'].iloc[-1]
+    if pd.notna(atr_latest):
+        atr = round(float(atr_latest), 2)
     else:
         atr = "No value Extracted"
     
     df['returns'] = df['Close'].pct_change()
-    intraday_vol_pct = round(df['returns'].std()*100, 2)
+    intraday_vol_pct = round(df['returns'].tail(252).std()*100, 2)
 
     # Support Resistance
     if len(df) > 20:
@@ -676,7 +710,16 @@ def json_data(company_name,today,market_ctx=None):
         # "event_risk": event_risk, Will get this from sentiments itself
         # "governance_risk": governance_risk, Removed as yfinace stats for non us stocks are tricky
         "valuation_risk": valuation_risk
-    }
+    },
+    "ranking_factors": {
+    "mom_12_1": mom_12_1,
+    "vol_60": vol_60,
+    "beta_252": nse['beta_nifty'],
+    "roce": float(roce) if roce else None,
+    "de_ratio": round(debt_to_equity_ratio / 100, 2) if debt_to_equity_ratio else None,
+    "earnings_yield": round(1 / trailing_pe, 4) if trailing_pe else None,
+    "delivery_pct_20": None,
+    },
     }
     
 
@@ -699,4 +742,5 @@ def main_script(company_name, as_of=None, market_ctx=None):
 
 
 if __name__ == "__main__":
-    main_script("VIVIDHA")
+    data, d = json_data("RELIANCE", today)
+    print(data["ranking_factors"])

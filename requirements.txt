@@ -10,7 +10,6 @@ psycopg[binary]
 # Data / analysis
 pandas
 numpy
-pandas_ta
 yfinance
 nsepython
 

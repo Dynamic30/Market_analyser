@@ -2,8 +2,7 @@ from fastapi import APIRouter, HTTPException
 from sqlalchemy import create_engine, text
 
 from dotenv import load_dotenv
-from pydantic import BaseModel
-
+from backend.schemas import Add_Watchlist
 import os
 
 load_dotenv()
@@ -17,11 +16,7 @@ engine = create_engine(
 router = APIRouter()
 
 
-# add to watchlist base model
-class Add_Watchlist(BaseModel):
-    date:str
-    entry_price : float
-    Quantity:int
+
 
 
 CARD_SQL = text("""

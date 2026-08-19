@@ -52,14 +52,39 @@ ALTER TABLE stock_analysis ADD COLUMN IF NOT EXISTS fund_score REAL;
 ALTER TABLE stock_analysis ADD COLUMN IF NOT EXISTS flow_score REAL;
 ALTER TABLE stock_analysis ADD COLUMN IF NOT EXISTS raw_signals JSONB;
 ALTER TABLE stock_analysis ADD COLUMN IF NOT EXISTS python_reasoning TEXT;
+ALTER TABLE stock_analysis ADD COLUMN IF NOT EXISTS mom_12_1 DOUBLE PRECISION;
+ALTER TABLE stock_analysis ADD COLUMN IF NOT EXISTS vol_60 DOUBLE PRECISION;
+ALTER TABLE stock_analysis ADD COLUMN IF NOT EXISTS beta_252 DOUBLE PRECISION;
+ALTER TABLE stock_analysis ADD COLUMN IF NOT EXISTS delivery_pct_20 DOUBLE PRECISION;
+ALTER TABLE stock_analysis ADD COLUMN IF NOT EXISTS roce DOUBLE PRECISION;
+ALTER TABLE stock_analysis ADD COLUMN IF NOT EXISTS de_ratio DOUBLE PRECISION;
+ALTER TABLE stock_analysis ADD COLUMN IF NOT EXISTS earnings_yield DOUBLE PRECISION;
+
+ALTER TABLE stock_analysis ADD COLUMN IF NOT EXISTS composite_score DOUBLE PRECISION;
+ALTER TABLE stock_analysis ADD COLUMN IF NOT EXISTS composite_rank INTEGER;
+ALTER TABLE stock_analysis ADD COLUMN IF NOT EXISTS n_factors_used SMALLINT;
+
+ALTER TABLE stock_analysis ADD COLUMN IF NOT EXISTS adj_close DOUBLE PRECISION;
+ALTER TABLE stock_analysis ADD COLUMN IF NOT EXISTS sector TEXT;
+ALTER TABLE stock_analysis ADD COLUMN IF NOT EXISTS passed_universe_gate BOOLEAN;
+ALTER TABLE stock_analysis ADD COLUMN IF NOT EXISTS eval_horizon_days INTEGER;
+
+
 
 CREATE INDEX IF NOT EXISTS idx_analysis_date ON stock_analysis(analysis_date);
 -- Backs the "latest analysis per symbol" join in backend/routers/all_stocks.py
 CREATE INDEX IF NOT EXISTS idx_analysis_symbol_date
     ON stock_analysis(nse_symbol, analysis_date DESC);
 
+CREATE INDEX IF NOT EXISTS idx_analysis_date_gate
+    ON stock_analysis(analysis_date, passed_universe_gate)
+    WHERE passed_universe_gate;
+
+
 DROP TRIGGER IF EXISTS trg_stock_analysis_updated ON stock_analysis;
 CREATE TRIGGER trg_stock_analysis_updated
 BEFORE UPDATE ON stock_analysis
 FOR EACH ROW
 EXECUTE FUNCTION set_updated_at();
+
+
