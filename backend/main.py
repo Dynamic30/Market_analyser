@@ -14,6 +14,7 @@ async def lifespan():
     return
 
 
+
 app = FastAPI(app="Stock Market Analyzer", lifespan=lifespan)
 
 app.add_middleware(
