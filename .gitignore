@@ -5,3 +5,4 @@ Scripts/Depcricated_code
 market.db
 logs/
 .vscode
+/logs

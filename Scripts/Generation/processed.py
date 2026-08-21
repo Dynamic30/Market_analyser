@@ -12,7 +12,7 @@ from nsepython import (
     nse_fiidii, nse_largedeals_historical,nse_optionchain_scrapper, equity_history, nse_quote_meta
 )
 
-print("Its working")
+# print("Its working")
 
 # Keys are yfinance sector names (what info['sector'] actually returns), values are
 # the matching NSE sector index on yfinance. "Utilities" has no clean NSE index.
@@ -151,7 +151,7 @@ def data_from_nsepython(symbol, sector=None):
     pcr_oi = "NO DATA COLLECTED"
     max_pain = "NO DATA COLLECTED"
 
-    stock = yf.Ticker(f"{symbol}.NS" if not symbol.endswith(".NS") else symbol).history(period="1y")['Close']
+    stock = yf.Ticker(f"{symbol}.NS" if not symbol.endswith(".NS") else symbol).history(period="2y")['Close']
 
     # 6. Sector relative strength (only computed if sector is mapped).
     # NSE's equity_history is 403-blocked, so both legs come from yfinance.
@@ -173,11 +173,11 @@ def data_from_nsepython(symbol, sector=None):
     # 7. Beta vs NIFTY 50 (yfinance defaults to S&P 500 which is wrong for NSE stocks)
     beta_nifty = None
     try:
-        nifty = yf.Ticker("^NSEI").history(period="1y")['Close']
+        nifty = yf.Ticker("^NSEI").history(period="2y")['Close']
         joined = pd.concat([stock.rename('stk'), nifty.rename('nf')], axis=1).dropna()
         r_stk = joined['stk'].pct_change()
         r_nf  = joined['nf'].pct_change()
-        valid = pd.concat([r_stk, r_nf], axis=1).dropna().tail(250)
+        valid = pd.concat([r_stk, r_nf], axis=1).dropna().tail(500)
         if len(valid) >= 60:
             cov = np.cov(valid.iloc[:, 0], valid.iloc[:, 1])[0][1]
             var = np.var(valid.iloc[:, 1])
