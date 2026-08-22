@@ -23,8 +23,10 @@ PROJECT_ROOT = Path(__file__).parent.parent.parent
 SCHEMA_FILES = [
     PROJECT_ROOT / "db_schema" / "stocks.sql",          # must run first — defines set_updated_at()
     PROJECT_ROOT / "db_schema" / "stock_analysis.sql",
+    PROJECT_ROOT / "db_schema" / "sector_summary.sql", # weekly rolling sentiment summary
+
 ]
-SEED_CSV = PROJECT_ROOT / "stocks_seed.csv"
+SEED_CSV = PROJECT_ROOT / "etc" / "stocks_seed.csv"
 
 engine = create_engine(
     os.getenv("SQL_DB", "postgresql+psycopg://market:market@localhost:5432/market_analyser")

@@ -1,0 +1,1904 @@
+[
+  {
+    "symbol": "RELIANCE",
+    "sector": "Energy",
+    "n_articles_used": 8,
+    "overall_bias_score": 0.54,
+    "news_bias_score": 0.6,
+    "news_bias_label": "Mixed",
+    "analysis_bias_score": 0.51,
+    "analysis_bias_label": "Neutral",
+    "overall_bias_label": "Neutral",
+    "short_term_action": "NEUTRAL",
+    "long_term_action": "BUY",
+    "holding_duration": "swing",
+    "price_ranges": {
+      "buy_range": {
+        "low": 1240,
+        "high": 1256,
+        "note": "Entry zone around nearest support (1249.8) with ATR buffer"
+      },
+      "sell_range_short": {
+        "low": 1331,
+        "high": 1343,
+        "note": "Short-sell zone around nearest resistance (1337.0)"
+      },
+      "sell_range_positional": {
+        "low": 1589,
+        "high": 1757,
+        "note": "Analyst consensus target mean \u00b15%"
+      },
+      "stop_loss": {
+        "price": 1230,
+        "note": "Below nearest support minus 1x ATR"
+      }
+    },
+    "llm_reasoning": {
+      "technical": "All timeframes are bearish (20D/50D/200D) and price trades below all key EMAs. RSI at 50.18 is neutral, offering no mean-reversion edge. Volume is dry, signaling weak conviction. The stock sits in a mid-range zone with support at 1249.8 and resistance at 1337.0; risk/reward for a long swing is unfavorable with resistance only ~2% above. ATR of 19.42 indicates moderate volatility.",
+      "fundamental": "Balance sheet is healthy with D/E of 0.37 and strong revenue growth of 30% YoY. Valuation is fair (trailing PE 23.7, forward PE 18.3) and analyst consensus is Strong Buy with 27.7% upside to the mean target. However, earnings surprise trend is weak (3 misses in last 4 quarters) and ROCE at 12.5% is only moderate.",
+      "sentiment": "Institutional flows are divergent: FII trend is bearish while DII trend is bullish. Recent news is net positive for RIL, led by the Rs 2.73 lakh crore coal gasification investment announcement and Jio Prime membership relaunch. Broader market sentiment remains fragile with seven consecutive declining sessions.",
+      "synthesis": "Bearish technicals across all timeframes and negative FII flows offset strong fundamentals and positive news catalysts for the 1-10 day swing horizon. The stock is neither in an optimal buy zone nor at a clear short-sell trigger, warranting a NEUTRAL swing stance. Long-term fundamentals remain intact, supporting a positional BUY on deeper dips toward the 1240-1256 support zone."
+    },
+    "risks": [
+      {
+        "risk": "Support breakdown on weak volume",
+        "why": "Price is hovering above the nearest support of 1249.8 with dry volume. A close below this level could trigger a quick move toward the 1230 stop-loss as bearish momentum across all timeframes extends."
+      },
+      {
+        "risk": "Negative FII flows amid fragile market breadth",
+        "why": "FII trend is bearish and Nifty has seen seven consecutive down-sessions. Reliance\u2019s beta of 1.05 means it remains vulnerable to macro-driven foreign selling even as DIIs turn bullish."
+      }
+    ],
+    "sentiment_sector_composite": -0.119,
+    "sentiment_sector_rank": 21,
+    "sentiment_sector_score": 41.43,
+    "sentiment_composite_rank": 21,
+    "sentiment_composite_score": 41.43
+  },
+  {
+    "symbol": "ADANIENT",
+    "sector": "Energy",
+    "n_articles_used": 2,
+    "overall_bias_score": 0.59,
+    "news_bias_score": 0.65,
+    "news_bias_label": "Bullish",
+    "analysis_bias_score": 0.52,
+    "analysis_bias_label": "Neutral",
+    "overall_bias_label": "Mixed(bullish)",
+    "short_term_action": "HOLD",
+    "long_term_action": "NEUTRAL",
+    "holding_duration": "swing",
+    "price_ranges": {
+      "buy_range": {
+        "low": 2903,
+        "high": 2951,
+        "note": "Support-aligned swing entry (nearest_support \u00b1 0.5/0.3 ATR)"
+      },
+      "sell_range_short": {
+        "low": 3074,
+        "high": 3109,
+        "note": "Short-term resistance zone (nearest_resistance \u00b1 0.3 ATR)"
+      },
+      "sell_range_positional": {
+        "low": 3550,
+        "high": 3924,
+        "note": "Mean analyst target \u00b1 5%"
+      },
+      "stop_loss": {
+        "price": 2873,
+        "note": "Below nearest support by 1x ATR"
+      }
+    },
+    "llm_reasoning": {
+      "technical": "Short-term trend is bearish (20D EMA) with price closing below EMA20 (2995.7 vs 3020.3), indicating a mild pullback. However, medium-term (50D) and long-term (200D) trends remain bullish, with price well above the 200D EMA (2653.9). RSI at 45.3 is neutral. The stock is trading mid-range between support (2932.8) and resistance (3091.5), offering a defined-risk setup but lacking immediate directional conviction for a 1\u201310 day swing.",
+      "fundamental": "Revenue growth is robust at 50% YoY and ROCE is moderate at 12.7%. However, valuation is stretched with trailing PE of 52.1 and forward PE of 44.5, while debt-to-equity of 1.2x flags a leveraged balance sheet. The earnings surprise trend is severely weak, having missed consensus in all of the last four quarters by an average of -52.9%, undermining confidence in near-term profitability delivery.",
+      "sentiment": "Institutional flows are conflicted: FIIs are bearish while DIIs are bullish. The consensus target price implies 24.8% upside, which is supportive, but there are no active analyst recommendations and promoter holding is high at 75%. Recent news of U.S. fraud charges dismissal is a major sentiment positive, partly offset by governance questions around promoter purchases funded via related-party loan repayments.",
+      "synthesis": "ADANIENT exhibits a cyclical pullback within a broader uptrend. The technical picture is inconclusive for the immediate swing window, while fundamentals are weakened by high leverage and a poor earnings track record despite strong top-line growth. Sentiment is buoyed by legal clarity and bullish DII flows, but the stock is not at an optimal swing-entry level. With the overall bias in the Mixed(bullish) zone but below the 0.65 BUY threshold, and price sitting between defined support and resistance, the short-term stance is HOLD. Long-term positional criteria are not met due to the leveraged health status, warranting a NEUTRAL view for positional buying."
+    },
+    "risks": [
+      {
+        "risk": "Earnings disappointment & high leverage",
+        "why": "The company has missed earnings estimates in 4 consecutive quarters by an average of ~53%, and with a D/E of 1.2x, any further operational miss could amplify downside given the elevated PE multiple."
+      },
+      {
+        "risk": "Regulatory & governance overhang",
+        "why": "While U.S. charges were dismissed, promoter share purchases via related-party loan repayments keep governance risks alive, and the stock's high beta (1.6) means it will magnify any adverse market or sector moves."
+      }
+    ],
+    "sentiment_sector_composite": 0.4017,
+    "sentiment_sector_rank": 12,
+    "sentiment_sector_score": 67.14,
+    "sentiment_composite_rank": 12,
+    "sentiment_composite_score": 67.14
+  },
+  {
+    "symbol": "ONGC",
+    "sector": "Energy",
+    "n_articles_used": 8,
+    "overall_bias_score": 0.58,
+    "news_bias_score": 0.72,
+    "news_bias_label": "Bullish",
+    "analysis_bias_score": 0.56,
+    "analysis_bias_label": "Mixed(bullish)",
+    "overall_bias_label": "Mixed(bullish)",
+    "short_term_action": "HOLD",
+    "long_term_action": "BUY",
+    "holding_duration": "swing",
+    "price_ranges": {
+      "buy_range": {
+        "low": 232,
+        "high": 235,
+        "note": "Accumulate near support with ATR buffer"
+      },
+      "sell_range_short": {
+        "low": 252,
+        "high": 255,
+        "note": "Short-term resistance zone"
+      },
+      "sell_range_positional": {
+        "low": 280,
+        "high": 309,
+        "note": "Analyst target mean exit band"
+      },
+      "stop_loss": {
+        "price": 230,
+        "note": "Below nearest support + 1 ATR"
+      }
+    },
+    "llm_reasoning": {
+      "technical": "Bearish trend across 20D/50D/200D with price below all key EMAs and RSI at 39.52. Stock is testing support at 233.64, offering a defined risk setup, but momentum remains weak and the stock is only 7.3% above its 52-week low.",
+      "fundamental": "Deep value at 6.8x trailing PE and 0.8x PB with a healthy balance sheet (D/E 0.43). ROCE is strong at 16.8% and revenue grew 26% YoY. Earnings yield of ~14.7% provides a solid margin of safety.",
+      "sentiment": "Predominantly positive news flow driven by US approval for Venezuela re-entry and a $300m Transocean contract. Analyst consensus is Buy with 24.5% upside target. DII trend is bullish, though FII selling remains an overhang.",
+      "synthesis": "Strong fundamentals and positive catalysts are in conflict with poor technical trends. For swing traders, the stock is between its buy and sell ranges, suggesting a HOLD until either support breaks or a rebound above EMA20 confirms. Long-term investors can accumulate given the healthy financials and deep valuation discount to target."
+    },
+    "risks": [
+      {
+        "risk": "Support breakdown",
+        "why": "Price is testing 233.64 support within a bearish trend; a close below could accelerate selling toward the 52-week low of 220.61, especially with weak FII flow."
+      },
+      {
+        "risk": "Crude price / margin volatility",
+        "why": "Operating margin is thin at 2.93%; adverse crude price swings or subsidy/policy changes could compress profitability despite strong revenue growth."
+      }
+    ],
+    "sentiment_sector_composite": 0.2976,
+    "sentiment_sector_rank": 14,
+    "sentiment_sector_score": 61.43,
+    "sentiment_composite_rank": 14,
+    "sentiment_composite_score": 61.43
+  },
+  {
+    "symbol": "COALINDIA",
+    "sector": "Energy",
+    "n_articles_used": 8,
+    "overall_bias_score": 0.64,
+    "news_bias_score": 0.52,
+    "news_bias_label": "Mixed",
+    "analysis_bias_score": 0.64,
+    "analysis_bias_label": "Mixed(bullish)",
+    "overall_bias_label": "Mixed(bullish)",
+    "short_term_action": "HOLD",
+    "long_term_action": "HOLD",
+    "holding_duration": "swing",
+    "price_ranges": {
+      "buy_range": {
+        "low": 393,
+        "high": 398,
+        "note": "Nearest support \u00b1 ATR multiple"
+      },
+      "sell_range_short": {
+        "low": 424,
+        "high": 427,
+        "note": "Nearest resistance \u00b1 ATR multiple"
+      },
+      "sell_range_positional": {
+        "low": 437,
+        "high": 483,
+        "note": "Target mean \u00b15%"
+      },
+      "stop_loss": {
+        "price": 390,
+        "note": "Support minus 1x ATR"
+      }
+    },
+    "llm_reasoning": {
+      "technical": "Short-term (20D) and medium-term (50D) trends are bearish, with price at 404.5 trading below EMA20 (410.96) and EMA50 (421.13). RSI at 37.04 is weak and approaching oversold. However, price is just above nearest support at 395.8 and long-term 200D trend remains bullish. Low beta (0.59) and Tier 1 liquidity reduce volatility risk.",
+      "fundamental": "Valuation is highly attractive with trailing PE ~7.95 and forward PE ~7.14. ROCE of 33.34%, revenue growth of 45% YoY, and debt-to-equity of 0.12 signal a healthy, profitable giant. State levies of \u20b97,000cr are a margin headwind but do not override the strong earnings profile.",
+      "sentiment": "Analyst recommendation is Buy with 13.78% upside to mean target. DII flow is bullish, offsetting bearish FII trend. Recent news is mixed: the Singapore critical minerals expansion (Aug 20) is a strategic positive, while higher state levies (Aug 20) and the recent -2% price drop (Aug 19) weigh on near-term sentiment.",
+      "synthesis": "Energy sector cyclical weighting puts 50% emphasis on technicals, where short-term bearish momentum and negative EMA bias keep the score from turning fully bullish. Strong fundamentals and analyst targets provide a floor, resulting in a Mixed(bullish) overall bias (~0.64). Price at 404.5 sits between the buy zone (393-398) and short-term sell zone (424-427), warranting a HOLD for swing traders until a clearer entry or breakout emerges."
+    },
+    "risks": [
+      {
+        "risk": "Short-term trend continuation / support breakdown",
+        "why": "Bearish 20D/50D trends and negative closing bias vs EMA20 could extend, violating the 395.8 support and hitting the 390 stop loss if FII selling accelerates."
+      },
+      {
+        "risk": "Regulatory and cost inflation",
+        "why": "State levies added \u20b97,000 crore in FY26; further unpredictable taxation, royalty hikes, or environmental levies could compress margins and dent the low-valuation investment case."
+      }
+    ],
+    "sentiment_sector_composite": 0.9225,
+    "sentiment_sector_rank": 9,
+    "sentiment_sector_score": 75.71,
+    "sentiment_composite_rank": 9,
+    "sentiment_composite_score": 75.71
+  },
+  {
+    "symbol": "IOC",
+    "sector": "Energy",
+    "n_articles_used": 8,
+    "overall_bias_score": 0.45,
+    "news_bias_score": 0.65,
+    "news_bias_label": "Bullish",
+    "analysis_bias_score": 0.44,
+    "analysis_bias_label": "Mixed",
+    "overall_bias_label": "Neutral",
+    "short_term_action": "NEUTRAL",
+    "long_term_action": "NEUTRAL",
+    "holding_duration": "swing",
+    "price_ranges": {
+      "buy_range": {
+        "low": 134,
+        "high": 136,
+        "note": "Support 135.28 \u00b1 ATR-based buffer (0.5x/0.3x); current price inside range"
+      },
+      "sell_range_short": {
+        "low": 143,
+        "high": 145,
+        "note": "Resistance 143.92 \u00b1 0.3x ATR"
+      },
+      "sell_range_positional": {
+        "low": 152,
+        "high": 168,
+        "note": "Analyst target mean 160.06 \u00b15%"
+      },
+      "stop_loss": {
+        "price": 133,
+        "note": "Below nearest support minus 1x ATR (2.27)"
+      }
+    },
+    "llm_reasoning": {
+      "technical": "All trends are bearish (20D/50D/200D) with price (135.95) below all key EMAs and testing support at 135.28. RSI at 39.75 reflects weak momentum, and the stock trades just 4.78% above its 52-week low. Volume is normal and liquidity is Tier 1, but the setup remains technically weak.",
+      "fundamental": "Deep value on trailing PE of 5.58 and PB of 0.85, with strong revenue growth (39% YoY) and high ROCE (23.74%). However, operating margin is slightly negative (-0.13%), indicating core operational stress, and the health status is Leveraged (D/E 0.58).",
+      "sentiment": "Analyst consensus is Buy with 17.7% upside to mean target. DII flow is bullish while FII trend is bearish. Recent news is positive: IOC signed a 2027 LPG supply deal with Algeria and a multi-year fuel supply MoU with Mauritius, diversifying supply sources. Irrelevant Olympic-committee headlines were ignored.",
+      "synthesis": "For this cyclical Energy name, bearish technicals carry the highest weight (50%). Deep valuation and positive news provide a floor, but negative operating margins and foreign institutional selling keep the setup conflicted. The stock is at a key support test; without a confirmed bounce, the swing outlook remains inconclusive."
+    },
+    "risks": [
+      {
+        "risk": "Support breakdown",
+        "why": "Price is testing support at 135.28. A sustained break below the stop-loss zone (~133) could accelerate selling toward the 52-week low of 129.75."
+      },
+      {
+        "risk": "Refining margin compression",
+        "why": "Negative operating margin (-0.13%) signals stressed core operations. If refining spreads remain weak, earnings could disappoint despite low valuation multiples."
+      }
+    ],
+    "sentiment_sector_composite": -1.0564,
+    "sentiment_sector_rank": 28,
+    "sentiment_sector_score": 21.43,
+    "sentiment_composite_rank": 28,
+    "sentiment_composite_score": 21.43
+  },
+  {
+    "symbol": "BPCL",
+    "sector": "Energy",
+    "n_articles_used": 8,
+    "overall_bias_score": 0.51,
+    "news_bias_score": 0.48,
+    "news_bias_label": "Neutral",
+    "analysis_bias_score": 0.53,
+    "analysis_bias_label": "Neutral",
+    "overall_bias_label": "Neutral",
+    "short_term_action": "NEUTRAL",
+    "long_term_action": "NEUTRAL",
+    "holding_duration": "swing",
+    "price_ranges": {
+      "buy_range": {
+        "low": 301,
+        "high": 307,
+        "note": "Support-based long entry zone; wait for pullback toward 304.7"
+      },
+      "sell_range_short": {
+        "low": 328,
+        "high": 332,
+        "note": "Resistance-based short entry zone near 329.95"
+      },
+      "sell_range_positional": {
+        "low": 328,
+        "high": 363,
+        "note": "Around analyst consensus target mean"
+      },
+      "stop_loss": {
+        "price": 298,
+        "note": "Below nearest support minus 1x ATR"
+      }
+    },
+    "llm_reasoning": {
+      "technical": "As a cyclical Energy stock, technicals carry 50% weight. Short-term trend is bearish (20D) with price below EMA20 (314.99) and EMA200 (316.3), while medium-term trend is bullish (50D). RSI at 47.44 is neutral. Sector relative strength is strong (+6.4% outperformance), but price sits mid-range between support (304.7) and resistance (329.95), offering no clear 1-10 day directional edge.",
+      "fundamental": "Valuations are inexpensive (trailing PE 7.7x, PB 1.3x) with strong ROCE of 30.8% and solid revenue growth of 34% YoY. However, operating margin is negative (-4.05%) and the solvency flag reads Leveraged (D/E 0.54), preventing a \u2018Healthy\u2019 classification and capping the fundamental score.",
+      "sentiment": "Analyst consensus is Hold with ~10.5% upside to the mean target. Institutional flows are conflicted (FII bearish, DII bullish). Recent news is mixed: positive operational updates (CBG ecosystem, extreme weather diesel rake) compete with local project disruption (IDPL) and a \u20b95,000 crore NCD fundraising plan.",
+      "synthesis": "With technicals weighted at 50% for this cyclical, the neutral overall bias (0.51) reflects offsetting forces: cheap valuation and sector outperformance vs short-term bearish price action and mixed news. BPCL is not trading near its support-based buy zone (301-307) nor its resistance-based sell zone (328-332), and the overall score is below the 0.65 swing-buy or above the 0.35 swing-sell threshold, warranting a NEUTRAL stance."
+    },
+    "risks": [
+      {
+        "risk": "Operating margin compression",
+        "why": "Negative operating margin (-4.05%) amid 34% revenue growth signals core profitability stress in the refining/marketing business."
+      },
+      {
+        "risk": "Support breakdown on high beta",
+        "why": "With a beta of 1.24 and short-term trend bearish, a sustained move below nearest support (304.7) could quickly trigger the 298 stop-loss."
+      }
+    ],
+    "sentiment_sector_composite": -0.4315,
+    "sentiment_sector_rank": 23,
+    "sentiment_sector_score": 35.71,
+    "sentiment_composite_rank": 23,
+    "sentiment_composite_score": 35.71
+  },
+  {
+    "symbol": "HINDPETRO",
+    "sector": "Energy",
+    "n_articles_used": 1,
+    "overall_bias_score": null
+  },
+  {
+    "symbol": "OIL",
+    "sector": "Energy",
+    "n_articles_used": 8,
+    "overall_bias_score": 0.7,
+    "news_bias_score": 0.75,
+    "news_bias_label": "Bullish",
+    "analysis_bias_score": 0.63,
+    "analysis_bias_label": "Mixed(bullish)",
+    "overall_bias_label": "Bullish",
+    "short_term_action": "HOLD",
+    "long_term_action": "NEUTRAL",
+    "holding_duration": "swing",
+    "price_ranges": {
+      "buy_range": {
+        "low": 429,
+        "high": 439,
+        "note": "Ideal entry near support"
+      },
+      "sell_range_short": {
+        "low": 483,
+        "high": 491,
+        "note": "Short-sell zone near resistance"
+      },
+      "sell_range_positional": {
+        "low": 505,
+        "high": 558,
+        "note": "Analyst target zone"
+      },
+      "stop_loss": {
+        "price": 423,
+        "note": "Below support"
+      }
+    },
+    "llm_reasoning": {
+      "technical": "Multi-timeframe trend is bullish with price above 20/50/200 EMAs and RSI at 59.9. However, volume is dry and the stock is testing resistance at 487.2, suggesting limited conviction for an immediate breakout. Low beta (0.57) also caps relative momentum.",
+      "fundamental": "Valuation is compelling at 9.1x trailing PE and 7.5x forward PE, supported by 58% YoY revenue growth and 40.8% operating margins. ROCE of 11.6% is moderate. Debt-to-equity at 0.59 is manageable, though the balance sheet is flagged as leveraged.",
+      "sentiment": "Analyst consensus is Buy with 11.7% upside to mean target. News flow is strongly bullish due to Hormuz tensions and rising crude prices. However, FII flow is bearish while DII flow is bullish, creating mixed institutional conviction.",
+      "synthesis": "OIL offers a strong fundamental case with cheap valuation and bullish oil macro news, but the technical setup is suboptimal for a fresh swing entry\u2014price is near resistance on low volume and the stock is 8% below its 52-week high. The mixed institutional picture and leveraged health status reinforce a wait-and-watch stance. Existing holders can hold with a stop at 423, while new buyers should wait for a dip toward the 429-439 support zone."
+    },
+    "risks": [
+      {
+        "risk": "Resistance rejection on dry volume",
+        "why": "Price is approaching 487.2 resistance with low market participation; a failure to breakout could trigger a pullback toward the 435 support level."
+      },
+      {
+        "risk": "Geopolitical oil volatility",
+        "why": "Crude prices are elevated due to Hormuz tensions; any de-escalation or technical correction in global oil futures could compress realizations and trigger profit booking in the energy sector."
+      }
+    ],
+    "sentiment_sector_composite": 1.5475,
+    "sentiment_sector_rank": 1,
+    "sentiment_sector_score": 98.57,
+    "sentiment_composite_rank": 1,
+    "sentiment_composite_score": 98.57
+  },
+  {
+    "symbol": "AEGISLOG",
+    "sector": "Energy",
+    "n_articles_used": 7,
+    "overall_bias_score": 0.58,
+    "news_bias_score": 0.55,
+    "news_bias_label": "Mixed(bullish)",
+    "analysis_bias_score": 0.59,
+    "analysis_bias_label": "Mixed(bullish)",
+    "overall_bias_label": "Mixed(bullish)",
+    "short_term_action": "HOLD",
+    "long_term_action": "HOLD",
+    "holding_duration": "swing",
+    "price_ranges": {
+      "buy_range": {
+        "low": 1186,
+        "high": 1244,
+        "note": "Far below current price; stock is extended above support"
+      },
+      "sell_range_short": {
+        "low": 1476,
+        "high": 1520,
+        "note": "Near nearest resistance zone"
+      },
+      "sell_range_positional": {
+        "low": 1264,
+        "high": 1397,
+        "note": "Analyst consensus target zone is below current price"
+      },
+      "stop_loss": {
+        "price": 1149,
+        "note": "Below key support on ATR-based cushion"
+      }
+    },
+    "llm_reasoning": {
+      "technical": "Multi-timeframe bullish trend with price at 52-week high (1413.7) and trading above all key EMAs (20D: 1323.2, 50D: 1222.1, 200D: 934.4). RSI at 61.2 shows positive momentum without extreme overbought conditions. However, the stock is only ~5.9% below nearest resistance (1497.8) and ATR of 73.1 signals elevated volatility, limiting the risk/reward for fresh long swing entries.",
+      "fundamental": "Robust fundamental health with 37% YoY revenue growth, 24.5% ROCE (high quality), healthy D/E of 0.47, and strong operating margins near 28%. Forward PE of 33.6 moderates the trailing PE of 40.5. Consistent earnings beats (4/4, avg +60.9%) reinforce operational excellence, though PB of 8.2 indicates premium valuation.",
+      "sentiment": "Institutional flows are conflicted\u2014FIIs bearish while DIIs are bullish. Analyst consensus is 'Hold' with a mean target of 1330.8, implying roughly 6% downside from current levels. Recent news highlights record Q1FY27 profitability and expansion plans, counterbalanced by a sharp 4.3% decline on Aug 20 and a cautious brokerage view from Motilal Oswal (target 1230).",
+      "synthesis": "Under cyclical-sector weighting (technical 50%), the strong trend and momentum support a Mixed(bullish) outlook. However, the stock is extended above analyst targets and near key resistance, making fresh swing entries unfavorable. Existing positions can be held with a stop-loss below 1222 support, but risk/reward is skewed given the narrow margin to resistance and negative upside potential (-5.86%)."
+    },
+    "risks": [
+      {
+        "risk": "Extended price near resistance",
+        "why": "Trading at 52-week high with nearest resistance at 1497.8 (~5.9% upside) and support at 1222.3 (~13.5% downside); a failed breakout could trigger a sharp retracement."
+      },
+      {
+        "risk": "Negative analyst consensus",
+        "why": "Mean target of 1330.8 is below the current price; FII selling trend and a Neutral rating from Motilal Oswal (target 1230) indicate institutional skepticism at current valuations."
+      }
+    ],
+    "sentiment_sector_composite": 0.2976,
+    "sentiment_sector_rank": 15,
+    "sentiment_sector_score": 58.57,
+    "sentiment_composite_rank": 15,
+    "sentiment_composite_score": 58.57
+  },
+  {
+    "symbol": "PETRONET",
+    "sector": "Energy",
+    "n_articles_used": 8,
+    "overall_bias_score": 0.67,
+    "news_bias_score": 0.7,
+    "news_bias_label": "Bullish",
+    "analysis_bias_score": 0.65,
+    "analysis_bias_label": "Bullish",
+    "overall_bias_label": "Bullish",
+    "short_term_action": "NEUTRAL",
+    "long_term_action": "HOLD",
+    "holding_duration": "swing",
+    "price_ranges": {
+      "buy_range": {
+        "low": 265,
+        "high": 270,
+        "note": "near support"
+      },
+      "sell_range_short": {
+        "low": 292,
+        "high": 296,
+        "note": "near resistance"
+      },
+      "sell_range_positional": {
+        "low": 301,
+        "high": 333,
+        "note": "consensus target band"
+      },
+      "stop_loss": {
+        "price": 262,
+        "note": "below support"
+      }
+    },
+    "llm_reasoning": {
+      "technical": "Multi-timeframe bullish trend (20D/50D/200D) with price above all key EMAs and RSI at 66.6 supporting momentum. The stock is testing resistance at \u20b9293.75 (close \u20b9293.35) with the 52W high at \u20b9319.71 as the next hurdle. Nearest support is far at \u20b9267.9, offering a poor risk/reward for fresh entry at current levels.",
+      "fundamental": "Attractive valuation (PE ~10.3x, PB ~1.97x) and very low leverage (D/E 0.11) with a Healthy solvency tag. Q1FY27 PAT surged 33% YoY on operational efficiency and trading/inventory gains. However, revenue declined 53% YoY and reported ROCE is 0%, indicating volume stress and potential capital-efficiency issues despite margin strength.",
+      "sentiment": "Post-Q1 news flow is strongly positive, with Motilal Oswal reiterating a Buy (target \u20b9362) and the consensus mean target at \u20b9317. Analyst recommendation is Buy. Institutional flows are mixed (FII bearish, DII bullish), and the 8% consensus upside is modest.",
+      "synthesis": "PETRONET is technically strong and fundamentally inexpensive, but the current price is extended at resistance and far from support, making a fresh swing entry unfavorable. The strong Q1 profit beat is encouraging, yet the sharp revenue contraction and mixed institutional activity warrant caution. Existing longs can hold, but new positions should await a dip toward the support zone or a confirmed breakout above \u20b9293.75."
+    },
+    "risks": [
+      {
+        "risk": "Revenue & earnings sustainability",
+        "why": "Despite a 33% PAT jump, revenue fell 53% YoY; high-margin trading and inventory gains may not recur, and volume pressures could hurt forward earnings if LNG markets normalize."
+      },
+      {
+        "risk": "Technical reversal at resistance",
+        "why": "Price is testing \u20b9293.75 resistance; failure to break out could trigger a pullback toward \u20b9267.9 support (~9% downside), especially given normal volume and lack of strong conviction."
+      }
+    ],
+    "sentiment_sector_composite": 1.235,
+    "sentiment_sector_rank": 5,
+    "sentiment_sector_score": 87.14,
+    "sentiment_composite_rank": 5,
+    "sentiment_composite_score": 87.14
+  },
+  {
+    "symbol": "AEGISVOPAK",
+    "sector": "Energy",
+    "n_articles_used": 2,
+    "overall_bias_score": 0.58,
+    "news_bias_score": 0.6,
+    "news_bias_label": "Mixed(bullish)",
+    "analysis_bias_score": 0.56,
+    "analysis_bias_label": "Mixed(bullish)",
+    "overall_bias_label": "Mixed(bullish)",
+    "short_term_action": "HOLD",
+    "long_term_action": "NEUTRAL",
+    "holding_duration": "swing",
+    "price_ranges": {
+      "buy_range": {
+        "low": 257,
+        "high": 267,
+        "note": "Support-based entry zone; wait for dip toward 257-267 for better risk-reward."
+      },
+      "sell_range_short": {
+        "low": 303,
+        "high": 310,
+        "note": "Resistance-based short-term exit; relevant if momentum stalls near 306."
+      },
+      "sell_range_positional": {
+        "low": 311,
+        "high": 343,
+        "note": "Analyst target mean zone; consider partial profits near 311-343."
+      },
+      "stop_loss": {
+        "price": 250,
+        "note": "Below nearest support and 50EMA cluster; invalidates pullback thesis."
+      }
+    },
+    "llm_reasoning": {
+      "technical": "Short-term trend is bearish (price 275.6 below 20EMA 276.97) with neutral RSI (49.9), but medium/long-term trends remain bullish above rising 50/200 EMAs. Price sits mid-range, closer to support at 262.95 than resistance at 306.55, offering favourable R:R for swing longs if support holds. High beta (1.45) and ATR of 12.56 imply elevated volatility.",
+      "fundamental": "Operational metrics are strong (53% operating margin, 42% revenue growth), but valuation is extreme (trailing PE 101.3, PB 7.1) and the balance sheet is leveraged (D/E 0.84). Forward PE of 36.4 indicates expected earnings growth, yet cyclical peak risk and 'High' valuation risk limit fundamental conviction.",
+      "sentiment": "Analyst consensus is 'Buy' with 18.7% upside to mean target of 327. DII flow is bullish, offsetting bearish FII trend. Recent Q1 2027 earnings commentary cites 'Robust Revenue', while broader oil-sector geopolitical headlines add noise.",
+      "synthesis": "Energy cyclical weighting emphasizes technicals (50%). The short-term pullback within a medium-term uptrend, combined with stretched valuations and mixed institutional flows, produces a Mixed(bullish) overall bias. For swing trades, current price is not close enough to support to trigger a BUY; a HOLD is warranted until a clearer setup emerges near 257-267 or a confirmed breakout above 20EMA."
+    },
+    "risks": [
+      {
+        "risk": "Valuation Re-Rating",
+        "why": "Trailing PE >100 and PB >7 leave no room for disappointment; any slowdown in 42% revenue growth or margin compression could drive rapid multiple contraction."
+      },
+      {
+        "risk": "FII Outflow & Liquidity",
+        "why": "Bearish FII trend and low institutional float (5.04%) combined with high beta (1.45) make the stock vulnerable to sudden capital flight and gap-down moves."
+      }
+    ],
+    "sentiment_sector_composite": 0.2976,
+    "sentiment_sector_rank": 16,
+    "sentiment_sector_score": 55.71,
+    "sentiment_composite_rank": 16,
+    "sentiment_composite_score": 55.71
+  },
+  {
+    "symbol": "MRPL",
+    "sector": "Energy",
+    "n_articles_used": 3,
+    "overall_bias_score": 0.67,
+    "news_bias_score": 0.8,
+    "news_bias_label": "Bullish",
+    "analysis_bias_score": 0.66,
+    "analysis_bias_label": "Bullish",
+    "overall_bias_label": "Bullish",
+    "short_term_action": "HOLD",
+    "long_term_action": "NEUTRAL",
+    "holding_duration": "swing",
+    "price_ranges": {
+      "buy_range": {
+        "low": 155,
+        "high": 161,
+        "note": "Swing buy zone near support (159)"
+      },
+      "sell_range_short": {
+        "low": 187,
+        "high": 191,
+        "note": "Short-sell zone near resistance (189)"
+      },
+      "sell_range_positional": {
+        "low": 173,
+        "high": 192,
+        "note": "Analyst target mean \u00b15%"
+      },
+      "stop_loss": {
+        "price": 151,
+        "note": "Below nearest support"
+      }
+    },
+    "llm_reasoning": {
+      "technical": "Strong bullish alignment across 20D, 50D and 200D trends with price trading above all key EMAs (176.24 > 171.86 > 167.06 > 162.12). RSI at 56.12 offers healthy momentum without overbought risk. However, volume is dry, indicating weak institutional conviction at current levels, and the stock sits mid-range between support (159) and resistance (189).",
+      "fundamental": "Attractive cyclical valuation with trailing PE ~10 and forward PE ~3.4, coupled with robust 120% YoY revenue growth and high ROCE of 21.35%. Offsetting this is a leveraged balance sheet (D/E 1.08) and thin refining margins (2.87% net, 2.4% operating), which leave limited buffer if crack spreads normalize.",
+      "sentiment": "Recent news is strongly bullish\u2014refining margins have spiked due to supply disruptions and the stock has surged up to 7%. This catalyst may not be fully captured in the stale analyst target of 182.5 (3.55% upside). FII trend is bearish while DII trend is bullish, creating mixed institutional flow. Low delivery conviction adds caution.",
+      "synthesis": "For a cyclical energy swing trade, the technical uptrend and positive margin-spike news support a bullish bias. However, the current price (176) is well above the buy zone (155\u2013161) and volume is dry, making fresh entry risky. Existing positions can be held with a stop-loss below 159, while new buyers should wait for a pullback to support or a high-volume breakout above 189. Long-term prospects are neutral due to modest analyst upside and leveraged balance sheet."
+    },
+    "risks": [
+      {
+        "risk": "Dry volume and weak institutional participation",
+        "why": "Low volume during the recent surge raises the risk of false breakouts and sharp reversals, making exit liquidity uncertain within the 1\u201310 day swing window."
+      },
+      {
+        "risk": "Cyclical refining margin volatility",
+        "why": "Operating margins are thin at 2.4%; the current margin spike driven by supply disruptions can reverse quickly, compressing earnings and invalidating the low forward PE thesis."
+      }
+    ],
+    "sentiment_sector_composite": 1.235,
+    "sentiment_sector_rank": 6,
+    "sentiment_sector_score": 84.29,
+    "sentiment_composite_rank": 6,
+    "sentiment_composite_score": 84.29
+  },
+  {
+    "symbol": "GMDCLTD",
+    "sector": "Energy",
+    "n_articles_used": 0,
+    "overall_bias_score": 0.4,
+    "news_bias_score": 0.5,
+    "news_bias_label": "Neutral",
+    "analysis_bias_score": 0.4,
+    "analysis_bias_label": "Mixed(bearish)",
+    "overall_bias_label": "Mixed(bearish)",
+    "short_term_action": "NEUTRAL",
+    "long_term_action": "SELL",
+    "holding_duration": "swing",
+    "price_ranges": {
+      "buy_range": {
+        "low": 539,
+        "high": 553,
+        "note": "Support zone; wait for confirmation near 548"
+      },
+      "sell_range_short": {
+        "low": 612,
+        "high": 623,
+        "note": "Resistance cluster near 617"
+      },
+      "sell_range_positional": {
+        "low": 260,
+        "high": 288,
+        "note": "Based on analyst target mean"
+      },
+      "stop_loss": {
+        "price": 530,
+        "note": "Below nearest support minus 1x ATR"
+      }
+    },
+    "llm_reasoning": {
+      "technical": "Short/medium-term trends are bearish and price trades below 20D, 50D and 200D EMAs. RSI at 46.7 is neutral. The stock is mid-range between support (548) and resistance (617), 23% off its 52W high. High beta (1.53) elevates swing risk. No bullish momentum trigger is present.",
+      "fundamental": "The balance sheet is pristine (D/E 0.04) with strong ROCE (17.3%) and revenue growth (24%). Valuation is fair at PE ~19. However, earnings quality is extremely poor with four consecutive misses averaging -49.4%, creating a fundamental red flag that offsets financial health.",
+      "sentiment": "Analyst price targets imply drastic -52% downside, reflecting severe pessimism. FII flows are bearish and institutional holding is negligible (2.64%). DII buying and high promoter holding (74%) provide only modest offset. No recent news flow.",
+      "synthesis": "For a cyclical energy swing trade, the setup is unfavorable. Technicals lack direction with price below key averages but above support. Strong financial health clashes with dismal earnings surprises and deeply negative analyst targets. Current price (~572) sits outside the optimal buy zone (539-553) and below resistance, offering poor risk/reward. A neutral stance is warranted until support is tested."
+    },
+    "risks": [
+      {
+        "risk": "Earnings volatility",
+        "why": "The company has missed earnings estimates for four consecutive quarters with an average surprise of -49.4%, indicating high operational unpredictability and potential for gap-downs."
+      },
+      {
+        "risk": "Support breakdown",
+        "why": "Price is only ~24 points above major support at 548. Given a high beta of 1.53 and bearish FII flows, a breach of support could quickly trigger the 530 stop-loss level."
+      }
+    ],
+    "sentiment_sector_composite": -1.5772,
+    "sentiment_sector_rank": 32,
+    "sentiment_sector_score": 10.0,
+    "sentiment_composite_rank": 32,
+    "sentiment_composite_score": 10.0
+  },
+  {
+    "symbol": "CASTROLIND",
+    "sector": "Energy",
+    "n_articles_used": 0,
+    "overall_bias_score": 0.68,
+    "news_bias_score": 0.5,
+    "news_bias_label": "Neutral",
+    "analysis_bias_score": 0.7,
+    "analysis_bias_label": "Bullish",
+    "overall_bias_label": "Bullish",
+    "short_term_action": "HOLD",
+    "long_term_action": "BUY",
+    "holding_duration": "swing",
+    "price_ranges": {
+      "buy_range": {
+        "low": 177,
+        "high": 178,
+        "note": "Swing accumulation near support (177.7) adjusted for 0.5x/0.3x ATR"
+      },
+      "sell_range_short": {
+        "low": 190,
+        "high": 192,
+        "note": "Short-term profit booking near resistance (190.9) adjusted for 0.3x ATR"
+      },
+      "sell_range_positional": {
+        "low": 210,
+        "high": 232,
+        "note": "Derived from analyst mean target 220.8 with 5% tolerance"
+      },
+      "stop_loss": {
+        "price": 175,
+        "note": "Below nearest support minus 1x ATR (2.26)"
+      }
+    },
+    "llm_reasoning": {
+      "technical": "Bullish trend across 20D/50D/200D with price stacked above all EMAs and RSI at 65.8. However, volume is dry and price is within 1.5% of resistance at 190.9, capping immediate upside.",
+      "fundamental": "Healthy solvency (D/E 0.03), strong revenue growth (+25% YoY), and fair valuation (trailing PE ~17.6) support underlying quality, though ROCE remains low.",
+      "sentiment": "Analyst consensus is Buy with 17.5% upside, but bearish FII flow and lack of recent news create mixed institutional sentiment.",
+      "synthesis": "Cyclical energy name with strong technical momentum and healthy fundamentals; bullish bias is tempered by proximity to resistance and dry volume. Best suited for accumulation on dips to the buy zone, while current price favors holding existing positions."
+    },
+    "risks": [
+      {
+        "risk": "Resistance rejection on low volume",
+        "why": "Price is approaching 190.9 resistance with dry volume, raising the risk of a pullback toward 177 support before continuation."
+      },
+      {
+        "risk": "FII selling pressure",
+        "why": "Bearish FII trend suggests institutional distribution that could limit upside even as DII and technicals remain supportive."
+      }
+    ],
+    "sentiment_sector_composite": 1.3391,
+    "sentiment_sector_rank": 2,
+    "sentiment_sector_score": 95.71,
+    "sentiment_composite_rank": 2,
+    "sentiment_composite_score": 95.71
+  },
+  {
+    "symbol": "CHENNPETRO",
+    "sector": "Energy",
+    "n_articles_used": 4,
+    "overall_bias_score": 0.68,
+    "news_bias_score": 0.62,
+    "news_bias_label": "Bullish",
+    "analysis_bias_score": 0.69,
+    "analysis_bias_label": "Bullish",
+    "overall_bias_label": "Bullish",
+    "short_term_action": "HOLD",
+    "long_term_action": "HOLD",
+    "holding_duration": "swing",
+    "price_ranges": {
+      "buy_range": {
+        "low": 1068,
+        "high": 1123,
+        "note": "Wait for pullback to major support near 1102; current price is far above this zone"
+      },
+      "sell_range_short": {
+        "low": 1469,
+        "high": 1510,
+        "note": "Short-term resistance cluster around 1490"
+      },
+      "sell_range_positional": {
+        "low": 1463,
+        "high": 1617,
+        "note": "Derived from analyst target mean of 1540"
+      },
+      "stop_loss": {
+        "price": 1033,
+        "note": "Below nearest support minus 1 ATR"
+      }
+    },
+    "llm_reasoning": {
+      "technical": "Strong bullish trend across 20D, 50D and 200D EMAs with price well above all key averages. RSI at 61 supports positive momentum without extreme overbought conditions. However, volume is dry (low), indicating weak institutional participation near the 52-week high, and the stock is only 3.6% below its 52-week high with nearest resistance at 1489.7.",
+      "fundamental": "Exceptionally robust fundamentals with trailing PE of 5.1 and forward PE of 3.5. ROCE is very high at 37.5%, revenue grew 85% YoY, and debt-to-equity is minimal at 0.18. The company carries a healthy balance-sheet status and fair valuation risk.",
+      "sentiment": "News flow is bullish, highlighting the stock trading near 52-week highs, but coverage is repetitive and price-action driven. Institutional flow is mixed (FII bearish, DII bullish) and analyst targets imply ~11% upside. Low volume limits conviction.",
+      "synthesis": "CHENNPETRO has a powerful fundamental backdrop and a bullish technical trend, but the combination of dry volume near 52-week highs and mixed institutional activity (bearish FII) reduces the reward-to-risk for fresh swing entries. The stock is best held rather than chased at current levels, as it sits in a middle zone between distant support and nearby resistance."
+    },
+    "risks": [
+      {
+        "risk": "Dry volume near 52-week highs",
+        "why": "Volume status is 'Low (Dry)' despite a strong uptrend, suggesting weak institutional conviction and increasing risk of a sharp pullback or consolidation, especially with nearest support roughly 20% below the current price."
+      },
+      {
+        "risk": "Cyclical earnings volatility and peak-margin pricing",
+        "why": "The Energy sector is cyclical and refining margins can be volatile. Mixed earnings surprises (2 beats, 2 misses) and high average surprise volatility indicate unpredictability, while the very low PE may reflect market expectations of mean-reversion after 85% revenue growth."
+      }
+    ],
+    "sentiment_sector_composite": 1.3391,
+    "sentiment_sector_rank": 3,
+    "sentiment_sector_score": 92.86,
+    "sentiment_composite_rank": 3,
+    "sentiment_composite_score": 92.86
+  },
+  {
+    "symbol": "GMRP&UI",
+    "sector": "Energy",
+    "n_articles_used": 1,
+    "overall_bias_score": 0.37,
+    "news_bias_score": 0.25,
+    "news_bias_label": "Bearish",
+    "analysis_bias_score": 0.42,
+    "analysis_bias_label": "Mixed(bearish)",
+    "overall_bias_label": "Mixed(bearish)",
+    "short_term_action": "NEUTRAL",
+    "long_term_action": "NEUTRAL",
+    "holding_duration": "swing",
+    "price_ranges": {
+      "buy_range": {
+        "low": 94,
+        "high": 96,
+        "note": "Near support 95.0 with ATR buffer"
+      },
+      "sell_range_short": {
+        "low": 100,
+        "high": 101,
+        "note": "Near resistance 100.6 with ATR buffer"
+      },
+      "sell_range_positional": {
+        "low": 135,
+        "high": 149,
+        "note": "Based on analyst target mean 142"
+      },
+      "stop_loss": {
+        "price": 92,
+        "note": "Below nearest support by 1x ATR"
+      }
+    },
+    "llm_reasoning": {
+      "technical": "All trends bearish (20D/50D/200D) with price at 96.8 trading below all key EMAs and testing support at 95.0. RSI at 46.16 shows weak momentum, while high beta of 1.69 amplifies risk. The proximity to support offers a limited bounce window, but the broader trajectory is negative.",
+      "fundamental": "Valuation is inexpensive on trailing (PE 12.4) and forward (PE 8.2) metrics, supported by a strong ROCE of 21.1% and 15% revenue growth. However, debt-to-equity of 5.5x is extremely elevated, health status is 'Leveraged', and the recent Q1 FY27 net loss of Rs -28 Cr (-300% YoY) severely undermines earnings stability.",
+      "sentiment": "Institutional flows are mixed: FII trend is bearish while DII trend is bullish. The mean analyst target of 142 implies 46.7% upside, but there is no active recommendation and institutional holding is very low at 3.79%. Recent news of a steep quarterly loss dominates sentiment.",
+      "synthesis": "As a cyclical Energy small-cap, technicals carry 50% weight and are firmly bearish across timeframes. While valuation and ROCE are supportive, the combination of extreme leverage, a fresh net loss, and bearish institutional flows (FII) creates a mixed-bearish setup. The stock does not meet swing BUY criteria (overall < 0.65) and is not extended enough for a SELL trigger, warranting a NEUTRAL stance until support at 95 is defended or broken."
+    },
+    "risks": [
+      {
+        "risk": "Support breakdown",
+        "why": "Price is testing support at 95.0 with bearish momentum across all timeframes. A decisive break below could accelerate losses toward the 52-week low of 89.74, amplified by a high beta of 1.69."
+      },
+      {
+        "risk": "Balance sheet and earnings deterioration",
+        "why": "Debt-to-equity of 5.5x and a surprise Q1 FY27 net loss (-300% YoY) indicate financial stress. Further earnings downgrades or covenant risks could trigger additional institutional selling."
+      }
+    ],
+    "sentiment_sector_composite": -1.8897,
+    "sentiment_sector_rank": 35,
+    "sentiment_sector_score": 1.43,
+    "sentiment_composite_rank": 35,
+    "sentiment_composite_score": 1.43
+  },
+  {
+    "symbol": "REFEX",
+    "sector": "Energy",
+    "n_articles_used": 8,
+    "overall_bias_score": 0.55,
+    "news_bias_score": 0.7,
+    "news_bias_label": "Bullish",
+    "analysis_bias_score": 0.5,
+    "analysis_bias_label": "Neutral",
+    "overall_bias_label": "Mixed(bullish)",
+    "short_term_action": "HOLD",
+    "long_term_action": "NEUTRAL",
+    "holding_duration": "swing",
+    "price_ranges": {
+      "buy_range": {
+        "low": 285,
+        "high": 293,
+        "note": "Support 290.1 \u00b1 ATR-based buffer (10.64)"
+      },
+      "sell_range_short": {
+        "low": 342,
+        "high": 348,
+        "note": "Resistance 344.85 \u00b1 0.3x ATR (10.64)"
+      },
+      "sell_range_positional": null,
+      "stop_loss": {
+        "price": 279,
+        "note": "Support 290.1 minus 1.0x ATR (10.64)"
+      }
+    },
+    "llm_reasoning": {
+      "technical": "Short and medium-term trends are bearish, with price (294.1) below EMA20 (302.1), EMA50 (306.64) and EMA200 (302.17). RSI at 40.46 reflects weak momentum and volume is dry, signaling low conviction. The stock is testing support at 290.1, offering a possible bounce but keeping the setup fragile. Beta of 1.2 and high volatility risk add uncertainty.",
+      "fundamental": "Strong underlying health: 139% YoY revenue growth, ROCE of 23.46%, debt-to-equity of 0.15 and Healthy status. Trailing PE of 14.1 and price-to-book of 2.68 indicate fair valuation for a small-cap Energy name.",
+      "sentiment": "Recent news is bullish, with order wins totaling roughly \u20b968 crore (ash transportation) and an acquisition (Modepro India). However, institutional flows are mixed (FII bearish, DII bullish) and overall institutional holding is extremely low at 0.47%, capping liquidity support.",
+      "synthesis": "For this cyclical Energy stock, technicals carry 50% weight. Bearish short/medium-term price action and dry volume offset robust fundamentals and positive news, producing a Mixed(bullish) bias. Price sits between the buy and short-sell ranges, favoring a HOLD for swing traders. Long-term action is NEUTRAL because analyst upside targets are unavailable, despite healthy fundamentals."
+    },
+    "risks": [
+      {
+        "risk": "Support breakdown",
+        "why": "Price is testing 290.1 support with bearish momentum and low volume; a breakdown could quickly move toward the 279 stop-loss."
+      },
+      {
+        "risk": "Liquidity and volatility risk",
+        "why": "Institutional holding is only 0.47%, volume is dry, and beta is 1.2, making the stock prone to sharp intraday swings and wide spreads."
+      }
+    ],
+    "sentiment_sector_composite": -0.0149,
+    "sentiment_sector_rank": 20,
+    "sentiment_sector_score": 44.29,
+    "sentiment_composite_rank": 20,
+    "sentiment_composite_score": 44.29
+  },
+  {
+    "symbol": "TRUALT",
+    "sector": "Energy",
+    "n_articles_used": 0,
+    "overall_bias_score": 0.5,
+    "news_bias_score": 0.5,
+    "news_bias_label": "Neutral",
+    "analysis_bias_score": 0.5,
+    "analysis_bias_label": "Neutral",
+    "overall_bias_label": "Neutral",
+    "short_term_action": "NEUTRAL",
+    "long_term_action": "NEUTRAL",
+    "holding_duration": "swing",
+    "price_ranges": {
+      "buy_range": {
+        "low": 402,
+        "high": 416,
+        "note": "Support 411 \u00b1 0.5/0.3 ATR (17.51)"
+      },
+      "sell_range_short": {
+        "low": 489,
+        "high": 499,
+        "note": "Resistance 494 \u00b1 0.3 ATR (17.51)"
+      },
+      "sell_range_positional": null,
+      "stop_loss": {
+        "price": 393,
+        "note": "Support 411 minus 1x ATR (17.51)"
+      }
+    },
+    "llm_reasoning": {
+      "technical": "Short-term trend is bearish, price (446.7) trades below the 20-day EMA (460.74) and RSI is weak at 44.28. Volume is dry, undermining conviction. However, the 50-day and 200-day trends are bullish, sector RS is strong (+9.8%), and price sits mid-range between support (411) and resistance (494), creating a mixed near-term picture.",
+      "fundamental": "Exceptional 106% YoY revenue growth and a fair trailing PE of 25.79 are offset by a leveraged balance sheet (D/E 1.05x) and moderate ROCE of 11.56%. The 'Leveraged' health status is a concern for a small-cap cyclical.",
+      "sentiment": "No recent news. Institutional flows are conflicted (FII bearish, DII bullish) and analyst coverage is absent. Low institutional holding (7.77%) alongside very high promoter holding (77.67%) results in weak, inconclusive sentiment.",
+      "synthesis": "With cyclical energy weighting emphasizing technicals (50%), the bearish short-term setup and dry volume neutralize strong revenue growth and mixed institutional flows. The risk/reward is unclear for a 1-10 day swing, leading to a neutral stance."
+    },
+    "risks": [
+      {
+        "risk": "Dry volume and weak short-term momentum",
+        "why": "Low (Dry) volume and an RSI below 50 suggest limited participation; any bounce may lack follow-through and be vulnerable to reversal."
+      },
+      {
+        "risk": "Elevated leverage in a cyclical small-cap",
+        "why": "Debt-to-equity of 1.05x and a 'Leveraged' health status expose the stock to margin pressure and refinancing risk if energy prices or interest rates turn adverse."
+      }
+    ],
+    "sentiment_sector_composite": -0.5357,
+    "sentiment_sector_rank": 24,
+    "sentiment_sector_score": 32.86,
+    "sentiment_composite_rank": 24,
+    "sentiment_composite_score": 32.86
+  },
+  {
+    "symbol": "DEEPINDS",
+    "sector": "Energy",
+    "n_articles_used": 1,
+    "overall_bias_score": 0.66,
+    "news_bias_score": 0.65,
+    "news_bias_label": "Bullish",
+    "analysis_bias_score": 0.66,
+    "analysis_bias_label": "Bullish",
+    "overall_bias_label": "Bullish",
+    "short_term_action": "HOLD",
+    "long_term_action": "HOLD",
+    "holding_duration": "swing",
+    "price_ranges": {
+      "buy_range": {
+        "low": 435,
+        "high": 462,
+        "note": "Derived from distant nearest_support (\u20b9451.88) and ATR (\u20b934.57); current price is well above this range."
+      },
+      "sell_range_short": {
+        "low": 707,
+        "high": 728,
+        "note": "Derived from nearest_resistance (\u20b9717.27) \u00b1 0.3\u00d7ATR."
+      },
+      "sell_range_positional": {
+        "low": 641,
+        "high": 709,
+        "note": "Derived from analyst target mean (\u20b9675) \u00b1 5%."
+      },
+      "stop_loss": {
+        "price": 417,
+        "note": "Based on nearest_support minus 1\u00d7ATR; exceptionally wide due to the distant support level in data."
+      }
+    },
+    "llm_reasoning": {
+      "technical": "Strong bullish trend across 20D, 50D and 200D EMAs with RSI at 65.61. Price is testing resistance at \u20b9717.27 (within 3.5% of the 52-week high) but volume is dry, signalling caution near highs.",
+      "fundamental": "Healthy balance sheet with D/E of 0.1 and a 'Healthy' rating. Revenue growth of 40% YoY and an attractive forward PE of 11.3x are offset by a low ROCE of 7.46% and an analyst target (\u20b9675) slightly below the current price.",
+      "sentiment": "Mixed institutional flow: FII trend is Bearish while DII trend is Bullish. High insider holding (67.2%) is a positive, but low institutional holding (1.55%) and negative analyst upside (-2.19%) weigh on sentiment. Recent dividend news adds a mild positive tilt.",
+      "synthesis": "As a cyclical Energy name, technicals carry 50% weight and remain firmly bullish, overriding mixed sentiment and modest fundamental drags. The stock is in a strong uptrend but near resistance; existing swing positions can be held, though fresh entry is not advised at current levels given the large distance to support."
+    },
+    "risks": [
+      {
+        "risk": "Resistance rejection & low volume",
+        "why": "Price is testing the nearest resistance at \u20b9717.27 with low/dry volume, raising the probability of a short-term pullback or consolidation before a breakout."
+      },
+      {
+        "risk": "Wide stop-loss & high beta",
+        "why": "The nearest support at \u20b9451.88 forces an extremely wide stop-loss (\u20b9417), while a beta of 1.28 amplifies volatility relative to NIFTY, increasing capital at risk on any reversal."
+      }
+    ],
+    "sentiment_sector_composite": 1.1308,
+    "sentiment_sector_rank": 7,
+    "sentiment_sector_score": 81.43,
+    "sentiment_composite_rank": 7,
+    "sentiment_composite_score": 81.43
+  },
+  {
+    "symbol": "ANTELOPUS",
+    "sector": "Energy",
+    "n_articles_used": 0,
+    "overall_bias_score": 0.48,
+    "news_bias_score": 0.5,
+    "news_bias_label": "Neutral",
+    "analysis_bias_score": 0.48,
+    "analysis_bias_label": "Neutral",
+    "overall_bias_label": "Neutral",
+    "short_term_action": "NEUTRAL",
+    "long_term_action": "HOLD",
+    "holding_duration": "swing",
+    "price_ranges": {
+      "buy_range": {
+        "low": 755,
+        "high": 789,
+        "note": "Support-based accumulation zone (nearest support 776.45 \u00b1 ATR buffer)"
+      },
+      "sell_range_short": {
+        "low": 907,
+        "high": 932,
+        "note": "Resistance-based short zone (nearest resistance 919.30 \u00b1 ATR buffer)"
+      },
+      "sell_range_positional": null,
+      "stop_loss": {
+        "price": 734,
+        "note": "Below nearest support minus 1x ATR (42.61)"
+      }
+    },
+    "llm_reasoning": {
+      "technical": "Short-term trend is bearish (20D EMA) with price (800.35) below both 20D (816.94) and 50D (809.22) EMAs and a negative closing bias. RSI at 46.7 indicates weak momentum, and volume is dry, signaling low participation. The stock is testing support at 776.45 while remaining in a long-term uptrend above 200D EMA (698.66). Beta of 0.38 implies relatively low market-correlated volatility.",
+      "fundamental": "Revenue growth is exceptionally strong at 65% YoY, supported by robust profit (32.1%) and operating margins (48.0%). The balance sheet is virtually debt-free (D/E 0.01) and the composite health status is Healthy. Valuation at trailing PE 21.4 is fair. However, reported ROCE is 0% (low quality) and price-to-book is elevated at 4.29, indicating capital-efficiency concerns typical of cyclical E&P names.",
+      "sentiment": "No recent news removes near-term catalysts. Institutional flow is conflicted: FII trend is bearish while DII trend is bullish. Analyst coverage is absent (no target price), and institutional holding is negligible at 0.17%, suggesting limited smart-money sponsorship despite high insider ownership (71.9%).",
+      "synthesis": "As a cyclical energy swing trade, technicals carry 50% weight. The confluence of short-term bearish price action, dry volume, and sector underperformance offsets strong top-line growth and a pristine balance sheet, resulting in a neutral, inconclusive bias. The risk/reward is unattractive until support is defended with volume or a directional catalyst emerges."
+    },
+    "risks": [
+      {
+        "risk": "Support breakdown on illiquidity",
+        "why": "Price is testing support at 776.45 with 'Low (Dry)' volume; a decisive break could trigger a sharp fall toward the 200D EMA (~699), especially given the small free float."
+      },
+      {
+        "risk": "Sectoral and institutional apathy",
+        "why": "Energy sector is underperforming Nifty by ~5%, FII flows are bearish, and institutional holding is just 0.17%, leaving the stock vulnerable to sentiment shifts without sponsorship."
+      }
+    ],
+    "sentiment_sector_composite": -0.744,
+    "sentiment_sector_rank": 27,
+    "sentiment_sector_score": 24.29,
+    "sentiment_composite_rank": 27,
+    "sentiment_composite_score": 24.29
+  },
+  {
+    "symbol": "PANAMAPET",
+    "sector": "Energy",
+    "n_articles_used": 0,
+    "overall_bias_score": 0.66,
+    "news_bias_score": 0.5,
+    "news_bias_label": "Neutral",
+    "analysis_bias_score": 0.66,
+    "analysis_bias_label": "Bullish",
+    "overall_bias_label": "Bullish",
+    "short_term_action": "HOLD",
+    "long_term_action": "HOLD",
+    "holding_duration": "swing",
+    "price_ranges": {
+      "buy_range": {
+        "low": 414,
+        "high": 437,
+        "note": "Near support zone"
+      },
+      "sell_range_short": {
+        "low": 587,
+        "high": 605,
+        "note": "Near resistance zone"
+      },
+      "sell_range_positional": null,
+      "stop_loss": {
+        "price": 399,
+        "note": "Below nearest support"
+      }
+    },
+    "llm_reasoning": {
+      "technical": "Strong multi-timeframe uptrend (20D/50D/200D Bullish) with price above all key EMAs and RSI at 54.4 leaving room before overbought. However, volume is dry, indicating weak participation, and price is mid-range between support (428) and resistance (596).",
+      "fundamental": "Attractive valuation (PE ~6.2, PB ~2.0) with negligible debt (D/E 0.08), healthy balance sheet, and explosive revenue growth (+150% YoY). Offset by low ROCE (<8%) and cyclical refining-margin risks.",
+      "sentiment": "No recent news flow. Mixed institutional signals with FII trend Bearish and DII trend Bullish. Very low institutional holding (3.65%) limits broad participation, though high promoter holding (76.65%) provides stability.",
+      "synthesis": "Energy cyclical with a solid technical trend and cheap fundamentals, but price is not near support and volume is dry. Chasing at current levels is risky for a swing trade; better to wait for a pullback toward the support zone or a volume pickup. Fits a hold/watchlist stance."
+    },
+    "risks": [
+      {
+        "risk": "Low Volume & Liquidity Gap",
+        "why": "Volume status is 'Low (Dry)' despite the liquid tag. With a small float (~14.3M shares), low institutional holding, and high volatility risk, slippage and sharp reversals are elevated."
+      },
+      {
+        "risk": "Cyclical Earnings Peak",
+        "why": "150% YoY revenue growth in Oil & Gas refining/marketing is likely unsustainable. Low ROCE and a mixed earnings surprise trend (-2.01% avg) signal operational volatility if margins normalize."
+      }
+    ],
+    "sentiment_sector_composite": 1.1308,
+    "sentiment_sector_rank": 8,
+    "sentiment_sector_score": 78.57,
+    "sentiment_composite_rank": 8,
+    "sentiment_composite_score": 78.57
+  },
+  {
+    "symbol": "CONFIPET",
+    "sector": "Energy",
+    "n_articles_used": 0,
+    "overall_bias_score": 0.53,
+    "news_bias_score": 0.5,
+    "news_bias_label": "Neutral",
+    "analysis_bias_score": 0.53,
+    "analysis_bias_label": "Neutral",
+    "overall_bias_label": "Neutral",
+    "short_term_action": "NEUTRAL",
+    "long_term_action": "HOLD",
+    "holding_duration": "swing",
+    "price_ranges": {
+      "buy_range": {
+        "low": 67,
+        "high": 70,
+        "note": "Derived from nearest support 69 and ATR 4.13"
+      },
+      "sell_range_short": {
+        "low": 85,
+        "high": 88,
+        "note": "Derived from nearest resistance 86.4 and ATR 4.13"
+      },
+      "sell_range_positional": null,
+      "stop_loss": {
+        "price": 65,
+        "note": "Below nearest support by 1x ATR"
+      }
+    },
+    "llm_reasoning": {
+      "technical": "Short-term trend is bearish (price 75.02 below 20D EMA 75.38) while medium/long-term trends remain bullish above 50D and 200D EMAs. RSI at 49.26 is neutral. Price is mid-range between support (69) and resistance (86.4), offering no clear 1\u201310 day entry edge. Volume is normal and liquidity is adequate.",
+      "fundamental": "Revenue growth is exceptional at 117% YoY and leverage is healthy with debt-to-equity of 0.49. Valuation is fair (trailing PE ~18.5, PB ~1.76). However, net margins are thin at 2.24%, operating margins are 4.21%, and ROCE is moderate at ~12%.",
+      "sentiment": "No recent news flow. Institutional flows are mixed (FII bearish, DII bullish). Analyst coverage is absent with no price targets, and institutional holding is negligible at 0.37%. High promoter holding at 69.82% is a mild positive.",
+      "synthesis": "CONFIPET has strong top-line growth and healthy solvency, but the short-term setup is weak and the stock is not near support. Mixed institutional flows, lack of news/catalysts, and thin margins keep conviction low. The current price is not within 5% of the buy zone, so a fresh swing entry is not favored; existing holders can carry with a stop-loss near 65."
+    },
+    "risks": [
+      {
+        "risk": "Pullback to support level",
+        "why": "Short-term trend is bearish and price sits below the 20D EMA; a retest of the 69 support (and potentially the 65 stop-loss) is possible before the medium-term uptrend resumes."
+      },
+      {
+        "risk": "Margin compression and commodity volatility",
+        "why": "Operating and net margins are thin (4.2% / 2.2%) in a cyclical energy business; input price volatility can quickly erode profitability and trigger sharp price swings."
+      }
+    ],
+    "sentiment_sector_composite": -0.2232,
+    "sentiment_sector_rank": 22,
+    "sentiment_sector_score": 38.57,
+    "sentiment_composite_rank": 22,
+    "sentiment_composite_score": 38.57
+  },
+  {
+    "symbol": "PRABHA",
+    "sector": "Energy",
+    "n_articles_used": 8,
+    "overall_bias_score": 0.5,
+    "news_bias_score": 0.5,
+    "news_bias_label": "Neutral",
+    "analysis_bias_score": 0.5,
+    "analysis_bias_label": "Neutral",
+    "overall_bias_label": "Neutral",
+    "short_term_action": "NEUTRAL",
+    "long_term_action": "HOLD",
+    "holding_duration": "swing",
+    "price_ranges": {
+      "buy_range": {
+        "low": 209,
+        "high": 218,
+        "note": "Derived from nearest support 214.8 with ATR 11.04"
+      },
+      "sell_range_short": {
+        "low": 211,
+        "high": 218,
+        "note": "Derived from nearest resistance 214.8 with ATR 11.04"
+      },
+      "sell_range_positional": null,
+      "stop_loss": {
+        "price": 204,
+        "note": "Below breakout support using 1x ATR"
+      }
+    },
+    "llm_reasoning": {
+      "technical": "Short- and medium-term trends are bullish with price breaking above resistance at 214.8, but RSI at 89.13 is extremely overbought and signals elevated pullback risk within the 1-10 day swing window. Price is also extended well above all key EMAs.",
+      "fundamental": "Revenue growth is robust at 49% and solvency is healthy with low debt (D/E 0.38), but valuation is extreme (PE ~1955) and ROCE is negligible at 0.09%, indicating very poor capital efficiency.",
+      "sentiment": "News flow is irrelevant due to a name collision with a Colgate-Palmolive executive. Institutional flows are mixed (FII bearish, DII bullish) with zero institutional holding and 94.7% insider stake, leaving sentiment effectively neutral.",
+      "synthesis": "Energy-sector cyclical momentum and the technical breakout are offset by extreme overvaluation, overbought RSI, and negligible institutional interest. The risk-reward is unfavorable for fresh swing entries at current levels, warranting a Neutral stance."
+    },
+    "risks": [
+      {
+        "risk": "Extreme valuation and overbought technicals",
+        "why": "A trailing PE near 1955 and RSI of 89 make the stock vulnerable to sharp mean-reversion on even minor negative triggers."
+      },
+      {
+        "risk": "Concentrated ownership and thin float",
+        "why": "Insiders hold 94.7% with near-zero institutional participation, which can amplify volatility and create exit-liquidity slippage."
+      }
+    ],
+    "sentiment_sector_composite": -0.5357,
+    "sentiment_sector_rank": 25,
+    "sentiment_sector_score": 30.0,
+    "sentiment_composite_rank": 25,
+    "sentiment_composite_score": 30.0
+  },
+  {
+    "symbol": "HINDOILEXP",
+    "sector": "Energy",
+    "n_articles_used": 0,
+    "overall_bias_score": 0.44,
+    "news_bias_score": 0.5,
+    "news_bias_label": "Neutral",
+    "analysis_bias_score": 0.44,
+    "analysis_bias_label": "Mixed",
+    "overall_bias_label": "Mixed",
+    "short_term_action": "NEUTRAL",
+    "long_term_action": "HOLD",
+    "holding_duration": "swing",
+    "price_ranges": {
+      "buy_range": {
+        "low": 147,
+        "high": 152,
+        "note": "Near support 149.92"
+      },
+      "sell_range_short": {
+        "low": 167,
+        "high": 170,
+        "note": "Near resistance 168.8"
+      },
+      "sell_range_positional": {
+        "low": null,
+        "high": null,
+        "note": "No analyst target price data"
+      },
+      "stop_loss": {
+        "price": 145,
+        "note": "Below nearest support"
+      }
+    },
+    "llm_reasoning": {
+      "technical": "Short-term and medium-term trends are bearish with price below EMA20, EMA50 and EMA200, and RSI at 46.97 shows weak momentum. The stock is approaching nearest support at 149.92, offering a potential floor, but the closing bias remains negative and beta is low at 0.51.",
+      "fundamental": "The balance sheet is healthy with negligible debt (D/E 0.04) and revenue grew 45% YoY. However, operating margin is deeply negative at -11.1% and ROCE is low at 5.84%, indicating poor operational profitability. Trailing PE of 32.1 is fair but not cheap for a small-cap E&P name.",
+      "sentiment": "No recent news flow. Institutional flows are conflicted with FII trend bearish and DII trend bullish. Analyst coverage is absent and the earnings surprise record is mixed (2 misses vs 1 beat), leaving sentiment without a clear catalyst.",
+      "synthesis": "As a cyclical Energy name, technicals carry 50% weight and they are weak in the 1-10 day window. While the debt-free balance sheet and strong revenue growth provide fundamental support, negative operating margins and bearish short-term price action create a mixed-bearish outlook. The stock is neither a clear buy near support nor a short at resistance, warranting a neutral stance until directional conviction emerges."
+    },
+    "risks": [
+      {
+        "risk": "Support breakdown",
+        "why": "Nearest support at 149.92 is critical for the near-term setup; a sustained break below could accelerate losses and hit the stop-loss zone given the bearish EMA alignment."
+      },
+      {
+        "risk": "Operating margin pressure",
+        "why": "Negative operating margin (-11.1%) and low ROCE (5.84%) signal weak core profitability despite top-line growth, limiting fundamental upside and margin of safety in a cyclical sector."
+      }
+    ],
+    "sentiment_sector_composite": -1.1606,
+    "sentiment_sector_rank": 29,
+    "sentiment_sector_score": 18.57,
+    "sentiment_composite_rank": 29,
+    "sentiment_composite_score": 18.57
+  },
+  {
+    "symbol": "GANDHAR",
+    "sector": "Energy",
+    "n_articles_used": 2,
+    "overall_bias_score": 0.63,
+    "news_bias_score": 0.5,
+    "news_bias_label": "Neutral",
+    "analysis_bias_score": 0.63,
+    "analysis_bias_label": "Mixed(bullish)",
+    "overall_bias_label": "Mixed(bullish)",
+    "short_term_action": "HOLD",
+    "long_term_action": "HOLD",
+    "holding_duration": "swing",
+    "price_ranges": {
+      "buy_range": {
+        "low": 208,
+        "high": 217,
+        "note": "Derived from nearest support 213.71 and ATR 11.77"
+      },
+      "sell_range_short": {
+        "low": 297,
+        "high": 304,
+        "note": "Derived from nearest resistance 300.37 and ATR 11.77"
+      },
+      "sell_range_positional": null,
+      "stop_loss": {
+        "price": 202,
+        "note": "Derived from nearest support minus 1x ATR"
+      }
+    },
+    "llm_reasoning": {
+      "technical": "Trend is bullish across 20D/50D/200D with price above all key EMAs and RSI at 59.22, suggesting intact momentum. However, volume is dry, indicating weak participation, and the stock is underperforming NIFTY (-12.7%) and its sector (-5.1%). Nearest support is distant at 213.71.",
+      "fundamental": "Attractive valuation with trailing PE of ~8x, strong YoY revenue growth of 92%, healthy ROCE of 15.76%, and low leverage (D/E 0.23). Company health status is Healthy.",
+      "sentiment": "Mixed institutional flow with FII trend bearish and DII trend bullish. No analyst coverage or price targets available. Recent news (AGM schedule, BRSR filing) is neutral and non-price-sensitive.",
+      "synthesis": "Energy small-cap with strong fundamental tailwinds and an intact technical uptrend, but conflicting institutional flows, dry volume, and relative weakness against benchmarks create a mixed setup. Price is mid-range between support and resistance, favoring a cautious swing hold rather than a fresh entry at current levels."
+    },
+    "risks": [
+      {
+        "risk": "Volume and liquidity risk",
+        "why": "Low/dry volume signals lack of conviction; any selling pressure could trigger sharp corrections, especially as the nearest support is ~14% below the current price."
+      },
+      {
+        "risk": "Relative underperformance and foreign flow vulnerability",
+        "why": "The stock is underperforming NIFTY and its sector. Bearish FII trend raises risk for a small-cap with low institutional ownership (3.61%) and a free float of ~31 million shares."
+      }
+    ],
+    "sentiment_sector_composite": 0.8184,
+    "sentiment_sector_rank": 10,
+    "sentiment_sector_score": 72.86,
+    "sentiment_composite_rank": 10,
+    "sentiment_composite_score": 72.86
+  },
+  {
+    "symbol": "ASIANENE",
+    "sector": "Energy",
+    "n_articles_used": 3,
+    "overall_bias_score": 0.59,
+    "news_bias_score": 0.55,
+    "news_bias_label": "Mixed",
+    "analysis_bias_score": 0.59,
+    "analysis_bias_label": "Mixed(bullish)",
+    "overall_bias_label": "Mixed(bullish)",
+    "short_term_action": "HOLD",
+    "long_term_action": "NEUTRAL",
+    "holding_duration": "swing",
+    "price_ranges": {
+      "buy_range": {
+        "low": 330,
+        "high": 349,
+        "note": "Derived from nearest_support (341.55) minus 0.5x ATR and plus 0.3x ATR"
+      },
+      "sell_range_short": {
+        "low": 483,
+        "high": 497,
+        "note": "Derived from nearest_resistance (490.0) minus/plus 0.3x ATR"
+      },
+      "sell_range_positional": null,
+      "stop_loss": {
+        "price": 318,
+        "note": "Derived from nearest_support (341.55) minus 1.0x ATR (23.5)"
+      }
+    },
+    "llm_reasoning": {
+      "technical": "Strong multi-timeframe bullish trend with price above all key EMAs (20/50/200) and RSI at 67.89 supporting momentum. However, the stock is testing resistance at 490 (within -2.7% of its 52-week high) on low/dry volume, raising doubts about breakout conviction. ATR of 23.5 signals high volatility and the nearest support is distant at 341.55.",
+      "fundamental": "Healthy balance sheet with debt-to-equity of 0.32 and strong revenue growth of 135% YoY. ROCE at 14% is moderate. However, trailing PE of ~37 and price-to-book of 4.27 indicate moderate valuation risk for a small-cap energy services name, keeping the fundamental outlook constructive but not aggressively cheap.",
+      "sentiment": "Recent news (Aug 17-18) highlights sharp +8% daily rises, indicating momentum interest, while the Aug 14 drop reminds of volatility. Institutional flow is mixed: FII trend is Bearish while DII trend is Bullish. Absent analyst coverage and low delivery volume suggest weak institutional conviction in the latest leg.",
+      "synthesis": "The stock exhibits a powerful uptrend but is approaching a critical resistance zone near 490 with subdued volume, warranting caution for fresh entries. Fundamentals are healthy but valuation is not deeply discounted. Mixed institutional flows and momentum-driven news produce a Mixed(bullish) bias best suited for a HOLD in the swing timeframe, awaiting either a volume-confirmed breakout or a pullback toward support."
+    },
+    "risks": [
+      {
+        "risk": "Low-volume resistance test / false breakout",
+        "why": "Volume status is 'Low (Dry)' while price is testing resistance at 490; a failure to attract institutional participation near the 52-week high increases the probability of a sharp reversal or consolidation."
+      },
+      {
+        "risk": "Elevated volatility with distant support",
+        "why": "ATR is 23.5 and intraday volatility is over 3%, with the stock showing recent history of 8%+ daily swings. The nearest technical support is far at 341.55, implying a wide risk/reward and potential for large intraday drawdowns."
+      }
+    ],
+    "sentiment_sector_composite": 0.4017,
+    "sentiment_sector_rank": 13,
+    "sentiment_sector_score": 64.29,
+    "sentiment_composite_rank": 13,
+    "sentiment_composite_score": 64.29
+  },
+  {
+    "symbol": "JINDRILL",
+    "sector": "Energy",
+    "n_articles_used": 1,
+    "overall_bias_score": 0.68,
+    "news_bias_score": 0.65,
+    "news_bias_label": "Bullish",
+    "analysis_bias_score": 0.68,
+    "analysis_bias_label": "Bullish",
+    "overall_bias_label": "Bullish",
+    "short_term_action": "HOLD",
+    "long_term_action": "NEUTRAL",
+    "holding_duration": "swing",
+    "price_ranges": {
+      "buy_range": {
+        "low": 563,
+        "high": 584,
+        "note": "Pullback entry near support at 576 \u00b1 ATR factors; current price is extended above this zone"
+      },
+      "sell_range_short": {
+        "low": 666,
+        "high": 681,
+        "note": "Profit-taking zone near resistance at 673.55 \u00b1 0.3 ATR"
+      },
+      "sell_range_positional": null,
+      "stop_loss": {
+        "price": 550,
+        "note": "Hard stop below nearest support minus 1 ATR"
+      }
+    },
+    "llm_reasoning": {
+      "technical": "All trend frames (20D/50D/200D) are bullish with price closing above EMA20, EMA50, and EMA200. RSI at 59.94 indicates positive momentum without overbought extremes. The stock is outperforming Nifty and its sector. However, price is only ~3.8% below its 52-week high and ~4.5% below nearest resistance at 673.55, while support sits ~10.6% lower at 576, creating an unfavorable risk/reward for fresh longs at current levels. ATR of 26.31 signals elevated intraday volatility.",
+      "fundamental": "Valuation is highly attractive with trailing PE of 9.75 and price-to-book of 1.03. The company is effectively debt-free (D/E 0.05) with healthy ROCE of 15.29% and strong operating margins near 25%. Revenue growth of 8% is modest but positive. Balance sheet health is robust, providing a solid backstop.",
+      "sentiment": "Recent news highlights an 8.82% surge on 18-Aug, confirming bullish interest and momentum. Institutional flows are mixed: DII trend is bullish while FII trend is bearish. Promoter holding is extremely high at 71.81% and institutional holding is negligible at 0.22%, implying a tight float that can amplify volatility but also signals limited institutional sponsorship.",
+      "synthesis": "Under cyclical-sector weighting (50% technical), the strong multi-timeframe uptrend and relative outperformance drive a bullish bias. Fundamentals reinforce downside protection with cheap valuation and pristine leverage. However, the current price is extended well above the calculated buy range and too close to resistance for a high-probability swing entry. Mixed institutional flows and missing analyst targets further counsel patience. A HOLD stance is appropriate until price either pulls back toward support or decisively breaks resistance with volume confirmation."
+    },
+    "risks": [
+      {
+        "risk": "Tight float liquidity and volatility risk",
+        "why": "Promoter holding of 71.81% and institutional holding of just 0.22% leaves a small free float (~8.8M shares), which can lead to erratic price swings, wide bid-ask spreads, and slippage on entry or exit."
+      },
+      {
+        "risk": "Resistance rejection near 52-week high",
+        "why": "Price is only ~4.5% below resistance at 673.55 and already up ~45% from 52-week lows. A failure to break out could trigger a sharp retracement toward the 576 support zone, especially given the elevated ATR of 26.31."
+      }
+    ],
+    "sentiment_sector_composite": 1.3391,
+    "sentiment_sector_rank": 4,
+    "sentiment_sector_score": 90.0,
+    "sentiment_composite_rank": 4,
+    "sentiment_composite_score": 90.0
+  },
+  {
+    "symbol": "DOLPHIN",
+    "sector": "Energy",
+    "n_articles_used": 8,
+    "overall_bias_score": 0.56,
+    "news_bias_score": 0.5,
+    "news_bias_label": "Neutral",
+    "analysis_bias_score": 0.57,
+    "analysis_bias_label": "Mixed(bullish)",
+    "overall_bias_label": "Mixed(bullish)",
+    "short_term_action": "HOLD",
+    "long_term_action": "NEUTRAL",
+    "holding_duration": "swing",
+    "price_ranges": {
+      "buy_range": {
+        "low": 352,
+        "high": 379,
+        "note": "Derived from distant nearest support (369.25); far below current price due to parabolic rally"
+      },
+      "sell_range_short": {
+        "low": 646,
+        "high": 666,
+        "note": "Around nearest resistance (656.25); price is testing this zone"
+      },
+      "sell_range_positional": null,
+      "stop_loss": {
+        "price": 335,
+        "note": "Below nearest support; very wide stop reflecting extended price action"
+      }
+    },
+    "llm_reasoning": {
+      "technical": "Price is in a strong multi-timeframe uptrend (20D/50D/200D Bullish) and at the 52-week high. However, RSI at 90.36 signals extremely overbought conditions, and the stock is testing resistance at 656.25 with support far below at 369.25. Moderate liquidity and a low beta of 0.45 suggest idiosyncratic momentum but high volatility risk.",
+      "fundamental": "Exceptional earnings quality with 50.4% profit margins and 161% YoY revenue growth. ROCE of 13.3% is moderate. Valuation at trailing PE of 35.3 and PB of 7.2 is not cheap but supported by growth. Debt-to-equity of 0.57 flags the balance sheet as leveraged, preventing a Healthy rating.",
+      "sentiment": "News flow is dominated by unrelated topics (marine mammals, typhoon, similarly named driller) and provides no actionable signal. Institutional flows are mixed: FII trend is bearish while DII trend is bullish. Zero institutional holding and 90.2% insider holding create a low-float environment with limited coverage.",
+      "synthesis": "As an Energy sector small-cap, technicals carry 50% weight. The trend is strongly bullish but extreme overbought readings and proximity to resistance make fresh swing entries unfavorable at 636. Fundamentals are robust but leverage is a constraint. Mixed institutional flows and neutral news keep sentiment in check. The overall Mixed(bullish) bias combined with the price sitting between the distant support-based buy zone and the nearby resistance-based sell zone yields a short-term HOLD. Long-term remains NEUTRAL due to zero analyst upside and leveraged health status."
+    },
+    "risks": [
+      {
+        "risk": "Overbought reversal",
+        "why": "RSI above 90 and price at 52-week high testing resistance increases the probability of a sharp pullback or consolidation within the 1-10 day swing window."
+      },
+      {
+        "risk": "Low float liquidity squeeze",
+        "why": "Insider holding of 90.2% leaves a tiny float, making the stock susceptible to erratic moves and slippage, especially if bearish FII selling accelerates."
+      }
+    ],
+    "sentiment_sector_composite": 0.0893,
+    "sentiment_sector_rank": 18,
+    "sentiment_sector_score": 50.0,
+    "sentiment_composite_rank": 18,
+    "sentiment_composite_score": 50.0
+  },
+  {
+    "symbol": "LIKHITHA",
+    "sector": "Energy",
+    "n_articles_used": 5,
+    "overall_bias_score": 0.38,
+    "news_bias_score": 0.25,
+    "news_bias_label": "Bearish",
+    "analysis_bias_score": 0.4,
+    "analysis_bias_label": "Mixed",
+    "overall_bias_label": "Mixed",
+    "short_term_action": "NEUTRAL",
+    "long_term_action": "HOLD",
+    "holding_duration": "swing",
+    "price_ranges": {
+      "buy_range": {
+        "low": 199,
+        "high": 209,
+        "note": "Near support at 205; wait for confirmation due to illiquidity and weak earnings"
+      },
+      "sell_range_short": {
+        "low": 245,
+        "high": 252,
+        "note": "Near resistance at 249; unlikely to reach in current bearish setup"
+      },
+      "sell_range_positional": null,
+      "stop_loss": {
+        "price": 193,
+        "note": "Below support at 205"
+      }
+    },
+    "llm_reasoning": {
+      "technical": "Price at 213.12 is testing support at 205 but trades below all key EMAs (20/50/200) with bearish short- and medium-term trends. RSI at 41.78 shows weak momentum. High beta (1.28) and illiquidity elevate execution risk. A support bounce is possible but unconfirmed.",
+      "fundamental": "Debt-free (D/E 0.0) and PE of 20.9x appear reasonable, but Q1 FY27 results were disastrous: revenue crashed ~30% YoY and PAT fell ~50%. Margins contracted as costs remained sticky. ROCE of 13% is moderate but under pressure from negative trailing revenue growth.",
+      "sentiment": "News flow is overwhelmingly negative following the Q1 earnings collapse. FII trend is bearish, while DII trend is bullish. Zero institutional holding and lack of analyst coverage indicate limited smart-money conviction.",
+      "synthesis": "For this Energy cyclical, technicals (50% weight) show a bearish trend with price near support. However, the fundamental breakdown from Q1 earnings and bearish news/sentiment create a conflicting, weak setup. The stock is illiquid and volatile, making risk/reward unfavorable for a swing long. Short-term action is NEUTRAL; long-term action is HOLD due to a healthy balance sheet but no upside catalyst."
+    },
+    "risks": [
+      {
+        "risk": "Earnings deterioration / Support breakdown",
+        "why": "Q1 revenue and profit collapsed 30-50% YoY. If support at 205 breaks, the stock could see sharp downside given illiquidity and high beta."
+      },
+      {
+        "risk": "Liquidity risk",
+        "why": "Volume status is 'Illiquid (Risky)' with only 11.75M float shares and zero institutional holding, leading to wide spreads and slippage on entry/exit."
+      }
+    ],
+    "sentiment_sector_composite": -1.7855,
+    "sentiment_sector_rank": 34,
+    "sentiment_sector_score": 4.29,
+    "sentiment_composite_rank": 34,
+    "sentiment_composite_score": 4.29
+  },
+  {
+    "symbol": "SOUTHWEST",
+    "sector": "Energy",
+    "n_articles_used": 8,
+    "overall_bias_score": 0.5,
+    "news_bias_score": 0.5,
+    "news_bias_label": "Neutral",
+    "analysis_bias_score": 0.5,
+    "analysis_bias_label": "Neutral",
+    "overall_bias_label": "Neutral",
+    "short_term_action": "NEUTRAL",
+    "long_term_action": "HOLD",
+    "holding_duration": "swing",
+    "price_ranges": {
+      "buy_range": {
+        "low": 209,
+        "high": 217,
+        "note": "Derived from nearest support 214 and ATR 10.85"
+      },
+      "sell_range_short": {
+        "low": 245,
+        "high": 252,
+        "note": "Derived from nearest resistance 248.49 and ATR 10.85"
+      },
+      "sell_range_positional": null,
+      "stop_loss": {
+        "price": 203,
+        "note": "Derived from nearest support 214 minus 1x ATR 10.85"
+      }
+    },
+    "llm_reasoning": {
+      "technical": "Short-term and medium-term trends are bearish, with price (221.64) below EMA20 (225.76) and EMA50 (229.86) but above EMA200 (211.94). RSI at 45.16 indicates weak momentum. The stock is testing support at 214, offering a potential bounce zone, but relative underperformance versus NIFTY (-7.1%) and bearish closing bias keep the near-term setup weak for a swing trade.",
+      "fundamental": "The company exhibits healthy fundamentals: D/E of 0.39, strong ROCE of 23.67%, and robust revenue growth of 53%. Trailing PE of 17x and PB of 3.25x are reasonable for a small-cap energy services name. Health status is Healthy.",
+      "sentiment": "Institutional flow is mixed: FII trend is bearish while DII trend is bullish. Institutional holding is effectively zero and there is no analyst coverage or price target. Recent news flow lacks company-specific catalysts, consisting entirely of unrelated geographic references (southwest China, monsoon, Southwest Airlines).",
+      "synthesis": "As a cyclical energy stock, technical factors dominate (50% weight). The bearish short/medium-term trend and lack of momentum offset strong fundamentals, resulting in a neutral, inconclusive swing-trade setup. The stock is near support but lacks a clear reversal trigger. Long-term, healthy balance-sheet metrics support a HOLD for positional investors, though upside targets are unavailable."
+    },
+    "risks": [
+      {
+        "risk": "Support breakdown and trend continuation",
+        "why": "Price is testing support at 214; a close below this level with elevated volatility (ATR 10.85) could extend losses toward the stop-loss zone near 203, especially given the bearish 20D and 50D trends."
+      },
+      {
+        "risk": "Liquidity and small-cap volatility",
+        "why": "Small-cap status with moderate liquidity, high volatility risk, and a beta of 1.09 amplify drawdowns. Low institutional float can lead to sharp intraday swings and wider bid-ask spreads."
+      }
+    ],
+    "sentiment_sector_composite": -0.5357,
+    "sentiment_sector_rank": 26,
+    "sentiment_sector_score": 27.14,
+    "sentiment_composite_rank": 26,
+    "sentiment_composite_score": 27.14
+  },
+  {
+    "symbol": "UNIDT",
+    "sector": "Energy",
+    "n_articles_used": 1,
+    "overall_bias_score": 0.56,
+    "news_bias_score": 0.5,
+    "news_bias_label": "Neutral",
+    "analysis_bias_score": 0.58,
+    "analysis_bias_label": "Mixed",
+    "overall_bias_label": "Mixed",
+    "short_term_action": "HOLD",
+    "long_term_action": "HOLD",
+    "holding_duration": "swing",
+    "price_ranges": {
+      "buy_range": {
+        "low": 210,
+        "high": 218,
+        "note": "Derived from nearest support 214.78 and ATR 10.22"
+      },
+      "sell_range_short": {
+        "low": 239,
+        "high": 245,
+        "note": "Derived from nearest resistance 242.33 and ATR 10.22"
+      },
+      "sell_range_positional": null,
+      "stop_loss": {
+        "price": 205,
+        "note": "Derived from nearest support minus 1 ATR"
+      }
+    },
+    "llm_reasoning": {
+      "technical": "Short-term trend is bearish with price below EMA20, but medium/long-term trends are bullish with price above EMA50 and EMA200. RSI is neutral at 49.1 and the sector is outperforming (+6.9%). However, the stock is illiquid with a very low float, elevating slippage risk. Price sits mid-range between support at 214.78 and resistance at 242.33.",
+      "fundamental": "Financial health is strong with near-zero debt (D/E 0.01) and a healthy status. ROCE of 10.8% and operating margins of 17.8% are moderate. Trailing PE of 22.4 is fair, and revenue growth of 9% is steady.",
+      "sentiment": "Institutional flow is mixed: FII trend is bearish while DII trend is bullish. Promoter holding is extremely high at 82.9%, but institutional holding is 0%, indicating negligible broader market participation and liquidity constraints. Recent dividend news is neutral.",
+      "synthesis": "The overall Mixed(bullish) bias of 0.56 reflects a conflict between solid fundamentals/low leverage and short-term technical weakness combined with severe illiquidity. The stock is not in an optimal swing entry zone; it is best held until a clearer setup emerges near support or resistance."
+    },
+    "risks": [
+      {
+        "risk": "Liquidity & Low Float Risk",
+        "why": "Illiquid status with only ~3.6M float shares and zero institutional holding can lead to high impact cost, wide spreads, and erratic price swings, making swing execution difficult."
+      },
+      {
+        "risk": "Short-Term Technical Weakness",
+        "why": "Price is below its 20-day EMA with negative closing bias, suggesting near-term momentum is soft despite the longer-term uptrend."
+      }
+    ],
+    "sentiment_sector_composite": 0.0893,
+    "sentiment_sector_rank": 19,
+    "sentiment_sector_score": 47.14,
+    "sentiment_composite_rank": 19,
+    "sentiment_composite_score": 47.14
+  },
+  {
+    "symbol": "OILCOUNTUB",
+    "sector": "Energy",
+    "n_articles_used": 0,
+    "overall_bias_score": 0.44,
+    "news_bias_score": 0.5,
+    "news_bias_label": "Neutral",
+    "analysis_bias_score": 0.44,
+    "analysis_bias_label": "Mixed",
+    "overall_bias_label": "Mixed",
+    "short_term_action": "NEUTRAL",
+    "long_term_action": "HOLD",
+    "holding_duration": "swing",
+    "price_ranges": {
+      "buy_range": {
+        "low": 53,
+        "high": 55,
+        "note": "Pullback entry near support 54.0; current price 59.45 is above this zone"
+      },
+      "sell_range_short": {
+        "low": 62,
+        "high": 64,
+        "note": "Resistance zone near 62.9 for short-term exits"
+      },
+      "sell_range_positional": {
+        "low": null,
+        "high": null,
+        "note": "Target price mean is zero (no analyst coverage); positional range unavailable"
+      },
+      "stop_loss": {
+        "price": 51,
+        "note": "Below nearest support at 54.0 minus 1x ATR (2.55)"
+      }
+    },
+    "llm_reasoning": {
+      "technical": "Short-term (20D) and medium-term (50D) trends are bullish, with price at 59.45 trading above EMA20 (58.74), EMA50 (57.69) and EMA200 (58.32). RSI at 54.47 is neutral, leaving limited headroom before overbought. Sector relative strength is outperforming (+6.9%). However, liquidity is flagged as illiquid, increasing slippage risk, and price sits mid-range (54.0\u201362.9) but closer to resistance, offering an unfavorable risk/reward for fresh swing longs.",
+      "fundamental": "The company is fundamentally distressed with negative profit margins (-107.66%), negative operating margins (-88.77%), negative ROCE (-30.47%) and revenue declining 29% YoY. Trailing PE is 0 due to negative earnings. The only positive is a low debt-to-equity ratio of 0.13, which yields a Healthy solvency status despite dreadful profitability.",
+      "sentiment": "No recent news. Institutional flow is mixed: FII trend is bearish while DII trend is bullish. Insider holding is high at 71.64%, but institutional holding is effectively 0%. Earnings surprise history is severely negative (average -87.97%), with 1 miss and 0 beats, indicating poor management credibility.",
+      "synthesis": "As a cyclical Energy swing trade, technicals carry 50% weight. While short-term momentum is positive, the setup is undermined by extreme illiquidity, negative earnings, poor revenue growth and proximity to resistance at 62.9. The conflict between bullish short-term price action and terrible fundamentals/sentiment produces a Mixed(bearish) overall bias. A high-conviction swing entry is not justified at current levels."
+    },
+    "risks": [
+      {
+        "risk": "Liquidity Risk",
+        "why": "Stock is classified as illiquid with a small float; entering and exiting swing positions can cause significant slippage and impact cost."
+      },
+      {
+        "risk": "Negative Earnings & Revenue Decline",
+        "why": "Profit margins and ROCE are deeply negative, revenue is shrinking 29% YoY, and the company has a history of massive earnings misses, creating fundamental tail risk."
+      }
+    ],
+    "sentiment_sector_composite": -1.1606,
+    "sentiment_sector_rank": 30,
+    "sentiment_sector_score": 15.71,
+    "sentiment_composite_rank": 30,
+    "sentiment_composite_score": 15.71
+  },
+  {
+    "symbol": "GULFPETRO",
+    "sector": "Energy",
+    "n_articles_used": 2,
+    "overall_bias_score": 0.58,
+    "news_bias_score": 0.55,
+    "news_bias_label": "Neutral",
+    "analysis_bias_score": 0.6,
+    "analysis_bias_label": "Mixed(bullish)",
+    "overall_bias_label": "Mixed(bullish)",
+    "short_term_action": "NEUTRAL",
+    "long_term_action": "HOLD",
+    "holding_duration": "swing",
+    "price_ranges": {
+      "buy_range": {
+        "low": 37,
+        "high": 40,
+        "note": "Derived from nearest support (38.94) \u00b1 0.5x/0.3x ATR; far below current price"
+      },
+      "sell_range_short": {
+        "low": 67,
+        "high": 69,
+        "note": "Immediate resistance zone (67.84) \u00b1 0.3x ATR; price currently testing this area"
+      },
+      "sell_range_positional": null,
+      "stop_loss": {
+        "price": 36,
+        "note": "Nearest support minus 1x ATR; wide given the extended up-move"
+      }
+    },
+    "llm_reasoning": {
+      "technical": "All trend frames are bullish and price trades well above 20/50/200 EMAs. However, RSI is extremely overbought at 81.2, volume is dry, and price is pressing the nearest resistance at 67.84 (within 2% of the 52-week high). This creates a poor risk/reward for fresh swing longs despite momentum.",
+      "fundamental": "Valuation is attractive with trailing PE of ~8.4x and P/B below 1.0. Revenue growth is strong at 46% YoY, debt/equity is negligible at 0.07, and the health status is Healthy. ROCE of 10.4% is moderate but acceptable for the sector.",
+      "sentiment": "Institutional flows are mixed (FII bearish, DII bullish). Institutional holding is effectively zero, which raises liquidity concerns, while high insider holding (~54%) is a positive. Recent news highlights an upcoming dividend and proximity to the 52-week high, offering only mild positive sentiment without strong directional catalysts.",
+      "synthesis": "As a cyclical Energy name, technicals dominate, but the setup is conflicted: strong trend vs overbought momentum and resistance. Fundamentals are cheap and healthy, yet the entry is unfavorable for a 1-10 day swing. The stock is better watched for a pullback toward support rather than chased at resistance."
+    },
+    "risks": [
+      {
+        "risk": "Overbought momentum with weak volume conviction",
+        "why": "RSI > 80 and dry volume suggest the rally lacks participation; a sharp pullback or consolidation toward the 20-EMA (~57) can occur quickly, especially near the 52-week high."
+      },
+      {
+        "risk": "Small-cap liquidity and lack of institutional coverage",
+        "why": "Zero institutional holding and moderate liquidity mean wider spreads and abrupt price swings; limited float can amplify volatility if selling pressure emerges."
+      }
+    ],
+    "sentiment_sector_composite": 0.2976,
+    "sentiment_sector_rank": 17,
+    "sentiment_sector_score": 52.86,
+    "sentiment_composite_rank": 17,
+    "sentiment_composite_score": 52.86
+  },
+  {
+    "symbol": "ALPHAGEO",
+    "sector": "Energy",
+    "n_articles_used": 4,
+    "overall_bias_score": 0.6,
+    "news_bias_score": 0.6,
+    "news_bias_label": "Mixed",
+    "analysis_bias_score": 0.61,
+    "analysis_bias_label": "Mixed",
+    "overall_bias_label": "Mixed",
+    "short_term_action": "HOLD",
+    "long_term_action": "HOLD",
+    "holding_duration": "swing",
+    "price_ranges": {
+      "buy_range": {
+        "low": 186,
+        "high": 204,
+        "note": "Support-based entry zone using 0.5x/0.3x ATR"
+      },
+      "sell_range_short": {
+        "low": 361,
+        "high": 375,
+        "note": "Resistance-based short zone using 0.3x ATR"
+      },
+      "sell_range_positional": null,
+      "stop_loss": {
+        "price": 175,
+        "note": "Below nearest support minus 1x ATR"
+      }
+    },
+    "llm_reasoning": {
+      "technical": "Strong bullish trend across 20D, 50D and 200D with price trading well above all key EMAs. RSI at 66.92 indicates healthy momentum without extreme overbought conditions. However, volume status is 'Low (Dry)' which signals weak conviction, and the stock is only 8.5% below its 52-week high with nearest resistance at 368, limiting near-term upside.",
+      "fundamental": "Revenue growth is exceptional at 101% YoY and the company is debt-free (D/E 0.0), supporting a 'Healthy' solvency label. However, negative net margins (-0.29%), ROCE of 0% and negative earnings (trailing PE 0) reflect poor profitability and valuation risk. P/B of 0.81 is low but justified by lack of earnings power.",
+      "sentiment": "Recent news is conflicting: June quarter net sales grew 33% YoY, but two promoter entities sold small tranches on Aug 17-19. FII trend is bearish while DII trend is bullish. Institutional holding is effectively nil and there is no analyst coverage or price target, leaving sentiment uninformed and liquidity moderate.",
+      "synthesis": "ALPHAGEO exhibits strong technical momentum typical of a cyclical energy name, but the lack of profitability, dry volume, and mixed institutional flows create a conflicted outlook. The bias is Mixed-Bullish, favoring the prevailing uptrend but warranting caution. For swing trading, the risk/reward is unattractive at current levels with resistance nearby and support far below; a HOLD is preferred until a clearer setup emerges."
+    },
+    "risks": [
+      {
+        "risk": "Profitability & Earnings Risk",
+        "why": "Despite 101% revenue growth, the company reports negative net margins (-0.29%) and ROCE of 0%, indicating the business is not translating sales into profits. Negative earnings create valuation risk and limit fundamental upside."
+      },
+      {
+        "risk": "Liquidity & Volume Risk",
+        "why": "Volume is characterized as 'Low (Dry)' with near-zero institutional holding and a small float. This can lead to wide bid-ask spreads and difficulty exiting swing positions quickly without adverse price impact if momentum reverses."
+      }
+    ],
+    "sentiment_sector_composite": 0.5059,
+    "sentiment_sector_rank": 11,
+    "sentiment_sector_score": 70.0,
+    "sentiment_composite_rank": 11,
+    "sentiment_composite_score": 70.0
+  },
+  {
+    "symbol": "ABAN",
+    "sector": "Energy",
+    "n_articles_used": 0,
+    "overall_bias_score": 0.43,
+    "news_bias_score": 0.5,
+    "news_bias_label": "Neutral",
+    "analysis_bias_score": 0.43,
+    "analysis_bias_label": "Mixed",
+    "overall_bias_label": "Mixed",
+    "short_term_action": "NEUTRAL",
+    "long_term_action": "HOLD",
+    "holding_duration": "swing",
+    "price_ranges": {
+      "buy_range": {
+        "low": 14,
+        "high": 15,
+        "note": "Near support 14.51 with ATR buffer; illiquid name so slippage risk is high."
+      },
+      "sell_range_short": {
+        "low": 20,
+        "high": 20,
+        "note": "Near resistance 20.11 with ATR buffer."
+      },
+      "sell_range_positional": {
+        "low": 0,
+        "high": 0,
+        "note": "Target price mean is 0 (no analyst coverage); positional range is invalid."
+      },
+      "stop_loss": {
+        "price": 14,
+        "note": "Below nearest support 14.51 minus 1\u00d7ATR 0.54."
+      }
+    },
+    "llm_reasoning": {
+      "technical": "Mixed trend signals: medium-term is bullish but short-term and long-term are bearish. Price at 16.71 sits just under the 50 EMA (16.74) and below the 20 EMA (17.39), mid-range between support (14.51) and resistance (20.11). RSI 46.33 is neutral. Sector is outperforming (+17.6%), but volume is dry and liquidity is illiquid, making execution risky. Low beta (0.34) limits momentum.",
+      "fundamental": "Deeply conflicted. Forward P/E is 0.33 and debt-to-equity is 0.0 with a 'Healthy' solvency label, but the company reports negative net margins (-185.5%), negative book value (P/B -0.0036), and declining revenue (-24% YoY). Trailing P/E is 0 (negative earnings) and valuation risk is flagged as 'Negative Earnings'. No analyst coverage or price target.",
+      "sentiment": "No recent news removes event catalysts. Institutional flow is split (FII bearish, DII bullish), but institutional holding is 0% and there is no analyst coverage, indicating very low market interest and visibility.",
+      "synthesis": "ABAN is a small-cap, illiquid energy name with contradictory signals. The technical setup lacks short-term conviction, while fundamentals are distressed despite a zero-debt label. The overall bias is Mixed(bearish), and the stock does not meet the threshold for a swing BUY or SELL. Long-term metrics trigger a HOLD due to the bounded upside estimate and reported healthy solvency, but fundamental distress keeps conviction low."
+    },
+    "risks": [
+      {
+        "risk": "Illiquidity & Slippage",
+        "why": "Volume is 'Low (Dry)' and liquidity status is 'Illiquid (Risky)'. Bid-ask spreads and slippage can erode swing-trade profits."
+      },
+      {
+        "risk": "Negative Earnings & Solvency Concerns",
+        "why": "Net profit margin is -185.5%, P/B is negative, and revenue is declining. The 'Negative Earnings' valuation flag and lack of institutional holding reflect deep fundamental stress."
+      }
+    ],
+    "sentiment_sector_composite": -1.2647,
+    "sentiment_sector_rank": 31,
+    "sentiment_sector_score": 12.86,
+    "sentiment_composite_rank": 31,
+    "sentiment_composite_score": 12.86
+  },
+  {
+    "symbol": "ANMOL",
+    "sector": "Energy",
+    "n_articles_used": 8,
+    "overall_bias_score": 0.39,
+    "news_bias_score": 0.5,
+    "news_bias_label": "Neutral",
+    "analysis_bias_score": 0.39,
+    "analysis_bias_label": "Mixed(bearish)",
+    "overall_bias_label": "Mixed(bearish)",
+    "short_term_action": "NEUTRAL",
+    "long_term_action": "NEUTRAL",
+    "holding_duration": "swing",
+    "price_ranges": {
+      "buy_range": {
+        "low": 9.51,
+        "high": 9.82,
+        "note": "Derived from nearest_support 9.7 and ATR 0.39; rounded to 2 decimals"
+      },
+      "sell_range_short": {
+        "low": 10.65,
+        "high": 10.89,
+        "note": "Derived from nearest_resistance 10.77 and ATR 0.39; rounded to 2 decimals"
+      },
+      "sell_range_positional": null,
+      "stop_loss": {
+        "price": 9.31,
+        "note": "Derived from nearest_support 9.7 minus 1.0x ATR 0.39; rounded to 2 decimals"
+      }
+    },
+    "llm_reasoning": {
+      "technical": "Bearish across all timeframes (20D, 50D, 200D) with price (10.03) below all EMAs and testing support at 9.7. RSI at 41.65 is weak but not oversold, offering no clear reversal signal. The stock is illiquid and shows deep negative 12-month momentum (-35.2%), while beta (0.97) tracks the market. Sector RS is outperforming, but stock-level trend remains negative.",
+      "fundamental": "Deep value on trailing metrics (PE ~4.9, PB ~0.48, earnings yield ~20.2%) and a strong ROCE of 17.7% are offset by declining revenue (-21% YoY), razor-thin net margins (0.89%), and high leverage (D/E 1.66). The health status is flagged as Leveraged, indicating balance-sheet risk that undermines the low valuation for a cyclical energy name.",
+      "sentiment": "Recent news is dominated by unrelated entities sharing the 'Anmol' name (e.g., BluSmart founders, Anmol Industries, Anmol TV) and is effectively neutral for ANMOL.NS. Institutional ownership is effectively zero; FII flow is bearish while DII flow is bullish, creating a mixed institutional picture. There is no analyst coverage or price target.",
+      "synthesis": "As a cyclical energy small-cap, technicals carry 50% weight and are firmly bearish. The stock is in a confirmed downtrend near support without oversold or volume-driven conviction for a bounce. Fundamentals offer a value case but are compromised by leverage and negative growth. Sentiment is flat. The blended bias is Mixed(bearish), and with the price between defined buy and short-sell ranges but overall score below 0.55, the stance is NEUTRAL for both short- and long-term horizons."
+    },
+    "risks": [
+      {
+        "risk": "Liquidity & Execution Risk",
+        "why": "The stock is classified as illiquid with normal volume and no delivery data. Entering/exiting a swing position can result in wide spreads and slippage, especially if the support at 9.7 breaks."
+      },
+      {
+        "risk": "Support Breakdown & Trend Continuation",
+        "why": "Price is testing support at 9.7 within a bearish EMA stack (20/50/200). A close below support with ATR-based stop at 9.31 could accelerate selling given the negative momentum and lack of institutional support."
+      }
+    ],
+    "sentiment_sector_composite": -1.6814,
+    "sentiment_sector_rank": 33,
+    "sentiment_sector_score": 7.14,
+    "sentiment_composite_rank": 33,
+    "sentiment_composite_score": 7.14
+  }
+]

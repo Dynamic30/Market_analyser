@@ -18,14 +18,32 @@ CREATE TABLE IF NOT EXISTS stock_analysis (
     raw_signals JSONB,          -- indicator snapshot rendered by the raw drawer
     python_reasoning TEXT,
 
-    llm_score REAL,
-    llm_bias TEXT CHECK (llm_bias IN ('Bullish','Bearish','Neutral','Mixed')),
-    llm_action TEXT CHECK (llm_action IN ('BUY','SELL','HOLD','NEUTRAL')),
-    reasoning TEXT,
+    -- llm_score REAL,
+    -- llm_bias TEXT CHECK (llm_bias IN ('Bullish','Bearish','Neutral','Mixed')),
+    -- llm_action TEXT CHECK (llm_action IN ('BUY','SELL','HOLD','NEUTRAL')),
+    -- reasoning TEXT,
     risks JSONB,                -- key_risks[] from the LLM output
     hold_duration TEXT,
-    hold_duration_reason TEXT,
-    hold_duration_days INTEGER,
+    -- hold_duration_reason TEXT,
+    -- hold_duration_days INTEGER,
+    news_bias_score REAL,
+    news_bias_label TEXT CHECK (news_bias_label IN ('Bullish','Bearish','Neutral','Mixed')),
+    analysis_bias_score REAL,
+    analysis_bias_label TEXT CHECK (analysis_bias_label IN ('Bullish','Bearish','Neutral','Mixed')),
+    overall_bias_score REAL,
+    overall_bias_label TEXT CHECK (overall_bias_label IN ('Bullish','Bearish','Neutral','Mixed')),
+
+    short_term_action TEXT CHECK (short_term_action IN ('BUY','SELL','HOLD','NEUTRAL')),
+    long_term_action  TEXT CHECK (long_term_action  IN ('BUY','SELL','HOLD','NEUTRAL')),
+
+    sentiment_sector_score REAL,
+    sentiment_sector_rank INTEGER,
+    sentiment_composite_score REAL,
+    sentiment_composite_rank INTEGER,
+    n_articles_used SMALLINT,
+
+    llm_reasoning JSONB,   -- {technical, fundamental, sentiment, synthesis}
+    price_ranges JSONB,    -- {buy_range, sell_range_short, sell_range_positional, stop_loss}
 
     combined_action TEXT CHECK (combined_action IN ('BUY','SELL','HOLD','NEUTRAL')),
     combined_score REAL,

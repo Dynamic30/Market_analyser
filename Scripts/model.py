@@ -9,10 +9,12 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-MODEL = "gpt-oss:20b"                       # swap string to change model
+MODEL = "kimi-k2.6:cloud"                       # swap string to change model
+
+
 _client = Client(
     host="https://ollama.com",
-    headers={"Authorization": f"Bearer {os.getenv('OLLAMA_API_KEY')}"},
+    headers={"Authorization": f"Bearer {os.getenv('api_key')}"},
 )
 
 def call(prompt: str, temperature: float = 0.2) -> str:

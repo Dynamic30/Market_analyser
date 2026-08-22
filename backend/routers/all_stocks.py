@@ -24,7 +24,7 @@ CARD_SQL = text("""
            s.market_cap, s.business_summary,
            a.price, a.analysis_date, a.day_change_pct,
            a.python_score, a.python_action,
-           a.llm_score, a.llm_bias, a.llm_action, a.reasoning, a.risks,
+           a.overall_bias_score, a.overall_bias_label, a.short_term_action, a.llm_reasoning, a.risks,
            a.actual_direction, a.actual_close_pct, a.matched
     FROM stocks s
     LEFT JOIN LATERAL (
@@ -58,7 +58,7 @@ def get_stock(sector: str | None = None, limit: int = 50, offset: int = 0):
                s.business_summary,
                COALESCE(NULLIF(s.sector, ''), 'Undefined') AS sector,
                a.price, a.day_change_pct,
-               a.llm_score, a.llm_bias, a.llm_action,
+               a.overall_bias_score, a.overall_bias_label, a.short_term_action,
                a.python_score, a.python_action,
                a.combined_action, a.combined_score, a.analysis_date
         FROM stocks s
@@ -103,8 +103,8 @@ def per_card(stock:str):
         "ISIN":          r["isin"],
         "date":          r["analysis_date"],
         "Raw_Analysis":  {"score": r["python_score"], "action": r["python_action"]},
-        "LLM_Analysis":  {"score": r["llm_score"], "bias": r["llm_bias"],
-                          "action": r["llm_action"], "reasoning": r["reasoning"],
+        "LLM_Analysis":  {"score": r["overall_bias_score"], "bias": r["overall_bias_label"],
+                          "action": r["short_term_action"], "reasoning": r["llm_reasoning"],
                           "risks": r["risks"]},
         "Actual_Trend":  {"direction": r["actual_direction"],
                           "close_pct": r["actual_close_pct"],

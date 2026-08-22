@@ -1,175 +1,211 @@
-# Code reserved to pull data from data base and run analysis
+"""
+Sentiment analysis — pure functions, no DB (mirrors RAW_analysis.py).
+
+Phase A: each stock's articles + financial snapshot -> LLM -> one score.
+Phase B: z-score that score within sector, then rank sector + universe.
+
+Two entry points so the orchestrator can save Phase A scores between them:
+    score_stocks(payloads, sector_summaries=None) -> scored rows
+    rank_scored(rows)                             -> ranked rows
+
+Rows are keyed by symbol, same shape as raw, so the orchestrator writes both
+the same way.
+"""
+
+import json
+import math
+import sys
+from datetime import datetime, timedelta, date
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from model import call as llm_call
 
 
-ANALYSIS_PROMPT = """
+PROMPT = """You are an equity research assistant for Indian NSE-listed stocks, focused on swing trades (1-10 days). Analyze the financial JSON and news, output ONE JSON object.
 
-You are an experienced equity analyst covering Indian stocks listed on NSE/BSE. 
-Your task: synthesize the structured financial data and news digest below into 
-a single stock analysis, following the exact JSON schema specified.
+# WEIGHTING: technical 40%, fundamentals 30%, sentiment + institutional flow 30%.
+Cyclical sectors (Energy, Realty, Metal, Auto): technical 50%. Defensive (FMCG, IT, Pharma): fundamental 40%.
 
-The output will be parsed programmatically AND rendered as a human-readable report. 
-Strict adherence to the schema is required.
+# SCORE SCALE (bias scores are floats 0.0-1.0):
+0.00-0.35 Bearish | 0.35-0.45 Mixed(bearish) | 0.45-0.55 Neutral | 0.55-0.65 Mixed(bullish) | 0.65-1.00 Bullish
+Score by conviction, not caution. Use the FULL range: a clearly strong setup is 0.75-0.90, a clearly weak one 0.10-0.25 — do NOT hedge toward 0.5. 
+Reserve 0.45-0.55 ONLY when signals genuinely cancel out or are absent. 
+If you can name a directional lean, commit to it with a score past 0.60 or below 0.40. 
+Mixed = real conflict in the inputs. Neutral = truly no signal. Do not default to Neutral/Mixed as a safe answer.
 
-────────────────────────────────────────────────────────────
-FIELD GLOSSARY (for the input financial JSON)
-────────────────────────────────────────────────────────────
-- All fields ending in "_pct" are already in percent units (e.g., 12 = 12%, NOT 0.12)
-- "roce_quality": High >15%, Moderate 8-15%, Low <8%
-- "trend_summary": EMA-based — short=close vs 20DMA, medium=20 vs 50 DMA, long=50 vs 200 DMA
-- "delivery_conviction": NSE delivery % (higher = more holding conviction, less day-trading)
-- "beta_vs_nifty": 1.0 = moves with NIFTY 50; >1.0 more volatile; <1.0 less volatile
-- "beta_vs_SP500": correlation with US market — only meaningful for IT, Pharma, Metals exporters
-- "distance_from_52w_high_pct": negative = below 52w high; e.g., -10 means 10% below high
-- "debt_to_equity_ratio": reported as percent (e.g., 50 means 0.5x D/E)
-- "insider_holding_pct" / "institution_holding_pct": already in percent (e.g., 51 = 51%)
-- "ATR" = Average True Range (volatility in price units, ₹)
-- Null, "N/A", "No Data", or "NO DATA COLLECTED" mean unavailable — skip silently
-- "Strong_buy" / "Buy" / "Hold" / "Sell" in analyst_recommendation = analyst consensus
 
-────────────────────────────────────────────────────────────
-OUTPUT NOTE — the two duration fields are different things
-────────────────────────────────────────────────────────────
-- "holding_duration": qualitative trade-horizon bucket (intraday|swing|positional|long) — set it for ANY action.
-- "hold_duration_days" / "hold_duration_reason": concrete, catalyst-anchored countdown that answers
-  "how long should I keep HOLDING, and why" — populated ONLY when short_term_action is HOLD (see rules 8-10).
+# GLOSSARY: "_pct" fields are already percent. beta 1.0 = moves with NIFTY. debt_to_equity 0.5 = 0.5x.
+null / "No Data" / "NO DATA COLLECTED" = missing; ignore, don't lower scores for it. Weight recent news higher.
 
-────────────────────────────────────────────────────────────
-RULES
-────────────────────────────────────────────────────────────
-1. Buy/Sell ranges and Stop-Loss must be derived from real technical levels in the JSON 
-   (support, resistance, ATR, 52w bands). DO NOT invent prices.
-2. Bias scores must be floats 0.0–1.0 where 0.0=strongly bearish, 0.5=neutral, 1.0=strongly bullish.
-3. If a value cannot be confidently determined, use null. NEVER invent values.
-4. Reasoning: exactly 4–6 sentences. Synthesize technical + fundamental + sentiment + flow.
-5. Key risks: 2–3 concrete, stock-specific items. Avoid generic "market risk" or "volatility."
-6. If short_term_action and long_term_action conflict, that's normal — reflect it in reasoning.
-7. Output JSON ONLY. No markdown fences, no preamble, no explanation outside the JSON.
-8. HOLD DURATION (applies ONLY when short_term_action is HOLD):
-   - You MUST populate both "hold_duration_days" and "hold_duration_reason".
-   - "hold_duration_days" = the number of days to keep holding before the position should be
-     re-evaluated, derived from a real, time-bound trigger (e.g. an earnings/result date, a
-     support/resistance retest, momentum fading, an expiry/settlement, a dividend/ex-date).
-   - "hold_duration_reason" = exactly one sentence that names that trigger using concrete data
-     from the inputs (a date or a price level), e.g. "Hold through earnings on 3 Jul, then
-     re-evaluate" or "Holding above 20D EMA support; re-check if it breaks ₹1,311".
-   - Ground the window in BOTH the news digest AND the raw financial/technical JSON — do not invent
-     a catalyst that is not present in the inputs.
-9. UNDETERMINED HOLD: If the hold has no time-bound trigger (e.g. range-bound with no near-term
-   catalyst), set "hold_duration_days" = null and make the reason say so, e.g.
-   "Undetermined — no near-term catalyst; re-evaluate in ~5 sessions".
-10. NON-HOLD actions: Duration is required ONLY for HOLD. When short_term_action is BUY, SELL, or
-    NEUTRAL, set BOTH "hold_duration_days" and "hold_duration_reason" to null and leave the existing
-    buy_range / sell_range / stop_loss / holding_duration behavior unchanged.
-    NOTE — mapping vs the existing "holding_duration" field: "holding_duration" stays as the
-    qualitative trade-horizon bucket (intraday|swing|positional|long); the new
-    "hold_duration_days"/"hold_duration_reason" are the concrete, catalyst-anchored countdown for a
-    HOLD call. They are complementary — keep "holding_duration" populated as before and add the two
-    new fields on top; do not drop or duplicate it.
+# PRICE RULES (derive from JSON, never invent; null if the input is missing):
+buy_range:             low=round(nearest_support-0.5*atr_value), high=round(nearest_support+0.3*atr_value)
+sell_range_short:      low=round(nearest_resistance-0.3*atr_value), high=round(nearest_resistance+0.3*atr_value)
+sell_range_positional: low=round(target_price_mean*0.95), high=round(target_price_mean*1.05)
+stop_loss:             price=round(nearest_support-1.0*atr_value)
 
-────────────────────────────────────────────────────────────
-OUTPUT SCHEMA (return exactly this structure)
-────────────────────────────────────────────────────────────
+# ACTIONS:
+short_term: BUY if overall>=0.65 & price within 5% of buy_range; SELL if overall<=0.35 & price>=sell_range_short; HOLD if overall>=0.55 & price between them; else NEUTRAL.
+long_term: BUY if upside_potential_pct>=15 & health "Healthy"; SELL if upside<=-10 or PE>60 weak; HOLD if upside -10..15 healthy; else NEUTRAL.
+
+# OUTPUT (JSON only, no fences, start with {{ end with }}):
 {{
-  "symbol": "<ticker>",
-  "trading_date": "<YYYY-MM-DD>",
-  "news_sentiments_bias": {{
-    "label": "<Bullish|Bearish|Neutral|Mixed>",
-    "score": <float 0-1>,
-    "rationale": "<one sentence>"
-  }},
-  "analysis_bias": {{
-    "label": "<Bullish|Bearish|Neutral|Mixed>",
-    "score": <float 0-1>,
-    "rationale": "<one sentence>"
-  }},
-  "overall_bias": {{
-    "label": "<Bullish|Bearish|Neutral|Mixed>",
-    "score": <float 0-1>,
-    "rationale": "<one sentence>"
-  }},
-  "short_term_action": "<BUY|SELL|HOLD|NEUTRAL>",
-  "long_term_action":  "<BUY|SELL|HOLD|NEUTRAL>",
-  "buy_range":             {{ "low": <int>, "high": <int>, "note": "<technical justification>" }},
-  "sell_range_short":      {{ "low": <int>, "high": <int>, "note": "<technical justification>" }},
-  "sell_range_positional": {{ "low": <int>, "high": <int>, "note": "<technical justification>" }},
-  "stop_loss":             {{ "price": <int>, "note": "<technical level>" }},
-  "holding_duration": "<intraday|swing|positional|long>",
-  "hold_duration_days":   <int number of days to keep holding before re-evaluating, OR null — see rules 8-10. REQUIRED (int or null) whenever short_term_action is HOLD; otherwise null.>,
-  "hold_duration_reason": "<one sentence justifying the hold window, grounded in a real catalyst or price level from the inputs — REQUIRED whenever short_term_action is HOLD; otherwise null. See rules 8-10.>",
-  "reasoning": "<4-6 sentences synthesizing all signals>",
-  "key_risks": [
-    {{ "risk": "<concrete risk>", "why": "<brief explanation>" }},
-    {{ "risk": "<concrete risk>", "why": "<brief explanation>" }}
-  ]
+  "news_bias":    {{ "label": "Bullish|Bearish|Neutral|Mixed", "score": 0.0 }},
+  "analysis_bias":{{ "label": "Bullish|Bearish|Neutral|Mixed", "score": 0.0 }},
+  "overall_bias": {{ "label": "Bullish|Bearish|Neutral|Mixed", "score": 0.0 }},
+  "short_term_action": "BUY|SELL|HOLD|NEUTRAL",
+  "long_term_action":  "BUY|SELL|HOLD|NEUTRAL",
+  "buy_range":             {{ "low": 0, "high": 0, "note": "" }},
+  "sell_range_short":      {{ "low": 0, "high": 0, "note": "" }},
+  "sell_range_positional": {{ "low": 0, "high": 0, "note": "" }},
+  "stop_loss":             {{ "price": 0, "note": "" }},
+  "holding_duration": "intraday|swing|positional|long",
+  "reasoning": {{ "technical": "", "fundamental": "", "sentiment": "", "synthesis": "" }},
+  "key_risks": [ {{ "risk": "", "why": "" }}, {{ "risk": "", "why": "" }} ]
 }}
-
-────────────────────────────────────────────────────────────
-EXAMPLE OUTPUT (Reliance Industries — for tone and depth calibration)
-────────────────────────────────────────────────────────────
-{{
-  "symbol": "RELIANCE",
-  "trading_date": "2026-04-30",
-  "news_sentiments_bias": {{
-    "label": "Mixed",
-    "score": 0.55,
-    "rationale": "Coverage neutral-to-positive on operations, cautious on earnings trajectory."
-  }},
-  "analysis_bias": {{
-    "label": "Mixed",
-    "score": 0.45,
-    "rationale": "Short-term breakout offset by bearish 50D/200D trend and 3/4 earnings misses."
-  }},
-  "overall_bias": {{
-    "label": "Neutral",
-    "score": 0.52,
-    "rationale": "Conflicting signals — technical breakout against weak earnings execution."
-  }},
-  "short_term_action": "HOLD",
-  "long_term_action":  "HOLD",
-  "buy_range":             {{ "low": 1428, "high": 1440, "note": "Near breakout retest at ₹1434, within 1 ATR" }},
-  "sell_range_short":      {{ "low": 1490, "high": 1530, "note": "1 ATR move toward 52w high zone" }},
-  "sell_range_positional": {{ "low": 1690, "high": 1720, "note": "Near analyst target ₹1705" }},
-  "stop_loss":             {{ "price": 1410, "note": "Below breakout + 1 ATR buffer; invalidates swing thesis" }},
-  "holding_duration": "swing",
-  "hold_duration_days": 11,
-  "hold_duration_reason": "Holding above the ₹1,434 breakout retest; re-evaluate within ~2 weeks or sooner if it loses the ₹1,410 stop.",
-  "reasoning": "Reliance shows a counter-trend bounce — short-term breakout above ₹1434 with constructive RSI 61.7 and positive closing bias, but the 50DMA and 200DMA remain bearish. Fundamentals are reasonable with forward P/E 20, healthy D/E 0.37x, 12% revenue growth, and stable 51% promoter holding. However, execution has been weak — 3 of last 4 quarters missed estimates. Analysts maintain Strong Buy with ₹1705 target despite the miss pattern, suggesting either lag or expected recovery. FII selling absorbed by DII buying keeps domestic flow neutral-to-supportive. Best as a tactical swing trade above the breakout level rather than a positional accumulation.",
-  "key_risks": [
-    {{ "risk": "Continued earnings miss at next print (76 days away)", "why": "3-of-4 miss pattern raises chance of analyst downgrades and breakout failure." }},
-    {{ "risk": "Failure to hold ₹1434 breakout level", "why": "Invalidates swing thesis; technical setup reverts to bearish." }},
-    {{ "risk": "Sector-specific commodity or regulatory shock", "why": "Energy/refining exposure to crude price moves and policy changes." }}
-  ]
-}}
-
-────────────────────────────────────────────────────────────
-NOW ANALYZE THIS STOCK
-────────────────────────────────────────────────────────────
+Use null (not zeros) for any price object whose input is missing.
+{sector_context}
 Symbol: {symbol}
 Trading Date: {trading_date}
 
 FINANCIAL JSON:
 {financial_json}
 
-NEWS DIGEST (last 7 days, headline + excerpt per article):
+NEWS (deduped, recent first):
 {news_digest}
 
-
-Begin your response with the opening brace { — output JSON only.
-Output the JSON now.
-"""
+Output the JSON now."""
 
 
+def _num(v):
+    try:
+        v = float(v)
+        return None if math.isnan(v) or math.isinf(v) else v
+    except (TypeError, ValueError):
+        return None
 
 
+def build_news_digest(articles, as_of, days=7, top_n=8):
+    """Dedup by url, keep last `days`, prefer is_top_news, cap at top_n."""
+    if not articles:
+        return "No recent news.", 0
+    try:
+        cutoff = datetime.strptime(as_of[:10], "%Y-%m-%d").date() - timedelta(days=days)
+    except (ValueError, TypeError):
+        cutoff = date.today() - timedelta(days=days)
 
-# FOR REFFERENCE
-# prompt_filled = ANALYSIS_PROMPT.format(
-#     symbol="RELIANCE",
-#     trading_date="2026-04-30",
-#     financial_json=json.dumps(financial_data_dict, indent=2),
-#     news_digest=news_digest_string,
-# )
+    seen, kept = set(), []
+    for a in articles:
+        if a.get("url") in seen:
+            continue
+        seen.add(a.get("url"))
+        try:
+            pub = datetime.strptime(a["published_date"], "%a, %d %b %Y %H:%M:%S %Z").date()
+            if pub < cutoff:
+                continue
+        except (KeyError, ValueError, TypeError):
+            pass
+        kept.append(a)
 
-# # Then send to LLM
-# response = call_llm(prompt_filled)
-# parsed = json.loads(response)
+    kept.sort(key=lambda a: (bool(a.get("is_top_news")), a.get("published_date") or ""), reverse=True)
+    kept = kept[:top_n]
+    if not kept:
+        return "No recent news.", 0
+
+    lines = [f"- [{a.get('source','?')}] {a.get('title','')}\n  {(a.get('content_md') or '')[:500]}"
+             for a in kept]
+    return "\n".join(lines), len(kept)
+
+
+# --- Phase A: text -> score (LLM) ---
+def score_one(financial_block, articles, sector_summary=""):
+    meta = financial_block.get("meta_data", {})
+    symbol = meta.get("company_name")
+    trading_date = meta.get("Trading_Date", str(date.today()))
+    digest, n_used = build_news_digest(articles, trading_date)
+
+    ctx = f"\nSECTOR CONTEXT (backdrop; the stock's own news still leads):\n{sector_summary}\n" if sector_summary else ""
+    prompt = PROMPT.format(
+        symbol=symbol, trading_date=trading_date,
+        financial_json=json.dumps(financial_block, default=str),
+        news_digest=digest, sector_context=ctx,
+    )
+
+    row = {"symbol": symbol, "sector": (meta.get("sector") or "").strip() or None,
+           "n_articles_used": n_used, "overall_bias_score": None}
+    try:
+        p = _parse_json(llm_call(prompt))
+    except Exception:
+        return row  # unrankable; dropped in Phase B
+
+    row.update({
+        "news_bias_score": _num(p["news_bias"]["score"]), "news_bias_label": p["news_bias"]["label"],
+        "analysis_bias_score": _num(p["analysis_bias"]["score"]), "analysis_bias_label": p["analysis_bias"]["label"],
+        "overall_bias_score": _num(p["overall_bias"]["score"]), "overall_bias_label": p["overall_bias"]["label"],
+        "short_term_action": p.get("short_term_action"), "long_term_action": p.get("long_term_action"),
+        "holding_duration": p.get("holding_duration"),
+        "price_ranges": {k: p.get(k) for k in ("buy_range", "sell_range_short", "sell_range_positional", "stop_loss")},
+        "llm_reasoning": p.get("reasoning"), "risks": p.get("key_risks"),
+    })
+    return row
+
+
+def _parse_json(raw):
+    s = (raw or "").strip().removeprefix("```json").removeprefix("```").removesuffix("```").strip()
+    try:
+        return json.loads(s)
+    except json.JSONDecodeError:
+        return json.loads(s[s.find("{"):s.rfind("}") + 1])
+
+
+def score_stocks(payloads, sector_summaries=None):
+    """payloads: [{financial_block, articles}]. Makes the LLM calls."""
+    sector_summaries = sector_summaries or {}
+    rows = []
+    for p in payloads:
+        sec = (p["financial_block"].get("meta_data", {}).get("sector") or "").strip()
+        rows.append(score_one(p["financial_block"], p.get("articles") or [], sector_summaries.get(sec, "")))
+    return rows
+
+
+# --- Phase B: score -> rank (pure math, same as raw) ---
+def _zscores(values):
+    present = {k: v for k, v in values.items() if v is not None}
+    if len(present) < 2:
+        return {}
+    xs = sorted(present.values())
+    n = len(xs)
+    lo, hi = xs[int(0.02 * n)], xs[min(n - 1, int(0.98 * n))]
+    clip = {k: min(max(v, lo), hi) for k, v in present.items()}
+    mean = sum(clip.values()) / len(clip)
+    std = (sum((v - mean) ** 2 for v in clip.values()) / len(clip)) ** 0.5
+    return {k: 0.0 for k in clip} if std == 0 else {k: (v - mean) / std for k, v in clip.items()}
+
+
+def rank_scored(rows):
+    """z-score overall_bias_score within sector, then rank sector + universe."""
+    rankable = [r for r in rows if _num(r.get("overall_bias_score")) is not None]
+
+    by_sector = {}
+    for r in rankable:
+        by_sector.setdefault(r.get("sector"), []).append(r)
+
+    for members in by_sector.values():
+        z = _zscores({r["symbol"]: _num(r["overall_bias_score"]) for r in members})
+        for r in members:
+            r["sentiment_sector_composite"] = round(z[r["symbol"]], 4) if r["symbol"] in z else None
+        ranked = sorted((r for r in members if r["sentiment_sector_composite"] is not None),
+                        key=lambda r: r["sentiment_sector_composite"], reverse=True)
+        n = len(ranked)
+        for i, r in enumerate(ranked):
+            r["sentiment_sector_rank"] = i + 1
+            r["sentiment_sector_score"] = round(100 * (n - i - 0.5) / n, 2)
+
+    universe = sorted((r for r in rankable if r.get("sentiment_sector_composite") is not None),
+                      key=lambda r: r["sentiment_sector_composite"], reverse=True)
+    n = len(universe)
+    for i, r in enumerate(universe):
+        r["sentiment_composite_rank"] = i + 1
+        r["sentiment_composite_score"] = round(100 * (n - i - 0.5) / n, 2)
+
+    return rows
