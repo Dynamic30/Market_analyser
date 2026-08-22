@@ -452,7 +452,7 @@ def json_data(company_name,today,market_ctx=None):
 
     # profatibility
     profit_margins_pct = round(info.get('profitMargins',0)*100, 2)
-    operating_margins_pct = round(info.get('operatingMargins')*100 ,2)
+    operating_margins_pct = round((info.get('operatingMargins') or 0)*100, 2)
     revenue_growth_yoy = round(info.get('revenueGrowth',0),2)
 
     # Banks/NBFCs and SME listings often have no EBIT or Long Term Debt row,

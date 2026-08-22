@@ -133,39 +133,218 @@ function mockRowHold(s, i) {
     return opts[i % opts.length];
 }
 
-// ----- Render home picks (LLM and Python) -----
-function renderHomePicks() {
-    // LLM picks: sort by llmScore desc, take top 5
-    const llmPicks = [...stocks].sort((a, b) => b.llmScore - a.llmScore).slice(0, 5);
-    const pyPicks  = [...stocks].sort((a, b) => b.pythonScore - a.pythonScore).slice(0, 5);
+// ============================================================
+// Ranking model — one scoring pass, three ways of reading it
+// ============================================================
+// The home Top Picks list, the rankings modal and the Recommendations view all
+// rank the same stocks, so the LLM/raw/combined derivation lives here once.
+// Returned best-combined-first.
+const TOP_PICKS_COUNT = 10;
 
-    document.getElementById('llm-picks-list').innerHTML = llmPicks.map(s => pickCard(s, 'llm')).join('');
-    document.getElementById('python-picks-list').innerHTML = pyPicks.map(s => pickCard(s, 'python')).join('');
+function scoredStocks() {
+    return stocks.map(s => {
+        const llmScore100 = Math.round(s.llmScore * 100);
+        const llmAct = s.llmAction === 'BUY' ? 'BUY' : llmScore100 > 65 ? 'BUY' : 'HOLD';
+        const pyAct  = s.pythonScore > 65 ? 'BUY' : s.pythonScore < 35 ? 'SELL' : 'HOLD';
+        const combined = combineDecisions(pyAct, s.pythonScore, llmAct, llmScore100);
+        return {
+            ...s, llmScore100, llmAct, pyAct,
+            combinedAction: combined.action,
+            combinedScore:  combined.score,
+            combinedMixed:  combined.mixed,
+        };
+    }).sort((a, b) => b.combinedScore - a.combinedScore);
 }
 
-function pickCard(s, type) {
-    const score = type === 'llm' ? (s.llmScore * 100).toFixed(0) : s.pythonScore;
-    const scoreLabel = type === 'llm' ? `${score}/100` : `${score}/100`;
-    const drawerSource = type === 'llm' ? 'llm' : 'raw';
+// The hold window mock-data.js already attached, in the shape comboChip expects.
+const holdOf = (s) => s.hold_duration_reason
+    ? { days: s.hold_duration_days, label: s.hold_duration_label, reason: s.hold_duration_reason }
+    : null;
+
+// ----- Universe selector -----
+// '' = the whole universe; otherwise a single sector. Drives both the home Top Picks
+// list and the rankings modal, so "top 10" always means top 10 of what's selected.
+// Options are derived from the ranked data itself, so every choice yields rows.
+let picksSector = '';
+
+const PICKS_UNIVERSE_LABEL = 'All sectors';
+const universeLabel = () => picksSector || PICKS_UNIVERSE_LABEL;
+
+function pickSectors() {
+    return [...new Set(stocks.map(s => s.sector).filter(Boolean))].sort();
+}
+
+function populateSectorSelects() {
+    const opts = `<option value="">${PICKS_UNIVERSE_LABEL} · universe</option>`
+        + pickSectors().map(sec => `<option value="${escAttr(sec)}">${escAttr(sec)}</option>`).join('');
+    ['picks-sector', 'rankings-sector'].forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.innerHTML = opts;
+        el.value = picksSector;
+    });
+}
+
+// Both selects call this, so changing one keeps the other (and every list) in step.
+function setPicksSector(sector) {
+    picksSector = sector || '';
+    closeHoldPopover();
+    ['picks-sector', 'rankings-sector'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = picksSector;
+    });
+    renderHomePicks();
+    if (!document.getElementById('rankings-overlay').classList.contains('hidden')) renderRankings();
+}
+
+// Every scored stock in the selected universe, best combined score first.
+const picksUniverse = () => scoredStocks().filter(s => !picksSector || s.sector === picksSector);
+
+// ----- Render home picks (single combined top 10 within the selected universe) -----
+function renderHomePicks() {
+    const picks = picksUniverse().slice(0, TOP_PICKS_COUNT);
+    const scope = picksSector ? `in ${picksSector}` : 'overall';
+    const lead  = picks.length === 1 ? '1 pick' : `Top ${picks.length}`;
+    document.getElementById('top-picks-sub').textContent =
+        `${lead} ${scope} — LLM conviction and raw signals combined`;
+    document.getElementById('top-picks-list').innerHTML = picks.map(topPickCard).join('');
+}
+
+function topPickCard(s, idx) {
     return `
-        <div onclick="openDrawer('${s.symbol}', '${drawerSource}')" class="bg-white border border-slate-200 hover:border-sky-300 hover:shadow-sm rounded-xl p-4 cursor-pointer transition group">
-            <div class="flex items-center justify-between">
+        <div onclick="openDrawer('${s.symbol}')" class="bg-white border border-slate-200 hover:border-sky-300 hover:shadow-sm rounded-xl p-4 cursor-pointer transition group">
+            <div class="flex items-start gap-3">
+                <div class="w-8 h-8 shrink-0 bg-gradient-to-br from-sky-100 to-teal-100 rounded-lg flex items-center justify-center text-xs font-bold text-sky-700">
+                    #${idx + 1}
+                </div>
                 <div class="min-w-0 flex-1">
                     <div class="flex items-center gap-2">
                         <span class="font-semibold text-slate-900 truncate">${s.name}</span>
-                        <span class="text-xs text-slate-400">${s.symbol.replace('.NS','')}</span>
+                        <span class="text-xs text-slate-400 shrink-0">${s.symbol.replace('.NS','')}</span>
                     </div>
-                    <div class="flex items-center gap-3 mt-1.5">
-                        <span class="text-xs font-medium px-2 py-0.5 rounded-full ${biasColor(s.llmBias)}">${s.llmBias}</span>
-                        <span class="text-xs text-slate-500">${s.sector}</span>
+                    <div class="flex items-center gap-2 mt-2 flex-wrap">
+                        ${comboChip(s.combinedAction, s.llmAct, s.pyAct, s, holdOf(s))}
+                        <span class="text-xs text-slate-500">LLM ${s.llmScore100} · Raw ${s.pythonScore}</span>
                     </div>
                 </div>
-                <div class="text-right ml-4">
-                    <div class="text-sm font-semibold text-slate-900">${scoreLabel}</div>
+                <div class="text-right shrink-0">
+                    <div class="text-sm font-semibold text-slate-900">${s.combinedScore}/100</div>
                     <div class="text-xs ${changeColor(s.change)} mt-1">${changeSign(s.change)}${s.change}%</div>
                 </div>
             </div>
         </div>
+    `;
+}
+
+// ============================================================
+// Rankings modal — the same list read three ways
+// ============================================================
+// 'all' ranks every tracked stock by combined score; 'llm' and 'raw' are the
+// per-method lists that used to sit side by side on the home page.
+const RANKING_TABS = {
+    all: { label: 'All rankings',  sub: (n) => `All ${n} stock${n === 1 ? '' : 's'} in ${universeLabel()} ranked by combined score — LLM conviction and raw signals together.` },
+    llm: { label: 'Top LLM picks', sub: (n) => `${n === 1 ? '1 pick' : 'Top ' + n} in ${universeLabel()} by LLM conviction alone (Qwen3-32B) — bias, narrative and news flow.` },
+    raw: { label: 'Top raw picks', sub: (n) => `${n === 1 ? '1 pick' : 'Top ' + n} in ${universeLabel()} by the rule engine alone — technical and fundamental thresholds, no LLM.` },
+};
+let rankingsTab = 'all';
+
+function openRankings(tab) {
+    rankingsTab = RANKING_TABS[tab] ? tab : 'all';
+    renderRankings();
+    const overlay = document.getElementById('rankings-overlay');
+    overlay.classList.remove('hidden');
+    overlay.classList.add('flex');
+}
+
+function closeRankings() {
+    closeHoldPopover();
+    const overlay = document.getElementById('rankings-overlay');
+    overlay.classList.add('hidden');
+    overlay.classList.remove('flex');
+}
+
+function showRankingsTab(tab) {
+    rankingsTab = tab;
+    closeHoldPopover();
+    renderRankings();
+    document.getElementById('rankings-body').scrollTop = 0;
+}
+
+// Each tab sorts on its own score; 'all' keeps every row, the two method tabs cut at 10.
+function rankingRowsFor(tab) {
+    const scored = picksUniverse();
+    if (tab === 'llm') return [...scored].sort((a, b) => b.llmScore100 - a.llmScore100).slice(0, TOP_PICKS_COUNT);
+    if (tab === 'raw') return [...scored].sort((a, b) => b.pythonScore - a.pythonScore).slice(0, TOP_PICKS_COUNT);
+    return scored;
+}
+
+function rankingRow(s, idx, tab) {
+    // Detail modal opens on the method the tab is about; 'all' defaults to the LLM narrative.
+    const source = tab === 'raw' ? 'raw' : 'llm';
+    const score  = tab === 'llm' ? s.llmScore100 : tab === 'raw' ? s.pythonScore : s.combinedScore;
+
+    let chip, note;
+    if (tab === 'all') {
+        chip = comboChip(s.combinedAction, s.llmAct, s.pyAct, s, holdOf(s));
+        note = s.combinedMixed ? 'Methods diverge' : 'Both methods agree';
+    } else if (tab === 'llm') {
+        chip = `<span class="text-xs font-semibold px-2.5 py-1 rounded-md border ${actionColor(s.llmAction)}">${s.llmAction}</span>`;
+        note = `${s.llmBias} · Raw ${s.pythonScore}`;
+    } else {
+        chip = `<span class="text-xs font-semibold px-2.5 py-1 rounded-md border ${actionColor(s.pyAct)}">${s.pyAct}</span>`;
+        note = `Rule-based · LLM ${s.llmScore100}`;
+    }
+
+    return `
+        <div onclick="openDrawer('${s.symbol}', '${source}')" class="grid grid-cols-12 gap-3 items-center px-3 py-3 rounded-lg border border-transparent hover:border-sky-300 hover:bg-slate-100 cursor-pointer transition">
+            <div class="col-span-5 flex items-center gap-3 min-w-0">
+                <span class="text-xs font-bold text-slate-400 w-6 shrink-0">#${idx + 1}</span>
+                <div class="min-w-0">
+                    <div class="font-semibold text-slate-900 text-sm truncate">${s.name}</div>
+                    <div class="text-xs text-slate-400 mt-0.5 truncate">${s.symbol.replace('.NS','')} · ${s.sector}</div>
+                </div>
+            </div>
+            <div class="col-span-3">
+                ${chip}
+                <div class="text-[10px] text-slate-400 uppercase tracking-wide mt-1">${note}</div>
+            </div>
+            <div class="col-span-2 text-right text-sm font-semibold text-slate-900">${score}<span class="text-xs text-slate-400 font-normal">/100</span></div>
+            <div class="col-span-2 text-right">
+                <div class="text-sm font-semibold text-slate-900">₹${s.price.toLocaleString('en-IN')}</div>
+                <div class="text-xs ${changeColor(s.change)} mt-0.5">${changeSign(s.change)}${s.change}%</div>
+            </div>
+        </div>
+    `;
+}
+
+function renderRankings() {
+    const tab  = rankingsTab;
+    const meta = RANKING_TABS[tab];
+    const rows = rankingRowsFor(tab);
+
+    document.getElementById('rankings-title').textContent = meta.label;
+    document.getElementById('rankings-sub').textContent   = meta.sub(rows.length);
+    document.getElementById('rankings-sector').value      = picksSector;
+
+    const activeCls   = 'px-3.5 py-2.5 text-sm font-medium border-b-2 border-sky-500 text-sky-600 -mb-px transition';
+    const inactiveCls = 'px-3.5 py-2.5 text-sm font-medium border-b-2 border-transparent text-slate-500 hover:text-slate-700 -mb-px transition';
+    const universeSize = picksUniverse().length;
+    const tabCount = (key) => key === 'all' ? universeSize : Math.min(TOP_PICKS_COUNT, universeSize);
+    document.getElementById('rankings-tabs').innerHTML = Object.entries(RANKING_TABS).map(([key, t]) => `
+        <button onclick="showRankingsTab('${key}')" class="${key === tab ? activeCls : inactiveCls}">
+            ${t.label}
+            <span class="ml-1 text-xs text-slate-400">${tabCount(key)}</span>
+        </button>
+    `).join('');
+
+    document.getElementById('rankings-body').innerHTML = `
+        <div class="grid grid-cols-12 gap-3 px-3 pb-2 text-[10px] font-medium text-slate-400 uppercase tracking-wide">
+            <div class="col-span-5">Stock</div>
+            <div class="col-span-3">${tab === 'all' ? 'Combined call' : 'Call'}</div>
+            <div class="col-span-2 text-right">${tab === 'all' ? 'Combined' : tab === 'llm' ? 'LLM score' : 'Raw score'}</div>
+            <div class="col-span-2 text-right">Price</div>
+        </div>
+        <div class="space-y-1">${rows.map((s, i) => rankingRow(s, i, tab)).join('')}</div>
     `;
 }
 
@@ -417,16 +596,10 @@ function confirmAddToWatchlist() {
 // Top picks where Combined score > 65 with both Python and LLM agreeing on BUY
 function renderTopRecs() {
     // Filter stocks with high combined conviction and bullish action
-    const candidates = stocks.map(s => {
-        const llmScore100 = Math.round(s.llmScore * 100);
-        const llmAct = s.llmAction === 'BUY' ? 'BUY' : llmScore100 > 65 ? 'BUY' : 'HOLD';
-        const pyAct  = s.pythonScore > 65 ? 'BUY' : s.pythonScore < 35 ? 'SELL' : 'HOLD';
-        const combined = combineDecisions(pyAct, s.pythonScore, llmAct, llmScore100);
-        return { ...s, combinedAction: combined.action, combinedScore: combined.score, combinedMixed: combined.mixed };
-    }).filter(s =>
+    const candidates = scoredStocks().filter(s =>
         (s.combinedAction === 'BUY' || s.combinedAction === 'MIXED-BUY') &&
         s.combinedScore >= 60
-    ).sort((a, b) => b.combinedScore - a.combinedScore).slice(0, 10);
+    ).slice(0, TOP_PICKS_COUNT);
 
     document.getElementById('top-recs-list').innerHTML = candidates.map((s, idx) => `
         <div onclick="openDrawer('${s.symbol}')" class="bg-white border border-slate-200 hover:border-sky-300 hover:shadow-sm rounded-xl p-5 cursor-pointer transition">
@@ -1518,5 +1691,6 @@ async function loadSectors() {
 
 // ----- Initialize -----
 // Theme cycling lives in theme.js (shared with admin.html) and self-applies.
+populateSectorSelects();
 renderHomePicks();
 loadSectors();

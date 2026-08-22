@@ -15,7 +15,7 @@ async def lifespan():
 
 
 
-app = FastAPI(app="Stock Market Analyzer", lifespan=lifespan)
+app = FastAPI(app="Stock Market Analyzer") # add lifespan=lifespan once completed
 
 app.add_middleware(
     CORSMiddleware,
