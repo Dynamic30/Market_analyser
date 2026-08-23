@@ -24,6 +24,8 @@ SCHEMA_FILES = [
     PROJECT_ROOT / "db_schema" / "stocks.sql",          # must run first — defines set_updated_at()
     PROJECT_ROOT / "db_schema" / "stock_analysis.sql",
     PROJECT_ROOT / "db_schema" / "sector_summary.sql", # weekly rolling sentiment summary
+    PROJECT_ROOT / "db_schema" / "market.sql",
+    PROJECT_ROOT / "db_schema" / "commodities.sql",
 
 ]
 SEED_CSV = PROJECT_ROOT / "etc" / "stocks_seed.csv"

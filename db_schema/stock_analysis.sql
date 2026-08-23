@@ -12,10 +12,6 @@ CREATE TABLE IF NOT EXISTS stock_analysis (
     python_action TEXT CHECK (python_action IN ('BUY','SELL','HOLD','NEUTRAL')),
     -- Sub-scores behind python_score (each 0-100). The third component is
     -- institutional flow, not news sentiment — news belongs to the LLM pass.
-    tech_score REAL,
-    fund_score REAL,
-    flow_score REAL,
-    raw_signals JSONB,          -- indicator snapshot rendered by the raw drawer
     python_reasoning TEXT,
 
     -- llm_score REAL,
@@ -65,10 +61,6 @@ CREATE TABLE IF NOT EXISTS stock_analysis (
 -- The CREATE above only fires on a fresh database. These keep an already-created
 -- stock_analysis in sync when columns are added, since seed_db.apply_schema()
 -- re-runs this whole file every time.
-ALTER TABLE stock_analysis ADD COLUMN IF NOT EXISTS tech_score REAL;
-ALTER TABLE stock_analysis ADD COLUMN IF NOT EXISTS fund_score REAL;
-ALTER TABLE stock_analysis ADD COLUMN IF NOT EXISTS flow_score REAL;
-ALTER TABLE stock_analysis ADD COLUMN IF NOT EXISTS raw_signals JSONB;
 ALTER TABLE stock_analysis ADD COLUMN IF NOT EXISTS python_reasoning TEXT;
 ALTER TABLE stock_analysis ADD COLUMN IF NOT EXISTS mom_12_1 DOUBLE PRECISION;
 ALTER TABLE stock_analysis ADD COLUMN IF NOT EXISTS vol_60 DOUBLE PRECISION;
@@ -89,7 +81,22 @@ ALTER TABLE stock_analysis ADD COLUMN IF NOT EXISTS sector TEXT;
 ALTER TABLE stock_analysis ADD COLUMN IF NOT EXISTS passed_universe_gate BOOLEAN;
 ALTER TABLE stock_analysis ADD COLUMN IF NOT EXISTS eval_horizon_days INTEGER;
 
-
+-- sentiments columns
+ALTER TABLE stock_analysis ADD COLUMN IF NOT EXISTS news_bias_score REAL;
+ALTER TABLE stock_analysis ADD COLUMN IF NOT EXISTS news_bias_label TEXT;
+ALTER TABLE stock_analysis ADD COLUMN IF NOT EXISTS analysis_bias_score REAL;
+ALTER TABLE stock_analysis ADD COLUMN IF NOT EXISTS analysis_bias_label TEXT;
+ALTER TABLE stock_analysis ADD COLUMN IF NOT EXISTS overall_bias_score REAL;
+ALTER TABLE stock_analysis ADD COLUMN IF NOT EXISTS overall_bias_label TEXT;
+ALTER TABLE stock_analysis ADD COLUMN IF NOT EXISTS short_term_action TEXT;
+ALTER TABLE stock_analysis ADD COLUMN IF NOT EXISTS long_term_action TEXT;
+ALTER TABLE stock_analysis ADD COLUMN IF NOT EXISTS sentiment_sector_score REAL;
+ALTER TABLE stock_analysis ADD COLUMN IF NOT EXISTS sentiment_sector_rank INTEGER;
+ALTER TABLE stock_analysis ADD COLUMN IF NOT EXISTS sentiment_composite_score REAL;
+ALTER TABLE stock_analysis ADD COLUMN IF NOT EXISTS sentiment_composite_rank INTEGER;
+ALTER TABLE stock_analysis ADD COLUMN IF NOT EXISTS n_articles_used SMALLINT;
+ALTER TABLE stock_analysis ADD COLUMN IF NOT EXISTS llm_reasoning JSONB;
+ALTER TABLE stock_analysis ADD COLUMN IF NOT EXISTS price_ranges JSONB;
 
 CREATE INDEX IF NOT EXISTS idx_analysis_date ON stock_analysis(analysis_date);
 -- Backs the "latest analysis per symbol" join in backend/routers/all_stocks.py

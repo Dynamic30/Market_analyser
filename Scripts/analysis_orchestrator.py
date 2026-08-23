@@ -1,0 +1,278 @@
+
+
+
+
+from __future__ import annotations
+
+from datetime import datetime
+from pathlib import Path
+import argparse
+import pymongo
+import os
+from dotenv import load_dotenv
+from sqlalchemy import create_engine, text
+from Analysis.RAW_analysis import run_raw_analysis
+from Analysis.LLM_analysis import score_stocks, rank_scored
+import logging
+import json
+from concurrent.futures import ThreadPoolExecutor
+
+
+load_dotenv()
+
+
+LOG_DIR = Path(__file__).resolve().parent.parent / "logs"
+LOG_DIR.mkdir(exist_ok=True)
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(threadName)s] %(levelname)s %(message)s",
+    handlers=[
+        logging.FileHandler(LOG_DIR / f"analysis_{datetime.now():%Y%m%d_%H%M%S}.log"),
+        logging.StreamHandler(),
+    ],
+)
+log = logging.getLogger("market")
+
+
+_engine = create_engine(os.getenv("SQL_DB"))
+
+_mongo = pymongo.MongoClient(os.getenv("DATABASE"))
+_db = _mongo["market_analyser"]
+_financial = _db["Financial_Data"]
+_sentiments = _db["Sentiments"]
+
+RAW_QUERY = """
+    INSERT INTO stock_analysis (
+        nse_symbol, analysis_date, price, sector, passed_universe_gate,
+        mom_12_1, vol_60, beta_252, roce, de_ratio, earnings_yield, delivery_pct_20,
+        sector_score, sector_rank, composite_score, composite_rank,
+        n_factors_used, python_score, python_action, python_reasoning
+    ) VALUES (
+        :symbol, :date, :price, :sector, :gate,
+        :mom_12_1, :vol_60, :beta_252, :roce, :de_ratio, :earnings_yield, :delivery_pct_20,
+        :sector_score, :sector_rank, :composite_score, :composite_rank,
+        :n_factors_used, :python_score, :python_action, :python_reasoning
+    )
+    ON CONFLICT (nse_symbol, analysis_date) DO UPDATE SET
+        price = EXCLUDED.price, sector = EXCLUDED.sector,
+        passed_universe_gate = EXCLUDED.passed_universe_gate,
+        mom_12_1 = EXCLUDED.mom_12_1, vol_60 = EXCLUDED.vol_60,
+        beta_252 = EXCLUDED.beta_252, roce = EXCLUDED.roce,
+        de_ratio = EXCLUDED.de_ratio, earnings_yield = EXCLUDED.earnings_yield,
+        delivery_pct_20 = EXCLUDED.delivery_pct_20,
+        sector_score = EXCLUDED.sector_score, sector_rank = EXCLUDED.sector_rank,
+        composite_score = EXCLUDED.composite_score, composite_rank = EXCLUDED.composite_rank,
+        n_factors_used = EXCLUDED.n_factors_used, python_score = EXCLUDED.python_score,
+        python_action = EXCLUDED.python_action, 
+        python_reasoning = EXCLUDED.python_reasoning,
+        updated_at = CURRENT_TIMESTAMP
+"""
+
+SENTIMENT_QUERY = """
+    INSERT INTO stock_analysis (
+        nse_symbol, analysis_date,
+        news_bias_score, news_bias_label,
+        analysis_bias_score, analysis_bias_label,
+        overall_bias_score, overall_bias_label,
+        short_term_action, long_term_action,
+        sentiment_sector_score, sentiment_sector_rank,
+        sentiment_composite_score, sentiment_composite_rank,
+        n_articles_used, llm_reasoning, price_ranges, risks
+    ) VALUES (
+        :symbol, :date,
+        :news_bias_score, :news_bias_label,
+        :analysis_bias_score, :analysis_bias_label,
+        :overall_bias_score, :overall_bias_label,
+        :short_term_action, :long_term_action,
+        :sentiment_sector_score, :sentiment_sector_rank,
+        :sentiment_composite_score, :sentiment_composite_rank,
+        :n_articles_used, :llm_reasoning, :price_ranges, :risks
+    )
+    ON CONFLICT (nse_symbol, analysis_date) DO UPDATE SET
+        news_bias_score = EXCLUDED.news_bias_score,
+        news_bias_label = EXCLUDED.news_bias_label,
+        analysis_bias_score = EXCLUDED.analysis_bias_score,
+        analysis_bias_label = EXCLUDED.analysis_bias_label,
+        overall_bias_score = EXCLUDED.overall_bias_score,
+        overall_bias_label = EXCLUDED.overall_bias_label,
+        short_term_action = EXCLUDED.short_term_action,
+        long_term_action = EXCLUDED.long_term_action,
+        sentiment_sector_score = EXCLUDED.sentiment_sector_score,
+        sentiment_sector_rank = EXCLUDED.sentiment_sector_rank,
+        sentiment_composite_score = EXCLUDED.sentiment_composite_score,
+        sentiment_composite_rank = EXCLUDED.sentiment_composite_rank,
+        n_articles_used = EXCLUDED.n_articles_used,
+        llm_reasoning = EXCLUDED.llm_reasoning,
+        price_ranges = EXCLUDED.price_ranges,
+        risks = EXCLUDED.risks,
+        updated_at = CURRENT_TIMESTAMP
+"""
+
+# helper functions 
+
+def latest_date():
+    latest = None
+    for doc in _financial.find({}, {"_id": 0}):
+        for key in doc:
+            if len(key) == 10 and key[4] == "-" and key[7] == "-":
+                if latest is None or key > latest:
+                    latest = key
+    return latest
+
+
+def load_payloads(collection, date, sector=None, limit=None):
+    # fetch data from mongo db
+
+    payloads = []
+    for doc in collection.find({}):
+        block = doc.get(date)
+        if not block:
+            continue
+        if "ranking_factors" not in block:
+            continue
+        if sector and block.get("meta_data", {}).get("sector") != sector:
+            continue
+        payloads.append(block)
+        if limit and len(payloads) >= limit:
+            break
+
+    return payloads
+
+def write_to_db(query, rows):
+    # push data to postgress
+
+    with _engine.begin() as conn:
+        for r in rows:
+            conn.execute(text(query), r)
+
+
+# Analysis Functions
+
+
+def RunRawAnalysis(date, sector=None, limit=None):
+
+    # call analysis function and run sector wise 
+    # push data to database
+
+    payloads = load_payloads(_financial, date, sector, limit)
+    if not payloads:
+        log.warning(f"No data for {date}")
+        return
+
+    log.info(f"Raw: {len(payloads)} stocks for {date}")
+    rows = run_raw_analysis(payloads)
+
+    params = []
+    for r in rows:
+        if not r.get("symbol"):
+            continue
+        f = r.get("factors", {})
+        params.append({
+            "symbol": r["symbol"], "date": date, "price": r.get("price"),
+            "sector": r.get("sector"), "gate": r.get("passed_gate",False),
+            "mom_12_1": f.get("mom_12_1"), "vol_60": f.get("vol_60"),
+            "beta_252": f.get("beta_252"), "roce": f.get("roce"),
+            "de_ratio": f.get("de_ratio"), "earnings_yield": f.get("earnings_yield"),
+            "delivery_pct_20": f.get("delivery_pct_20"),
+            "sector_score": r.get("sector_score"), "sector_rank": r.get("sector_rank"),
+            "composite_score": r.get("composite_score"), "composite_rank": r.get("composite_rank"),
+            "n_factors_used": r.get("n_factors_used"), "python_score": r.get("python_score"),
+            "python_action": r.get("python_action"),
+            "python_reasoning": r.get("python_reasoning"),
+        })
+
+    write_to_db(RAW_QUERY, params)
+    log.info(f"Raw done: {len(params)} written")
+
+def RunSentimentsAnalysis(date, sector=None, limit=None):
+
+    # call analysis function and run this sector wise
+    # save data to db
+
+
+    financial_payloads = load_payloads(_financial, date, sector, limit)
+    if not financial_payloads:
+        log.warning(f"No financial data for {date}")
+        return
+
+    # build combined payloads: financial block + articles
+    payloads = []
+    for block in financial_payloads:
+        symbol = block.get("meta_data", {}).get("company_name")
+        if not symbol:
+            continue
+        sent_doc = _sentiments.find_one({"_id": f"{symbol}.NS"})
+        articles = sent_doc.get("articles", []) if sent_doc else []
+        payloads.append({"financial_block": block, "articles": articles})
+
+    log.info(f"Sentiment: {len(payloads)} stocks for {date}")
+
+    # Phase A — LLM scoring (slow)
+    scored = score_stocks(payloads)
+
+    # Phase B — ranking (instant)
+    ranked = rank_scored(scored)
+
+    # build params
+    params = []
+    for r in ranked:
+        if not r.get("symbol"):
+            continue
+        params.append({
+            "symbol": r["symbol"], "date": date,
+            "news_bias_score": r.get("news_bias_score"),
+            "news_bias_label": r.get("news_bias_label"),
+            "analysis_bias_score": r.get("analysis_bias_score"),
+            "analysis_bias_label": r.get("analysis_bias_label"),
+            "overall_bias_score": r.get("overall_bias_score"),
+            "overall_bias_label": r.get("overall_bias_label"),
+            "short_term_action": r.get("short_term_action"),
+            "long_term_action": r.get("long_term_action"),
+            "sentiment_sector_score": r.get("sentiment_sector_score"),
+            "sentiment_sector_rank": r.get("sentiment_sector_rank"),
+            "sentiment_composite_score": r.get("sentiment_composite_score"),
+            "sentiment_composite_rank": r.get("sentiment_composite_rank"),
+            "n_articles_used": r.get("n_articles_used"),
+            "llm_reasoning": json.dumps(r.get("llm_reasoning")),
+            "price_ranges": json.dumps(r.get("price_ranges")),
+            "risks": json.dumps(r.get("risks")),
+        })
+
+    write_to_db(SENTIMENT_QUERY, params)
+    log.info(f"Sentiment done: {len(params)} written")
+
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        prog='Market Analyser Analysis Pipeline',
+        description='Run analysis on raw and news sentiments'
+    )
+    parser.add_argument("--date", default=None, help="YYYY-MM-DD; latest if omitted")
+    parser.add_argument("--sector", default=None)
+    parser.add_argument("--limit", type=int, default=None)
+    parser.add_argument("--raw", action="store_true", help="Run raw analysis only")
+    parser.add_argument("--sentiment", action="store_true", help="Run sentiment analysis only")
+
+    args = parser.parse_args()
+    date = args.date or latest_date()
+
+    if not date:
+        log.error("No date found in Mongo")
+        raise SystemExit(1)
+
+    log.info(f"Analysis for {date}")
+
+    # no flag = both
+    run_both = not args.raw and not args.sentiment
+
+    if run_both:
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            pool.submit(RunRawAnalysis, date, args.sector, args.limit)
+            pool.submit(RunSentimentsAnalysis, date, args.sector, args.limit)
+
+    else:
+        if args.raw:
+            RunRawAnalysis(date, args.sector, args.limit)
+        if args.sentiment:
+            RunSentimentsAnalysis(date, args.sector, args.limit)

@@ -3,7 +3,7 @@
 import datetime
 from pydantic import BaseModel, ConfigDict, Field
 
-# basic metadata of stock when you click on it
+# basic metadata of stock when you click on it, (can also be used in the top stock section)
 class CardBasicData(BaseModel):
     date:datetime.date
     company_name:str
@@ -26,6 +26,7 @@ class CardHistoryAnalysis(BaseModel):
     actual_close_pct: float | None = None
     matched: str = "pending"
 
+# per card data (check all stock -> card)
 class StockCard(BaseModel):
     metadata:CardBasicData
     history:list[CardHistoryAnalysis]

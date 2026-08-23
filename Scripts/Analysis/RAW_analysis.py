@@ -39,6 +39,30 @@ def _num(v):
         return None
     return None if math.isnan(v) or math.isinf(v) else v
 
+def _build_reasoning(r):
+    f = r.get("factors", {})
+    parts = []
+    
+    labels = {
+        "mom_12_1": "Momentum", "vol_60": "Volatility", "beta_252": "Beta",
+        "roce": "ROCE", "de_ratio": "D/E", "earnings_yield": "Earnings Yield",
+        "delivery_pct_20": "Delivery%"
+    }
+    
+    for key, label in labels.items():
+        v = f.get(key)
+        if v is not None:
+            parts.append(f"{label}: {v}")
+
+    action = r.get("python_action", "N/A")
+    score = r.get("python_score", "N/A")
+    sec_rank = r.get("sector_rank", "N/A")
+    comp_rank = r.get("composite_rank", "N/A")
+    sector = r.get("sector", "Unknown")
+    n = r.get("n_factors_used", 0)
+
+    factors_str = ", ".join(parts) if parts else "No factors"
+    return f"{action} ({score}) | Sector #{sec_rank} in {sector}, Overall #{comp_rank} | {factors_str} | {n}/7 factors used"
 
 def pull_analysis_factor(payload):
     meta = payload.get("meta_data", {})
@@ -139,5 +163,10 @@ def run_raw_analysis(payloads):
     for members in by_sector.values():
         chained_analysis(members)
 
+
     universal_score_sort(rows)
+
+    for r in rows:
+        r["python_reasoning"] = _build_reasoning(r)
+
     return rows

@@ -138,3 +138,11 @@ body.dark  #hold-popover .hp-label { color: #38bdf8; }
 body.sepia #hold-popover .hp-label { color: #8b6914; }
 #hold-popover .hp-close  { color: #94a3b8; cursor: pointer; }
 #hold-popover .hp-close:hover { color: inherit; }
+
+/* Market snapshot strip — the auto-scrolling ticker built by loadTopBar() in
+   app.js. The strip scrolls itself, so the scrollbar is hidden; wheel and
+   drag still work. grab/grabbing cursors advertise that it's draggable, and
+   user-select is off because text selection fights the drag gesture. */
+.market-strip { scrollbar-width: none; cursor: grab; user-select: none; }
+.market-strip::-webkit-scrollbar { display: none; }
+.market-strip.dragging { cursor: grabbing; }

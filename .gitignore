@@ -1,3 +1,6 @@
+__pycache__/
+*.py[cod]
+
 /Sentiments_Data
 /Financial_Data
 .env

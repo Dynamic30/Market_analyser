@@ -27,7 +27,9 @@ async function request(path, options = {}) {
 
 const api = {
     home:            ()               => request('/home/'),
-    marketData:      ()               => request('/home/market_data'),
+    topBar:          ()               => request('/home/basic_top_bar'),
+    homeSector:      ()               => request('/home/sector'),
+    topPick:         (sector)         => request(`/home/top_pick/${sector}`),
     llmPicks:        ()               => request('/home/page/llm'),
     rawPicks:        ()               => request('/home/page/raw'),
     sectors:         ()               => request('/all_stocks/sector'),
@@ -44,5 +46,6 @@ const api = {
     watchlist:       ()               => request('/watchlist/'),
     addToWatchlist:  (payload)        => request('/watchlist/', { method: 'POST', body: JSON.stringify(payload) }),
     removeFromWatchlist: (symbol)     => request(`/watchlist/${symbol}`, { method: 'DELETE' }),
-    commodities:     ()               => request('/commodities/'),
+    // sector is a category name (Metals/Energy/Agriculture/Livestock) or 'all'.
+    commodities:     (sector = 'all')  => request(`/commodities/${sector}/commodity`),
 };

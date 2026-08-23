@@ -174,9 +174,11 @@ function pickSectors() {
     return [...new Set(stocks.map(s => s.sector).filter(Boolean))].sort();
 }
 
-function populateSectorSelects() {
+// Defaults to sectors derived from the ranked data; loadPicksSectors() calls
+// this again with the backend's list once it arrives.
+function populateSectorSelects(sectors = pickSectors()) {
     const opts = `<option value="">${PICKS_UNIVERSE_LABEL} · universe</option>`
-        + pickSectors().map(sec => `<option value="${escAttr(sec)}">${escAttr(sec)}</option>`).join('');
+        + sectors.map(sec => `<option value="${escAttr(sec)}">${escAttr(sec)}</option>`).join('');
     ['picks-sector', 'rankings-sector'].forEach(id => {
         const el = document.getElementById(id);
         if (!el) return;
@@ -1552,8 +1554,40 @@ const COMMODITY_CATS = ['Metals', 'Energy', 'Agriculture', 'Livestock'];
 let commodityFilter = 'all';
 let commoditiesInit = false;
 
+// Live rows once /v1/commodities answers; the mock array until then.
+let commodityData = commodities;
+const commodityCache = {};              // category (or 'all') -> mapped rows
+
+// Decoration only — the API sends no icon, and this never affects the numbers.
+const COMMODITY_EMOJI = {
+    'GC=F':'🥇','SI=F':'🥈','PL=F':'⚪','PA=F':'⚪','HG=F':'🟠',
+    'CL=F':'🛢️','BZ=F':'🛢️','NG=F':'🔥','RB=F':'⛽','HO=F':'🔆',
+    'ZC=F':'🌽','ZS=F':'🫘','ZW=F':'🌾','KC=F':'☕','CT=F':'🧺',
+    'SB=F':'🍬','CC=F':'🍫','OJ=F':'🍊',
+    'LE=F':'🐄','HE=F':'🐖','GF=F':'🐂',
+};
+
+// DB row -> the shape the cards/modal already read. Analysis fields (bias,
+// driver, rsi, trend, ranges, risks) have no column yet, so they stay undefined
+// and every block that uses them is skipped rather than printing "undefined".
+function toCommodityView(r) {
+    return {
+        sym:   r.ticker,
+        name:  r.name,
+        cat:   r.category,
+        emoji: COMMODITY_EMOJI[r.ticker] || '•',
+        price: r.price,
+        chg:   r.p_change,
+        // "oz" -> "/oz", but "¢/lb" already carries its own separator.
+        unit:  r.unit ? (r.unit.includes('/') ? r.unit : `/${r.unit}`) : '',
+        as_of: r.as_of,
+    };
+}
+
 const commodityBiasLabel = (b) => b === 'bull' ? 'Bullish' : b === 'bear' ? 'Bearish' : 'Neutral';
-const commodityPrice = (p) => p < 10 ? p.toFixed(2) : cmdFmt(p);
+// Show the stored value, not a rounded one: 334.75 stays 334.75. Grouping only
+// adds separators. (cmdFmt stays whole-number — it's for the ₹ conversions.)
+const commodityPrice = (p) => p.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 function renderCommodityFilters() {
     const cats = ['all', ...COMMODITY_CATS];
@@ -1571,6 +1605,27 @@ function setCommodityFilter(cat) {
     commodityFilter = cat;
     renderCommodityFilters();
     renderCommodities();
+    loadCommodities(cat);
+}
+
+// GET /v1/commodities/{sector}/commodity — one call per category, cached so
+// clicking back and forth doesn't refetch. Keeps whatever is on screen if the
+// request fails, so the view still works with the backend down.
+async function loadCommodities(cat = commodityFilter) {
+    const key = cat || 'all';
+    if (commodityCache[key]) {
+        commodityData = commodityCache[key];
+        renderCommodities();
+        return;
+    }
+    try {
+        const { commodities: rows } = await api.commodities(key);
+        commodityCache[key] = rows.map(toCommodityView);
+        commodityData = commodityCache[key];
+        renderCommodities();
+    } catch (err) {
+        console.warn('Commodities fetch failed — keeping current data:', err.message);
+    }
 }
 
 function commodityStatTile(k, v) {
@@ -1583,11 +1638,14 @@ function commodityStatTile(k, v) {
 function renderCommodities() {
     const cats = commodityFilter === 'all' ? COMMODITY_CATS : [commodityFilter];
     document.getElementById('commodities-groups').innerHTML = cats.map(cat => {
-        const items = commodities.filter(d => d.cat === cat);
+        const items = commodityData.filter(d => d.cat === cat);
         if (!items.length) return '';
         const cards = items.map(d => {
             const up = d.chg >= 0;
-            const label = commodityBiasLabel(d.bias);
+            // Only claim a bias when the data actually carries one.
+            const badge = d.bias
+                ? `<span class="text-xs font-medium px-2 py-0.5 rounded-full shrink-0 ${biasColor(commodityBiasLabel(d.bias))}">${commodityBiasLabel(d.bias)}</span>`
+                : '';
             let inrLine = '';
             if (d.sym === 'GC=F') inrLine = `<div class="text-xs text-slate-500 mb-2">≈ ₹${cmdFmt(inrPer10gGold(d.price))} / 10g</div>`;
             if (d.sym === 'SI=F') inrLine = `<div class="text-xs text-slate-500 mb-2">≈ ₹${cmdFmt(inrPerKgSilver(d.price))} / kg</div>`;
@@ -1601,14 +1659,14 @@ function renderCommodities() {
                                 <div class="text-xs text-slate-400">${d.sym}</div>
                             </div>
                         </div>
-                        <span class="text-xs font-medium px-2 py-0.5 rounded-full shrink-0 ${biasColor(label)}">${label}</span>
+                        ${badge}
                     </div>
                     <div class="flex items-end justify-between mb-2">
                         <div class="text-xl font-bold text-slate-900">${commodityPrice(d.price)}<span class="text-xs font-medium text-slate-400 ml-1">${d.unit}</span></div>
-                        <div class="text-sm font-semibold ${changeColor(d.chg)}">${up ? '▲' : '▼'} ${Math.abs(d.chg).toFixed(1)}%</div>
+                        <div class="text-sm font-semibold ${changeColor(d.chg)}">${up ? '▲' : '▼'} ${Math.abs(d.chg).toFixed(2)}%</div>
                     </div>
                     ${inrLine}
-                    <div class="text-xs text-slate-500 leading-relaxed border-t border-slate-100 pt-2.5">${d.driver}</div>
+                    ${d.driver ? `<div class="text-xs text-slate-500 leading-relaxed border-t border-slate-100 pt-2.5">${d.driver}</div>` : ''}
                 </div>`;
         }).join('');
         return `<div class="text-xs font-bold uppercase tracking-wider text-slate-400 mt-8 mb-3">${cat}</div>
@@ -1618,10 +1676,15 @@ function renderCommodities() {
 
 // Reuses the shared #drawer-overlay centered modal (same one the stock cards use).
 function openCommodity(sym) {
-    const d = commodities.find(x => x.sym === sym);
+    const d = commodityData.find(x => x.sym === sym);
     if (!d) return;
     const up = d.chg >= 0;
     const label = commodityBiasLabel(d.bias);
+    // The technical/LLM blocks only render once those fields exist server-side.
+    const stats = [
+        ['Trend', d.trend], ['RSI (14)', d.rsi],
+        ['Day range', d.dayRange], ['52-week range', d.range52],
+    ].filter(([, v]) => v != null);
     let inrLine = '';
     if (d.sym === 'GC=F') inrLine = `≈ ₹${cmdFmt(inrPer10gGold(d.price))} / 10g (MCX-equivalent)`;
     if (d.sym === 'SI=F') inrLine = `≈ ₹${cmdFmt(inrPerKgSilver(d.price))} / kg (MCX-equivalent)`;
@@ -1635,24 +1698,21 @@ function openCommodity(sym) {
         </div>
         <div class="flex items-end gap-3 mt-4 mb-1">
             <div class="text-3xl font-bold text-slate-900">${commodityPrice(d.price)}<span class="text-sm font-medium text-slate-400 ml-1">USD${d.unit}</span></div>
-            <div class="text-base font-semibold ${changeColor(d.chg)} pb-1">${up ? '▲' : '▼'} ${Math.abs(d.chg).toFixed(1)}%</div>
+            <div class="text-base font-semibold ${changeColor(d.chg)} pb-1">${up ? '▲' : '▼'} ${Math.abs(d.chg).toFixed(2)}%</div>
         </div>
         ${inrLine ? `<div class="text-sm text-slate-500 mb-4">${inrLine}</div>` : '<div class="h-2"></div>'}
-        <div class="grid grid-cols-2 gap-3 mb-4">
-            ${commodityStatTile('Trend', d.trend)}
-            ${commodityStatTile('RSI (14)', d.rsi)}
-            ${commodityStatTile('Day range', d.dayRange)}
-            ${commodityStatTile('52-week range', d.range52)}
-        </div>
-        <div class="bg-gradient-to-br from-sky-50 to-teal-50 border border-slate-200 rounded-xl p-4 mb-4">
+        ${stats.length ? `<div class="grid grid-cols-2 gap-3 mb-4">
+            ${stats.map(([k, v]) => commodityStatTile(k, v)).join('')}
+        </div>` : ''}
+        ${d.analysis ? `<div class="bg-gradient-to-br from-sky-50 to-teal-50 border border-slate-200 rounded-xl p-4 mb-4">
             <div class="text-xs font-bold uppercase tracking-wider text-sky-600 mb-2">LLM Analysis · ${label}</div>
             <p class="text-sm text-slate-700 leading-relaxed">${d.analysis}</p>
-        </div>
-        <div class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Key Risks</div>
+        </div>` : ''}
+        ${d.risks?.length ? `<div class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Key Risks</div>
         <ul class="space-y-2 mb-2">
             ${d.risks.map(r => `<li class="text-sm text-slate-700 leading-snug flex gap-2"><span class="text-rose-500 shrink-0">⚠</span><span>${r}</span></li>`).join('')}
-        </ul>
-        <div class="text-xs text-slate-400 text-center mt-5 leading-relaxed">Price data: Yahoo Finance futures (${d.sym}), USD. Commodity analysis is driven by macro factors (rates, USD, supply/demand, geopolitics) — not company fundamentals.</div>`;
+        </ul>` : ''}
+        <div class="text-xs text-slate-400 text-center mt-5 leading-relaxed">Price data: Yahoo Finance futures (${d.sym}), USD${d.as_of ? ` · as of ${d.as_of}` : ''}. Commodity analysis is driven by macro factors (rates, USD, supply/demand, geopolitics) — not company fundamentals.</div>`;
     const overlay = document.getElementById('drawer-overlay');
     overlay.classList.remove('hidden');
     overlay.classList.add('flex');
@@ -1665,6 +1725,7 @@ function showCommodities() {
         document.getElementById('commodities-fx').textContent = `USD/INR ≈ ${USDINR}.`;
         renderCommodityFilters();
         commoditiesInit = true;
+        loadCommodities();
     }
     renderCommodities();
     window.scrollTo(0, 0);
@@ -1689,8 +1750,151 @@ async function loadSectors() {
     }
 }
 
+// ============================================================
+// TOP BAR — live endpoint (GET /v1/home/basic_top_bar)
+// ============================================================
+// Renders every ticker the endpoint returns (indices, FX, VIX, oil) as a
+// continuously scrolling strip. The four hardcoded rows in index.html are the
+// fallback: if the backend isn't running they're simply left alone.
+
+// "2026-08-21" -> "Friday, 21 Aug 2026". Split manually rather than
+// new Date(iso), which parses as UTC and can shift the day by one.
+function fmtAsOf(iso) {
+    const [y, m, d] = iso.split('-').map(Number);
+    return new Date(y, m - 1, d).toLocaleDateString('en-IN',
+        { weekday: 'long', day: '2-digit', month: 'short', year: 'numeric' });
+}
+
+// Same markup as the static rows in index.html, so theming keeps working.
+function topBarRow(q) {
+    const up = q.direction === 'up';
+    // A VIX spike is risk-off, not a gain — keep it neutral rather than green.
+    const tone = q.ticker === '^INDIAVIX' ? 'text-slate-500'
+               : up ? 'text-emerald-600' : 'text-rose-600';
+    return `
+        <div class="flex items-center gap-2 whitespace-nowrap">
+            <span class="text-xs font-medium text-slate-500">${escAttr(q.name)}</span>
+            <span class="text-sm font-semibold">${q.price.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</span>
+            <span class="text-xs font-medium ${tone}">${up ? '+' : '−'}${Math.abs(q.p_change).toFixed(2)}%</span>
+        </div>`;
+}
+
+async function loadTopBar() {
+    const strip = document.querySelector('.overflow-x-auto');
+    if (!strip) return;
+    try {
+        const { date, as_of, market_data } = await api.topBar();
+
+        // Greeting's sibling row: [Today][date][·][Showing analysis for][as_of][(last NSE close)]
+        const dateRow = document.querySelector('#home-view h1')?.nextElementSibling;
+        if (dateRow) {
+            const spans = dateRow.querySelectorAll('span');
+            if (date) spans[1].textContent = date;
+            if (as_of) spans[4].textContent = fmtAsOf(as_of);
+        }
+
+        if (!market_data.length) return;
+        // Rendered twice: the ticker wraps from the end of copy 1 to the same
+        // point in copy 2, which is pixel-identical, so the loop has no seam.
+        const rows = market_data.map(topBarRow).join('');
+        strip.innerHTML = rows + rows;
+        strip.classList.add('market-strip');
+        startTopBarTicker(strip, market_data.length);
+    } catch (err) {
+        console.warn('Top bar fetch failed — keeping static values:', err.message);
+    }
+}
+
+// Drives the strip right-to-left forever. Animates scrollLeft rather than a CSS
+// transform so the element stays a real scroll box: wheel and drag keep working,
+// and the animation resumes from wherever the user left it.
+function startTopBarTicker(strip, count) {
+    const SPEED = 0.4;          // px per frame — ~24px/s at 60fps
+    const RESUME_DELAY = 1500;  // ms of stillness before auto-scroll takes over again
+    let hovering = false, resumeAt = 0, dragFrom = null, scrollFrom = 0;
+    const hold = () => { resumeAt = Date.now() + RESUME_DELAY; };
+
+    // Width of one copy of the row set. Measured from the second copy's first
+    // child instead of scrollWidth/2, which would fold in container padding.
+    let span = 0;
+    const measure = () => {
+        span = (strip.children[count]?.offsetLeft ?? 0) - (strip.children[0]?.offsetLeft ?? 0);
+    };
+    measure();
+    window.addEventListener('resize', measure);
+
+    strip.addEventListener('mouseenter', () => { hovering = true; });
+    strip.addEventListener('mouseleave', () => { hovering = false; });
+    strip.addEventListener('wheel', hold, { passive: true });
+
+    // Drag-to-scroll — scroll boxes don't get this natively with a mouse.
+    strip.addEventListener('pointerdown', (e) => {
+        dragFrom = e.clientX;
+        scrollFrom = strip.scrollLeft;
+        strip.setPointerCapture(e.pointerId);
+        strip.classList.add('dragging');
+    });
+    strip.addEventListener('pointermove', (e) => {
+        if (dragFrom === null) return;
+        let next = scrollFrom - (e.clientX - dragFrom);
+        // Wrap inside copy 1 so dragging loops forever either way. scrollFrom
+        // shifts with it, so later moves in the same drag stay continuous.
+        if (next >= span)   { next -= span; scrollFrom -= span; }
+        else if (next < 0)  { next += span; scrollFrom += span; }
+        strip.scrollLeft = next;
+        hold();
+    });
+    const endDrag = () => {
+        dragFrom = null;
+        strip.classList.remove('dragging');
+        hold();
+    };
+    strip.addEventListener('pointerup', endDrag);
+    strip.addEventListener('pointercancel', endDrag);
+
+    // Users who ask for reduced motion get a plain scrollable strip.
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    // Chrome snaps scrollLeft to whole pixels, so `scrollLeft += 0.4` reads back
+    // as 0 and the strip never moves. Keep the true position as a float here and
+    // assign that instead, so sub-pixel speeds still accumulate.
+    let pos = 0;
+
+    const step = () => {
+        if (span > 0) {
+            if (hovering || dragFrom !== null || Date.now() < resumeAt) {
+                // User owns the position while paused — follow it, don't fight it.
+                if (strip.scrollLeft >= span) strip.scrollLeft -= span;
+                pos = strip.scrollLeft;
+            } else {
+                pos += SPEED;
+                if (pos >= span) pos -= span;
+                strip.scrollLeft = pos;
+            }
+        }
+        requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+}
+
+// ============================================================
+// PICKS SECTOR FILTER — live endpoint (GET /v1/home/sector)
+// ============================================================
+// populateSectorSelects() has already filled these from the ranked data, so the
+// selects work immediately; this swaps in the backend's full sector list once it
+// arrives, and keeps the derived options if the fetch fails.
+async function loadPicksSectors() {
+    try {
+        populateSectorSelects(await api.homeSector());
+    } catch (err) {
+        console.warn('Picks sector fetch failed — keeping derived options:', err.message);
+    }
+}
+
 // ----- Initialize -----
 // Theme cycling lives in theme.js (shared with admin.html) and self-applies.
 populateSectorSelects();
 renderHomePicks();
 loadSectors();
+loadTopBar();
+loadPicksSectors();
