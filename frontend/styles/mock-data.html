@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stocksight — Mock Data Reference</title>
+    <!-- DEMO ONLY. This is a standalone, backend-free snapshot of the tracker
+         populated with mock data, so the fully-wired UI is visible as a spec
+         for building the endpoints. Reuses the real CSS / Tailwind / theme so
+         it looks identical to index.html (and themes the same way). -->
+    <script src="../js/vendor/tailwind.play.js"
+            onerror="this.onerror=null;var s=document.createElement('script');s.src='https://cdn.tailwindcss.com';document.head.appendChild(s);"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body class="bg-slate-50 text-slate-900 antialiased">
+
+    <!-- Demo banner -->
+    <div class="bg-amber-100 border-b border-amber-300 text-amber-900 text-xs text-center py-1.5 px-4">
+        <b>Mock-data reference page</b> — every number below is inlined sample data shaped like the API responses, not live. Use this as the visual spec for the endpoints.
+    </div>
+
+    <!-- ============== HEADER ============== -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-30">
+        <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-2 cursor-pointer" onclick="showHome()">
+                <div class="w-8 h-8 bg-gradient-to-br from-sky-400 to-teal-500 rounded-lg flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+                </div>
+                <span class="text-xl font-bold tracking-tight">Stocksight</span>
+            </div>
+            <nav class="flex items-center gap-1 text-sm">
+                <a onclick="showHome()" class="px-3 py-2 rounded-md hover:bg-slate-100 cursor-pointer">Home</a>
+                <a onclick="showAllStocks()" class="px-3 py-2 rounded-md hover:bg-slate-100 cursor-pointer">All Stocks</a>
+                <a onclick="showTopRecs()" class="px-3 py-2 rounded-md hover:bg-slate-100 cursor-pointer">Top Picks</a>
+                <a onclick="showCommodities()" class="px-3 py-2 rounded-md hover:bg-slate-100 cursor-pointer">Commodities</a>
+                <a onclick="showWatchlist()" class="px-3 py-2 rounded-md hover:bg-slate-100 cursor-pointer">Watchlist</a>
+                <span class="w-px h-5 bg-slate-200 mx-2"></span>
+                <button id="theme-btn" onclick="cycleTheme()" class="theme-btn text-slate-600" title="Cycle theme: light → dark → sepia">
+                    <span id="theme-icon">☀</span><span id="theme-label">Light</span>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- ============== HOME VIEW ============== -->
+    <main id="home-view" class="max-w-6xl mx-auto px-6 py-12">
+        <div class="mb-12">
+            <h1 class="text-4xl font-bold tracking-tight mb-2">Good evening</h1>
+            <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-slate-500">
+                <span>Today</span><span id="home-date-today" class="font-medium text-slate-700">—</span>
+                <span class="mx-2 text-slate-300">·</span>
+                <span>Showing analysis for</span><span id="home-date-asof" class="font-medium text-slate-700">—</span>
+                <span class="text-xs text-slate-400 italic">(last NSE close)</span>
+            </div>
+        </div>
+        <div id="market-strip" class="bg-white border border-slate-200 rounded-xl px-6 py-4 mb-12 flex items-center gap-8 overflow-x-auto"></div>
+        <section class="mb-12">
+            <div class="flex items-center justify-between mb-5">
+                <div><h2 class="text-lg font-semibold">Top Picks</h2><p id="top-picks-sub" class="text-xs text-slate-500 mt-0.5"></p></div>
+                <select id="picks-sector" onchange="setPicksSector(this.value)" class="px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-sky-300"></select>
+            </div>
+            <div id="top-picks-list" class="grid sm:grid-cols-2 gap-3"></div>
+        </section>
+        <div class="flex flex-wrap items-center justify-center gap-3">
+            <button onclick="openRankings('all')" class="px-6 py-3 bg-slate-900 hover:bg-slate-800 text-white font-medium rounded-lg transition shadow-sm">View all rankings →</button>
+            <button onclick="openRankings('llm')" class="px-6 py-3 bg-white border border-slate-200 hover:border-teal-300 hover:text-teal-700 text-slate-700 font-medium rounded-lg transition">View top LLM picks</button>
+            <button onclick="openRankings('raw')" class="px-6 py-3 bg-white border border-slate-200 hover:border-sky-300 hover:text-sky-700 text-slate-700 font-medium rounded-lg transition">View top raw picks</button>
+        </div>
+    </main>
+
+    <!-- ============== ALL STOCKS VIEW ============== -->
+    <main id="all-stocks-view" class="hidden max-w-6xl mx-auto px-6 py-12">
+        <div class="mb-8">
+            <button onclick="showHome()" class="text-sm text-slate-500 hover:text-slate-900 mb-3 flex items-center gap-1">← Back to home</button>
+            <div class="flex items-end justify-between flex-wrap gap-4">
+                <div><h1 class="text-3xl font-bold tracking-tight">All Stocks</h1><p id="all-stocks-subtitle" class="text-slate-500 text-sm mt-1">Loading…</p></div>
+                <div class="flex items-center gap-3">
+                    <input type="search" id="all-stocks-search" placeholder="Search stocks…" oninput="onStockSearch(this.value)" class="px-4 py-2 border border-slate-200 rounded-lg text-sm w-56 focus:outline-none focus:ring-2 focus:ring-sky-300 focus:border-sky-300">
+                    <select id="all-stocks-sector" class="px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-sky-300"><option value="">All sectors</option></select>
+                </div>
+            </div>
+        </div>
+        <div id="all-stocks-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
+        <div class="mt-8 flex flex-col items-center gap-3">
+            <p id="all-stocks-count" class="text-xs text-slate-500"></p>
+            <button id="load-more-btn" onclick="loadMoreStocks()" class="px-6 py-2.5 bg-white border border-slate-200 hover:border-sky-300 hover:text-sky-700 text-slate-700 text-sm font-medium rounded-lg transition">Load more stocks</button>
+        </div>
+    </main>
+
+    <!-- ============== RECOMMENDATIONS VIEW ============== -->
+    <main id="top-recs-view" class="hidden max-w-6xl mx-auto px-6 py-12">
+        <div class="mb-6">
+            <button onclick="showHome()" class="text-sm text-slate-500 hover:text-slate-900 mb-3 flex items-center gap-1">← Back to home</button>
+            <div class="flex items-end justify-between flex-wrap gap-4">
+                <div><h1 class="text-3xl font-bold tracking-tight">Recommendations</h1><p class="text-slate-500 text-sm mt-1">System picks where Python and LLM converge — refreshed nightly</p></div>
+                <span id="top-recs-date" class="hidden text-xs font-medium text-teal-700 bg-teal-50 px-3 py-1.5 rounded-full"></span>
+            </div>
+        </div>
+        <div class="flex items-center gap-1 mb-6 border-b border-slate-200">
+            <button id="tab-top-picks" onclick="showTopRecsTab('top-picks')" class="px-4 py-2.5 text-sm font-medium border-b-2 border-sky-500 text-sky-600 -mb-px transition">Today's Top Picks <span id="top-picks-count" class="ml-1 text-xs text-slate-400">—</span></button>
+            <button id="tab-active-calls" onclick="showTopRecsTab('active-calls')" class="px-4 py-2.5 text-sm font-medium border-b-2 border-transparent text-slate-500 hover:text-slate-700 -mb-px transition">Active Calls <span id="active-count" class="ml-1 text-xs text-slate-400">—</span></button>
+        </div>
+        <div id="top-picks-content">
+            <div class="bg-gradient-to-r from-sky-50 to-teal-50 border border-sky-100 rounded-xl px-5 py-4 mb-6 text-sm text-slate-700 flex items-start gap-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-sky-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <div><span class="font-semibold">How these are selected:</span> Combined score &gt; 65 with both Python and LLM agreeing on BUY. Filtered across all market caps — large, mid, and small.</div>
+            </div>
+            <div id="top-recs-list" class="space-y-3"></div>
+        </div>
+        <div id="active-calls-content" class="hidden">
+            <div class="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-100 rounded-xl px-5 py-4 mb-6 text-sm text-slate-700 flex items-start gap-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-amber-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <div><span class="font-semibold">Active Calls:</span> Open BUY/SELL recommendations from previous days still within their hold window. Click any row to see the original analysis.</div>
+            </div>
+            <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
+                <div class="grid grid-cols-12 gap-4 px-5 py-3 bg-slate-50 border-b border-slate-200 text-xs font-medium text-slate-500 uppercase tracking-wide">
+                    <div class="col-span-4">Stock</div><div class="col-span-2">Action</div><div class="col-span-2">Horizon</div><div class="col-span-2">Days left</div><div class="col-span-2 text-right">Since entry</div>
+                </div>
+                <div id="active-recs-list"></div>
+            </div>
+        </div>
+    </main>
+
+    <!-- ============== WATCHLIST VIEW ============== -->
+    <main id="watchlist-view" class="hidden max-w-6xl mx-auto px-6 py-12">
+        <div class="mb-8">
+            <button onclick="showHome()" class="text-sm text-slate-500 hover:text-slate-900 mb-3 flex items-center gap-1">← Back to home</button>
+            <div class="flex items-end justify-between flex-wrap gap-4">
+                <div><h1 class="text-3xl font-bold tracking-tight">My Watchlist</h1><p class="text-slate-500 text-sm mt-1">6 positions · updated 21 Jun 2026</p></div>
+                <button onclick="openAddToWatchlist()" class="px-4 py-2 border border-slate-200 hover:border-slate-300 text-slate-700 text-sm font-medium rounded-lg transition">+ Add stock</button>
+            </div>
+        </div>
+        <div class="bg-white border border-slate-200 rounded-xl px-6 py-5 mb-6 grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div><div class="text-xs text-slate-400 uppercase tracking-wide mb-1">Invested</div><div class="text-lg font-semibold">₹38,460</div></div>
+            <div><div class="text-xs text-slate-400 uppercase tracking-wide mb-1">Current Value</div><div class="text-lg font-semibold">₹39,720</div></div>
+            <div><div class="text-xs text-slate-400 uppercase tracking-wide mb-1">Unrealized P&L</div><div class="text-lg font-semibold text-emerald-600">+₹1,260 (+3.3%)</div></div>
+            <div><div class="text-xs text-slate-400 uppercase tracking-wide mb-1">Actions due</div><div class="text-lg font-semibold text-amber-600">2 stocks</div></div>
+        </div>
+        <div id="watchlist-list" class="space-y-3"></div>
+    </main>
+
+    <!-- ============== COMMODITIES VIEW ============== -->
+    <main id="commodities-view" class="hidden max-w-6xl mx-auto px-6 py-12">
+        <div class="mb-8">
+            <button onclick="showHome()" class="text-sm text-slate-500 hover:text-slate-900 mb-3 flex items-center gap-1">← Back to home</button>
+            <div class="flex items-end justify-between flex-wrap gap-4">
+                <div><h1 class="text-3xl font-bold tracking-tight">Commodities</h1><p class="text-slate-500 text-sm mt-1">Yahoo Finance futures (USD) · macro-driven — rates, USD, supply/demand, geopolitics. <span id="commodities-fx"></span></p></div>
+            </div>
+        </div>
+        <div id="commodities-filters" class="flex flex-wrap gap-2 mb-2"></div>
+        <div id="commodities-groups"></div>
+    </main>
+
+    <!-- ============== RANKINGS MODAL ============== -->
+    <div id="rankings-overlay" class="hidden fixed inset-0 bg-slate-900/50 z-40 items-center justify-center p-4" onclick="closeRankings()">
+        <div onclick="event.stopPropagation()" class="bg-white rounded-2xl w-full max-w-3xl max-h-[88vh] flex flex-col shadow-2xl relative">
+            <button onclick="closeRankings()" class="absolute top-4 right-4 z-10 w-8 h-8 flex items-center justify-center rounded-full text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition" title="Close"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>
+            <div class="px-8 pt-8 shrink-0">
+                <div class="flex items-start justify-between gap-4 pr-8">
+                    <div class="min-w-0"><h2 id="rankings-title" class="text-xl font-bold tracking-tight">All rankings</h2><p id="rankings-sub" class="text-sm text-slate-500 mt-1"></p></div>
+                    <select id="rankings-sector" onchange="setPicksSector(this.value)" class="shrink-0 mt-1 px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-sky-300"></select>
+                </div>
+                <div id="rankings-tabs" class="flex items-center gap-1 mt-5 border-b border-slate-200"></div>
+            </div>
+            <div id="rankings-body" class="px-8 py-5 overflow-y-auto"></div>
+        </div>
+    </div>
+
+    <!-- ============== CENTERED MODAL (pick / stock detail) ============== -->
+    <div id="drawer-overlay" class="hidden fixed inset-0 bg-slate-900/50 z-40 items-center justify-center p-4" onclick="closeDrawer()">
+        <div onclick="event.stopPropagation()" class="bg-white rounded-2xl w-full max-w-xl max-h-[88vh] overflow-y-auto shadow-2xl relative">
+            <button onclick="closeDrawer()" class="absolute top-4 right-4 z-10 w-8 h-8 flex items-center justify-center rounded-full text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition" title="Close"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>
+            <div id="drawer-content" class="p-8 pt-10"></div>
+        </div>
+    </div>
+
+    <!-- ============== ADD-TO-WATCHLIST MODAL ============== -->
+    <div id="add-watchlist-overlay" class="hidden fixed inset-0 bg-slate-900/40 z-[60] items-center justify-center p-4" onclick="closeAddToWatchlist()">
+        <div onclick="event.stopPropagation()" class="bg-white rounded-2xl w-full max-w-md shadow-2xl">
+            <div class="p-7">
+                <div class="flex justify-between items-start mb-1"><h2 class="text-xl font-bold tracking-tight">Add to watchlist</h2><button onclick="closeAddToWatchlist()" class="text-slate-400 hover:text-slate-900 text-xl leading-none">✕</button></div>
+                <p class="text-sm text-slate-500 mb-6" id="add-watchlist-stock">Stock</p>
+                <form onsubmit="event.preventDefault(); confirmAddToWatchlist();" class="space-y-4">
+                    <div><label class="block text-xs font-semibold text-slate-600 uppercase tracking-wide mb-1.5">Date purchased</label><input type="date" id="add-watchlist-date" value="2026-06-21" class="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sky-300 focus:border-sky-300"></div>
+                    <div><label class="block text-xs font-semibold text-slate-600 uppercase tracking-wide mb-1.5">Entry price (₹)</label><input type="number" step="0.01" id="add-watchlist-price" placeholder="e.g. 1358.50" class="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sky-300 focus:border-sky-300"></div>
+                    <div><label class="block text-xs font-semibold text-slate-600 uppercase tracking-wide mb-1.5">Quantity</label><input type="number" id="add-watchlist-qty" placeholder="e.g. 5" class="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sky-300 focus:border-sky-300"></div>
+                    <div class="flex gap-3 pt-2"><button type="button" onclick="closeAddToWatchlist()" class="flex-1 px-4 py-2.5 border border-slate-200 hover:border-slate-300 text-slate-700 text-sm font-medium rounded-lg transition">Cancel</button><button type="submit" class="flex-1 px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-sm font-medium rounded-lg transition">Add to watchlist</button></div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============== DIALOG (All-stocks card click) ============== -->
+    <div id="dialog-overlay" class="hidden fixed inset-0 bg-slate-900/40 z-40 items-center justify-center p-4" onclick="closeDialog()">
+        <div onclick="event.stopPropagation()" class="bg-white rounded-2xl w-full max-w-2xl max-h-[85vh] overflow-y-auto shadow-2xl"><div id="dialog-content" class="p-8"></div></div>
+    </div>
+
+    <!-- ============== Reasoning popover ============== -->
+    <div id="hold-popover" class="hidden fixed z-[80] p-4" onclick="event.stopPropagation()">
+        <div class="flex items-start justify-between gap-3 mb-2"><h4 id="hold-popover-title" class="hp-title text-xs font-bold uppercase tracking-wide">Why hold this long?</h4><button onclick="closeHoldPopover()" class="hp-close text-sm leading-none" title="Close" aria-label="Close">✕</button></div>
+        <div id="hold-popover-body"></div>
+    </div>
+
+    <script src="../js/theme.js"></script>
+    <script src="mock-data.js"></script>
+</body>
+</html>

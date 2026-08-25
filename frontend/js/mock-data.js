@@ -1,9 +1,18 @@
 // ============================================================
-// MOCK DATA
-// Everything in this file is placeholder data that stands in for
-// the backend. When api.js starts returning real payloads, these
-// constants are what get replaced — the render code in app.js
-// reads from them and shouldn't need to change shape.
+// MOCK DATA — Watchlist + Active Calls ONLY
+// ============================================================
+// Home, All Stocks and Commodities no longer read this file: they render
+// exclusively from the API (see api.js) and show an empty state when a
+// endpoint has no rows. Nothing in here reaches those three views.
+//
+// What still depends on it, and why:
+//   watchlist          → Watchlist view. No /v1/watchlist router exists yet
+//                        (backend/routers/watchlist.py is empty), so the view
+//                        is built against this until the endpoint lands.
+//   stocks             → buildActiveRecs() for the Active Calls tab, which has
+//   holdDurations        no endpoint either. NOT used by Home/All Stocks.
+//
+// Deleting either constant breaks only those two surfaces.
 // ============================================================
 
 // ----- Mock stock data -----
@@ -44,20 +53,6 @@ stocks.forEach(s => {
     s.hold_duration_label  = h ? h.label  : null;
     s.hold_duration_reason = h ? h.reason : null;
 });
-
-// ----- Headline shown against each stock on the Top Picks list -----
-const topRecNewsByStock = {
-    'TCS.NS': '"TCS posts Q1 revenue ahead of estimates; deal wins at $9B in pipeline" — Moneycontrol · 4h ago',
-    'TATAMOTORS.NS': '"Tata Motors crosses 250K EV sales mark; JLR margins recovering" — Economic Times · 2h ago',
-    'INFY.NS': '"Infosys upgrades FY guidance; AI services revenue +34% YoY" — Bloomberg · 6h ago',
-    'ICICIBANK.NS': '"ICICI Bank Q1 NIM at 4.2%; credit growth above sector avg" — BusinessLine · 1d ago',
-    'BHARTIARTL.NS': '"Bharti Airtel subscriber net adds top 5M; ARPU expansion ongoing" — Mint · 3h ago',
-    'SUNPHARMA.NS': '"Sun Pharma gets USFDA approval for 3 new generics; specialty pipeline strong" — Reuters · 8h ago',
-    'LT.NS': '"L&T wins ₹15,000 Cr order from Indian Navy; order book at 5-yr high" — ETLegalWorld · 12h ago',
-    'HDFCBANK.NS': '"HDFC Bank loan book grows 16% YoY; asset quality stable" — Moneycontrol · 5h ago',
-    'RELIANCE.NS': '"Reliance Jio AGR appeal allowed; ₹2,000 Cr tax relief" — Hindustan Times · 7h ago',
-    'AXISBANK.NS': '"Axis Bank loan growth accelerates; FII stake increased to 38%" — BusinessLine · 1d ago',
-};
 
 // ----- Watchlist -----
 // Each row has BOTH the global LLM action (from cached nightly analysis) AND
@@ -114,99 +109,4 @@ const watchlist = [
         personalizedAction:'BUY MORE',
         personalizedReason:'At +8.6%, bias supports adding to position. Consider averaging up.',
     },
-];
-
-// ----- Commodities (macro-driven — reference: COMMOD~1.HTM) -----
-const commodities = [
-    // METALS
-    {sym:'GC=F', name:'Gold',          cat:'Metals', emoji:'🥇', price:4182.40, unit:'/oz', chg:+0.9,  bias:'bull',    driver:'Fed rate-cut bets and steady central-bank buying keep the bid firm.',
-       rsi:61, trend:'Above 50 & 200 DMA', range52:'2,780 – 4,240', dayRange:'4,150 – 4,196',
-       analysis:'Gold remains in an established uptrend, trading above both its 50- and 200-day moving averages. The move is driven by expectations of Fed easing, a softer dollar, and record central-bank accumulation. Momentum is constructive but RSI in the low-60s leaves some room before overbought.',
-       risks:['A hawkish Fed surprise would lift real yields and pressure gold','Sharp dollar strength caps upside','Positioning is crowded — a long unwind could be sharp']},
-    {sym:'SI=F', name:'Silver',        cat:'Metals', emoji:'🥈', price:52.18,   unit:'/oz', chg:+1.6,  bias:'bull',    driver:'Industrial + solar demand firm on top of gold’s tailwind.',
-       rsi:64, trend:'Above 50 & 200 DMA', range52:'28.4 – 53.9', dayRange:'51.3 – 52.6',
-       analysis:'Silver is outperforming gold, helped by its dual role as both a precious and industrial metal. Solar and electronics demand underpins the physical market while investor flows track gold. Higher beta means larger swings in both directions.',
-       risks:['Silver’s industrial demand makes it sensitive to a growth slowdown','Higher volatility than gold','Gold/silver ratio mean-reversion could cap gains']},
-    {sym:'PL=F', name:'Platinum',      cat:'Metals', emoji:'⚪', price:1048.00, unit:'/oz', chg:-0.4,  bias:'neutral', driver:'Auto-catalyst demand soft as the EV shift continues.',
-       rsi:49, trend:'Near 50 DMA', range52:'880 – 1,120', dayRange:'1,040 – 1,058',
-       analysis:'Platinum is range-bound. Autocatalyst demand is under structural pressure from EV adoption, though supply discipline in South Africa provides a floor. No clear directional catalyst near term.',
-       risks:['EV adoption erodes long-term catalyst demand','South African supply is a swing factor','Thin, illiquid market amplifies moves']},
-    {sym:'PA=F', name:'Palladium',     cat:'Metals', emoji:'⚪', price:1121.50, unit:'/oz', chg:-1.1,  bias:'bear',    driver:'EV transition steadily eroding gasoline-catalyst demand.',
-       rsi:41, trend:'Below 50 DMA', range52:'860 – 1,340', dayRange:'1,110 – 1,138',
-       analysis:'Palladium remains under structural pressure as gasoline-engine catalyst demand fades with electrification. Rallies have been sold. Trend and momentum both lean bearish.',
-       risks:['Structural demand decline from EV shift','Substitution toward platinum','Supply shocks from Russia can spike prices unexpectedly']},
-    {sym:'HG=F', name:'Copper',        cat:'Metals', emoji:'🟠', price:5.24,    unit:'/lb', chg:+0.7,  bias:'bull',    driver:'China stimulus hopes and grid/EV demand support the “Dr. Copper” bid.',
-       rsi:58, trend:'Above 50 DMA', range52:'3.90 – 5.45', dayRange:'5.19 – 5.28',
-       analysis:'Copper is firm on expectations of Chinese stimulus and structural demand from electrification and grid build-out. As a growth bellwether it is sensitive to global PMI data.',
-       risks:['China demand disappointment is the key downside','Global recession would hit industrial metals hard','Mine supply additions could soften the deficit']},
-
-    // ENERGY
-    {sym:'CL=F', name:'Crude Oil (WTI)', cat:'Energy', emoji:'🛢️', price:76.54, unit:'/bbl', chg:+0.9, bias:'neutral', driver:'OPEC+ supply discipline balanced against soft demand signals.',
-       rsi:52, trend:'Near 50 DMA', range52:'62.1 – 89.4', dayRange:'75.6 – 77.2',
-       analysis:'WTI is caught between OPEC+ production restraint and demand concerns tied to global growth. Middle-East risk premium adds a floor. Broadly range-bound without a fresh catalyst.',
-       risks:['Demand slowdown from weaker global growth','OPEC+ policy shifts move the market sharply','Geopolitical escalation spikes prices']},
-    {sym:'BZ=F', name:'Brent Crude',   cat:'Energy', emoji:'🛢️', price:80.10,  unit:'/bbl', chg:-0.6, bias:'bear',    driver:'Middle-East risk premium easing after ceasefire progress.',
-       rsi:47, trend:'Near 50 DMA', range52:'66.0 – 92.8', dayRange:'79.4 – 81.0',
-       analysis:'Brent is softening as the geopolitical risk premium unwinds following diplomatic progress. Fundamentals point to a broadly balanced-to-soft market into next quarter.',
-       risks:['Renewed conflict would re-add a risk premium','Demand weakness in Asia','OPEC+ compliance slippage']},
-    {sym:'NG=F', name:'Natural Gas',   cat:'Energy', emoji:'🔥', price:3.78,   unit:'/MMBtu', chg:-2.3, bias:'bear',   driver:'Mild weather and high storage weigh on prices.',
-       rsi:38, trend:'Below 50 DMA', range52:'1.85 – 4.40', dayRange:'3.72 – 3.90',
-       analysis:'Natural gas is under pressure from mild weather and comfortable storage levels. The market is notoriously volatile and weather-driven; a cold snap can reverse the trend quickly.',
-       risks:['Weather is the dominant, unpredictable driver','LNG export demand can tighten balances fast','Extremely high volatility']},
-    {sym:'RB=F', name:'RBOB Gasoline', cat:'Energy', emoji:'⛽', price:2.31,   unit:'/gal', chg:+0.4, bias:'neutral', driver:'Summer driving-season demand vs ample refinery output.',
-       rsi:53, trend:'Near 50 DMA', range52:'1.92 – 2.68', dayRange:'2.29 – 2.34',
-       analysis:'Gasoline tracks crude with a seasonal demand overlay. Peak driving season supports the crack spread, offset by healthy refinery utilisation.',
-       risks:['Follows crude oil direction','Refinery outages spike prices','Demand destruction if pump prices climb']},
-    {sym:'HO=F', name:'Heating Oil',   cat:'Energy', emoji:'🔆', price:2.49,   unit:'/gal', chg:+0.2, bias:'neutral', driver:'Winter-demand build ahead; distillate inventories watched.',
-       rsi:51, trend:'Near 50 DMA', range52:'2.05 – 2.95', dayRange:'2.47 – 2.52',
-       analysis:'Heating oil is seasonally sensitive with winter demand approaching. Distillate inventories and diesel demand (a growth proxy) are the key watch-points.',
-       risks:['Warm winter cuts demand','Tied to crude and diesel spreads','Industrial slowdown hits distillate demand']},
-
-    // AGRICULTURE
-    {sym:'ZC=F', name:'Corn',          cat:'Agriculture', emoji:'🌽', price:431.25, unit:'¢/bu', chg:-0.8, bias:'bear', driver:'Strong harvest and ample global supply pressure prices.',
-       rsi:42, trend:'Below 50 DMA', range52:'388 – 512', dayRange:'428 – 436',
-       analysis:'Corn is soft on the back of a strong harvest and comfortable global stocks. Weather during the growing season and export demand are the swing factors.',
-       risks:['Weather shocks can reverse quickly','Export demand (esp. China) is volatile','Ethanol demand ties it to energy']},
-    {sym:'ZS=F', name:'Soybeans',      cat:'Agriculture', emoji:'🫘', price:1048.50, unit:'¢/bu', chg:+0.5, bias:'neutral', driver:'Chinese export demand steadies an otherwise well-supplied market.',
-       rsi:50, trend:'Near 50 DMA', range52:'960 – 1,190', dayRange:'1,040 – 1,056',
-       analysis:'Soybeans are balanced — South American supply is ample while Chinese import demand provides support. Trade-flow headlines drive short-term moves.',
-       risks:['China trade policy is the dominant driver','South American weather and harvest','Currency (BRL) affects competitiveness']},
-    {sym:'ZW=F', name:'Wheat',         cat:'Agriculture', emoji:'🌾', price:562.00, unit:'¢/bu', chg:+1.2, bias:'bull', driver:'Black Sea supply concerns add a risk premium.',
-       rsi:56, trend:'Above 50 DMA', range52:'498 – 690', dayRange:'554 – 568',
-       analysis:'Wheat carries a geopolitical risk premium from Black Sea supply uncertainty. Global stocks are adequate, so the market is headline-driven rather than trend-driven.',
-       risks:['Black Sea / export-corridor headlines','Global stocks remain adequate','Weather in major exporters']},
-    {sym:'KC=F', name:'Coffee',        cat:'Agriculture', emoji:'☕', price:321.40, unit:'¢/lb', chg:+2.1, bias:'bull', driver:'Brazil frost/drought risk tightening the arabica balance.',
-       rsi:67, trend:'Above 50 & 200 DMA', range52:'210 – 340', dayRange:'314 – 326',
-       analysis:'Coffee is in a strong uptrend on Brazilian weather risk (frost and drought) tightening the arabica supply outlook. Momentum is strong but RSI is approaching overbought.',
-       risks:['Weather premium can deflate fast if rains arrive','Overbought momentum','Speculative positioning is heavy']},
-    {sym:'CT=F', name:'Cotton',        cat:'Agriculture', emoji:'🧺', price:67.80, unit:'¢/lb', chg:-0.9, bias:'bear', driver:'Weak global textile demand caps prices.',
-       rsi:43, trend:'Below 50 DMA', range52:'60.2 – 82.5', dayRange:'67.1 – 68.6',
-       analysis:'Cotton is soft on subdued textile and apparel demand amid a cautious consumer. Supply is adequate; demand recovery is the missing catalyst.',
-       risks:['Consumer/apparel demand is weak','Tied to global growth','Polyester substitution']},
-    {sym:'SB=F', name:'Sugar',         cat:'Agriculture', emoji:'🍬', price:19.15, unit:'¢/lb', chg:+0.7, bias:'bull', driver:'India export curbs and firm ethanol demand support prices.',
-       rsi:55, trend:'Above 50 DMA', range52:'16.4 – 24.1', dayRange:'18.9 – 19.3',
-       analysis:'Sugar is supported by Indian export restrictions and strong Brazilian ethanol demand diverting cane. Global balance is tightening at the margin.',
-       risks:['India policy can flip supply quickly','Brazilian cane allocation shifts','Oil prices affect the ethanol/sugar mix']},
-    {sym:'CC=F', name:'Cocoa',         cat:'Agriculture', emoji:'🍫', price:7520.00, unit:'/MT', chg:+1.8, bias:'bull', driver:'Persistent West-African supply deficit keeps prices elevated.',
-       rsi:63, trend:'Above 50 DMA', range52:'5,900 – 9,800', dayRange:'7,410 – 7,590',
-       analysis:'Cocoa remains structurally tight due to poor West-African harvests (disease, weather, ageing trees). Prices are elevated and volatile as supply struggles to recover.',
-       risks:['Extreme volatility at high price levels','Demand destruction from high prices','A supply recovery would correct sharply']},
-    {sym:'OJ=F', name:'Orange Juice',  cat:'Agriculture', emoji:'🍊', price:372.10, unit:'¢/lb', chg:+0.3, bias:'bull', driver:'Florida crop disease and hurricane risk keep supply tight.',
-       rsi:59, trend:'Above 50 DMA', range52:'300 – 480', dayRange:'366 – 378',
-       analysis:'Orange juice supply is constrained by Florida citrus greening disease and hurricane damage. A thin, illiquid market means outsized moves on any supply news.',
-       risks:['Very thin, illiquid market','Weather / hurricane season','Demand elasticity at high prices']},
-
-    // LIVESTOCK
-    {sym:'LE=F', name:'Live Cattle',   cat:'Livestock', emoji:'🐄', price:188.30, unit:'¢/lb', chg:+0.6, bias:'bull', driver:'Tight cattle supply and low herd numbers support prices.',
-       rsi:60, trend:'Above 50 DMA', range52:'170 – 196', dayRange:'186 – 190',
-       analysis:'Live cattle are supported by a multi-year-low US herd and tight supply. Beef demand and feed costs are the key variables.',
-       risks:['Consumer beef demand at high retail prices','Feed (corn) cost swings','Herd rebuilding will eventually add supply']},
-    {sym:'HE=F', name:'Lean Hogs',     cat:'Livestock', emoji:'🐖', price:91.80, unit:'¢/lb', chg:-1.4, bias:'bear', driver:'Soft export demand and ample supply weigh on prices.',
-       rsi:40, trend:'Below 50 DMA', range52:'78 – 108', dayRange:'90.6 – 93.4',
-       analysis:'Lean hogs are pressured by weak export demand and comfortable supply. Seasonal demand patterns and Chinese buying are the swing factors.',
-       risks:['Export demand (China) is volatile','Disease outbreaks (ASF) shift supply','Feed cost changes']},
-    {sym:'GF=F', name:'Feeder Cattle', cat:'Livestock', emoji:'🐂', price:258.20, unit:'¢/lb', chg:+0.2, bias:'neutral', driver:'Herd rebuilding vs low supply keeps prices range-bound.',
-       rsi:52, trend:'Near 50 DMA', range52:'232 – 272', dayRange:'256 – 261',
-       analysis:'Feeder cattle balance tight supply against gradual herd rebuilding. Prices move inversely to feed costs and track the live-cattle complex.',
-       risks:['Inverse sensitivity to corn/feed prices','Tied to live-cattle direction','Drought affects grazing and placements']},
 ];

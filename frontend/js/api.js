@@ -42,6 +42,8 @@ const api = {
     },
     stockCard:       (symbol)         => request(`/all_stocks/card/${symbol}`),
     stockFull:       (symbol)         => request(`/all_stocks/card/${symbol}/full_analysis`),
+    // accuracy check for a single sector's previous-day predictions
+    sectorCheck:     (sector)         => request(`/all_stocks/last_analysis_check/${encodeURIComponent(sector)}`),
     topPicks:        ()               => request('/top_picks/'),
     watchlist:       ()               => request('/watchlist/'),
     addToWatchlist:  (payload)        => request('/watchlist/', { method: 'POST', body: JSON.stringify(payload) }),

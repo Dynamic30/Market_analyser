@@ -743,4 +743,5 @@ def main_script(company_name, as_of=None, market_ctx=None):
 
 if __name__ == "__main__":
     data, d = json_data("RELIANCE", today)
-    print(data["ranking_factors"])
+    # print(data["ranking_factors"])
+    print(data)

@@ -13,6 +13,7 @@ from dotenv import load_dotenv
 from sqlalchemy import create_engine, text
 from Analysis.RAW_analysis import run_raw_analysis
 from Analysis.LLM_analysis import score_stocks, rank_scored
+from Analysis.combined_analysis import run_combined
 import logging
 import json
 from concurrent.futures import ThreadPoolExecutor
@@ -148,6 +149,44 @@ def write_to_db(query, rows):
 
 # Analysis Functions
 
+def RunCombinedAnalysis(date):
+    with _engine.connect() as conn:
+        today_rows = [dict(r) for r in conn.execute(text(
+            "SELECT nse_symbol, price, python_score, overall_bias_score, combined_action FROM stock_analysis WHERE analysis_date = :date"
+        ), {"date": date}).mappings().all()]
+
+    if not today_rows:
+        log.warning(f"Combined: no rows for {date}")
+        return
+
+    # find previous date
+    with _engine.connect() as conn:
+        prev_date = conn.execute(text(
+            "SELECT DISTINCT analysis_date FROM stock_analysis WHERE analysis_date < :date ORDER BY analysis_date DESC LIMIT 1"
+        ), {"date": date}).scalar()
+
+    prev_rows = []
+    if prev_date:
+        with _engine.connect() as conn:
+            prev_rows = [dict(r) for r in conn.execute(text(
+                "SELECT nse_symbol, price, combined_action FROM stock_analysis WHERE analysis_date = :date"
+            ), {"date": str(prev_date)}).mappings().all()]
+
+    today, verified = run_combined(today_rows, prev_rows)
+
+    with _engine.begin() as conn:
+        for r in today:
+            conn.execute(text(
+                "UPDATE stock_analysis SET combined_score = :cs, combined_action = :ca, updated_at = CURRENT_TIMESTAMP WHERE nse_symbol = :sym AND analysis_date = :date"
+            ), {"cs": r.get("combined_score"), "ca": r.get("combined_action"), "sym": r["nse_symbol"], "date": date})
+        for r in verified:
+            if r.get("actual_close_pct") is None:
+                continue
+            conn.execute(text(
+                "UPDATE stock_analysis SET actual_close_pct = :pct, actual_direction = :dir, matched = :m, updated_at = CURRENT_TIMESTAMP WHERE nse_symbol = :sym AND analysis_date = :date"
+            ), {"pct": r["actual_close_pct"], "dir": r["actual_direction"], "m": r["matched"], "sym": r["nse_symbol"], "date": str(prev_date)})
+
+    log.info(f"Combined: {len(today)} scored, {len([r for r in verified if r.get('matched')])} verified")
 
 def RunRawAnalysis(date, sector=None, limit=None):
 
@@ -253,8 +292,19 @@ if __name__ == "__main__":
     parser.add_argument("--limit", type=int, default=None)
     parser.add_argument("--raw", action="store_true", help="Run raw analysis only")
     parser.add_argument("--sentiment", action="store_true", help="Run sentiment analysis only")
+    parser.add_argument("--combined", action="store_true", help="Run combined analysis + verification only")
+    parser.add_argument("--combined-all", action="store_true", help="Backfill combined analysis + verification for all unprocessed dates")
 
     args = parser.parse_args()
+    if args.combined_all:
+        with _engine.connect() as conn:
+            dates = conn.execute(text(
+                "SELECT DISTINCT analysis_date FROM stock_analysis WHERE combined_score IS NULL ORDER BY analysis_date"
+            )).scalars().all()
+        for d in dates:
+            RunCombinedAnalysis(str(d))
+        raise SystemExit(0)
+    
     date = args.date or latest_date()
 
     if not date:
@@ -266,13 +316,22 @@ if __name__ == "__main__":
     # no flag = both
     run_both = not args.raw and not args.sentiment
 
-    if run_both:
+
+    if args.combined:
+        RunCombinedAnalysis(date)
+
+
+    elif run_both:
         with ThreadPoolExecutor(max_workers=2) as pool:
-            pool.submit(RunRawAnalysis, date, args.sector, args.limit)
-            pool.submit(RunSentimentsAnalysis, date, args.sector, args.limit)
+            f1 = pool.submit(RunRawAnalysis, date, args.sector, args.limit)
+            f2 = pool.submit(RunSentimentsAnalysis, date, args.sector, args.limit)
+            f1.result()
+            f2.result()
+        RunCombinedAnalysis(date)
 
     else:
         if args.raw:
             RunRawAnalysis(date, args.sector, args.limit)
         if args.sentiment:
             RunSentimentsAnalysis(date, args.sector, args.limit)
+        RunCombinedAnalysis(date)

@@ -47,39 +47,25 @@
         <!-- Greeting -->
         <div class="mb-12">
             <h1 class="text-4xl font-bold tracking-tight mb-2">Good evening</h1>
-            <!-- Two distinct dates: when the user is viewing vs the trading day the analysis covers -->
-            <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-slate-500">
+            <!-- Two distinct dates: when the user is viewing vs the trading day the
+                 analysis covers. Both are filled by loadTopBar() from
+                 GET /v1/home/basic_top_bar — no static fallback, so an unreachable
+                 backend shows a dash rather than a stale hardcoded date. -->
+            <div id="home-dates" class="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-slate-500">
                 <span>Today</span>
-                <span class="font-medium text-slate-700">Sunday, 21 Jun 2026</span>
+                <span id="home-date-today" class="font-medium text-slate-700">—</span>
                 <span class="mx-2 text-slate-300">·</span>
                 <span>Showing analysis for</span>
-                <span class="font-medium text-slate-700">Friday, 19 Jun 2026</span>
+                <span id="home-date-asof" class="font-medium text-slate-700">—</span>
                 <span class="text-xs text-slate-400 italic">(last NSE close)</span>
             </div>
         </div>
 
-        <!-- Market snapshot strip -->
-        <div class="bg-white border border-slate-200 rounded-xl px-6 py-4 mb-12 flex items-center gap-8 overflow-x-auto">
-            <div class="flex items-center gap-2 whitespace-nowrap">
-                <span class="text-xs font-medium text-slate-500">NIFTY 50</span>
-                <span class="text-sm font-semibold">24,832</span>
-                <span class="text-xs font-medium text-emerald-600">+0.42%</span>
-            </div>
-            <div class="flex items-center gap-2 whitespace-nowrap">
-                <span class="text-xs font-medium text-slate-500">BANK NIFTY</span>
-                <span class="text-sm font-semibold">51,124</span>
-                <span class="text-xs font-medium text-rose-600">−0.18%</span>
-            </div>
-            <div class="flex items-center gap-2 whitespace-nowrap">
-                <span class="text-xs font-medium text-slate-500">SENSEX</span>
-                <span class="text-sm font-semibold">81,243</span>
-                <span class="text-xs font-medium text-emerald-600">+0.51%</span>
-            </div>
-            <div class="flex items-center gap-2 whitespace-nowrap">
-                <span class="text-xs font-medium text-slate-500">INDIA VIX</span>
-                <span class="text-sm font-semibold">12.8</span>
-                <span class="text-xs font-medium text-slate-500">−1.2%</span>
-            </div>
+        <!-- Market snapshot strip — every row is rendered by loadTopBar() from
+             GET /v1/home/basic_top_bar (market_stats table). Intentionally empty
+             here: there are no placeholder indices to fall back to. -->
+        <div id="market-strip" class="bg-white border border-slate-200 rounded-xl px-6 py-4 mb-12 flex items-center gap-8 overflow-x-auto">
+            <span class="text-xs text-slate-400">Loading market data…</span>
         </div>
 
         <!-- TOP PICKS — one combined ranking, no LLM/raw split.
@@ -122,22 +108,23 @@
             <div class="flex items-end justify-between flex-wrap gap-4">
                 <div>
                     <h1 class="text-3xl font-bold tracking-tight">All Stocks</h1>
-                    <p class="text-slate-500 text-sm mt-1">NIFTY 500 · 487 stocks tracked</p>
+                    <!-- Filled by updateLoadMore() from the actual row count. -->
+                    <p id="all-stocks-subtitle" class="text-slate-500 text-sm mt-1">Loading…</p>
                 </div>
                 <div class="flex items-center gap-3">
-                    <input type="search" placeholder="Search stocks…"
+                    <input type="search" id="all-stocks-search" placeholder="Search stocks…"
+                        oninput="onStockSearch(this.value)"
                         class="px-4 py-2 border border-slate-200 rounded-lg text-sm w-56 focus:outline-none focus:ring-2 focus:ring-sky-300 focus:border-sky-300">
-                    <select class="px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-sky-300">
-                        <option>All sectors</option>
-                        <option>Energy</option>
-                        <option>IT</option>
-                        <option>Financial Services</option>
-                        <option>FMCG</option>
-                        <option>Auto</option>
+                    <!-- Options come from GET /v1/all_stocks/sector via loadSectors(). -->
+                    <select id="all-stocks-sector" class="px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-sky-300">
+                        <option value="">All sectors</option>
                     </select>
                 </div>
             </div>
         </div>
+
+        <!-- Per-sector prediction-accuracy summary. Hidden when "All sectors" is selected. -->
+        <div id="sector-check-banner" class="hidden mb-6"></div>
 
         <div id="all-stocks-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
 
@@ -162,7 +149,8 @@
                     <h1 class="text-3xl font-bold tracking-tight">Recommendations</h1>
                     <p class="text-slate-500 text-sm mt-1">System picks where Python and LLM converge — refreshed nightly</p>
                 </div>
-                <span class="text-xs font-medium text-teal-700 bg-teal-50 px-3 py-1.5 rounded-full">21 Jun 2026</span>
+                <!-- Analysis date of the newest row the picks were built from. -->
+                <span id="top-recs-date" class="hidden text-xs font-medium text-teal-700 bg-teal-50 px-3 py-1.5 rounded-full"></span>
             </div>
         </div>
 
@@ -170,7 +158,7 @@
         <div class="flex items-center gap-1 mb-6 border-b border-slate-200">
             <button id="tab-top-picks" onclick="showTopRecsTab('top-picks')" class="px-4 py-2.5 text-sm font-medium border-b-2 border-sky-500 text-sky-600 -mb-px transition">
                 Today's Top Picks
-                <span class="ml-1 text-xs text-slate-400">10</span>
+                <span id="top-picks-count" class="ml-1 text-xs text-slate-400">—</span>
             </button>
             <button id="tab-active-calls" onclick="showTopRecsTab('active-calls')" class="px-4 py-2.5 text-sm font-medium border-b-2 border-transparent text-slate-500 hover:text-slate-700 -mb-px transition">
                 Active Calls
@@ -401,8 +389,9 @@
 
     <!-- ============== SCRIPTS ==============
          theme.js      — light/dark/sepia cycle, shared with admin.html
-         mock-data.js  — placeholder data (replaced by API responses later)
-         api.js        — fetch/route layer, not wired up yet
+         mock-data.js  — Watchlist + Active Calls ONLY (those endpoints don't exist yet).
+                         Home, All Stocks and Commodities never read it.
+         api.js        — fetch/route layer against /v1
          app.js        — routing, rendering and UI behaviour
     -->
     <script src="js/theme.js"></script>
