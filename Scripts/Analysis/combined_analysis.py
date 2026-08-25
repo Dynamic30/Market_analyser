@@ -1,5 +1,7 @@
+MATCH_TOL = 0.25
+
+
 def run_combined(today_rows, previous_rows=None, raw_weight=0.6, sent_weight=0.4):
-    # Step 1 — combine scores for today
     for r in today_rows:
         raw = r.get("python_score")
         sent = r.get("overall_bias_score")
@@ -23,7 +25,6 @@ def run_combined(today_rows, previous_rows=None, raw_weight=0.6, sent_weight=0.4
         else:
             r["combined_action"] = "HOLD"
 
-    # Step 2 — verify previous day (skip if no previous data)
     if not previous_rows:
         return today_rows, []
 
@@ -37,12 +38,12 @@ def run_combined(today_rows, previous_rows=None, raw_weight=0.6, sent_weight=0.4
 
         pct = round((today_price - prev_price) / prev_price * 100, 2)
         r["actual_close_pct"] = pct
-        r["actual_direction"] = "up" if pct > 0 else "down" if pct < 0 else "flat"
+        r["actual_direction"] = "up" if pct > MATCH_TOL else "down" if pct < -MATCH_TOL else "flat"
 
         action = r.get("combined_action")
-        if action in ("BUY", "HOLD") and pct >= 0:
+        if action in ("BUY", "HOLD") and pct > MATCH_TOL:
             r["matched"] = "true"
-        elif action == "SELL" and pct < 0:
+        elif action == "SELL" and pct < -MATCH_TOL:
             r["matched"] = "true"
         elif action:
             r["matched"] = "false"

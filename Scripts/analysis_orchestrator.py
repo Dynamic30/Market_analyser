@@ -223,18 +223,30 @@ def RunRawAnalysis(date, sector=None, limit=None):
     write_to_db(RAW_QUERY, params)
     log.info(f"Raw done: {len(params)} written")
 
+def latest_sector_summary(sector=None):
+    if not sector:
+        return {}
+    sql = """
+        SELECT sector, summary
+        FROM sector_summary
+        WHERE sector = :sector
+        ORDER BY created_at DESC
+        LIMIT 1
+    """
+    with _engine.connect() as conn:
+        row = conn.execute(text(sql), {"sector": sector}).mappings().first()
+    return {row["sector"]: row["summary"]} if row else {}
+
+
 def RunSentimentsAnalysis(date, sector=None, limit=None):
-
-    # call analysis function and run this sector wise
-    # save data to db
-
 
     financial_payloads = load_payloads(_financial, date, sector, limit)
     if not financial_payloads:
         log.warning(f"No financial data for {date}")
         return
 
-    # build combined payloads: financial block + articles
+    sector_summaries = latest_sector_summary(sector)
+
     payloads = []
     for block in financial_payloads:
         symbol = block.get("meta_data", {}).get("company_name")
@@ -246,10 +258,7 @@ def RunSentimentsAnalysis(date, sector=None, limit=None):
 
     log.info(f"Sentiment: {len(payloads)} stocks for {date}")
 
-    # Phase A — LLM scoring (slow)
-    scored = score_stocks(payloads)
-
-    # Phase B — ranking (instant)
+    scored = score_stocks(payloads, sector_summaries)
     ranked = rank_scored(scored)
 
     # build params

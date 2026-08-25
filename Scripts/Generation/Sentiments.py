@@ -21,6 +21,7 @@ db_cleint = pymongo.MongoClient(database_url)
 database_= db_cleint['market_analyser']
 collections = database_['Sentiments']
 
+PROXY = os.getenv("PROXY",None)
 # Push sentiments data to mongodb
 def push_sentiments_db(stock_name, article_url, title, source, content_md,
                        published_date=None, is_top_news=True, trading_date=None):
@@ -67,13 +68,13 @@ def google_news(stock_name,trading_date=None):
 
         interval_time = 1
         try:
-            decoded = gnewsdecoder(gnews_url, interval=interval_time)
+            decoded = gnewsdecoder(gnews_url, interval=interval_time,proxy=PROXY)
 
             if not decoded.get("status"):
                 print(f"DECODE FAILED: {decoded.get('message', 'unknown')}")
-                # continue
+                continue
             url = decoded["decoded_url"]
-            response = curl_cffi.get(url,impersonate="chrome110")
+            response = curl_cffi.get(url,impersonate="chrome110",proxy=PROXY)
             html = (response.content)
             extracted = extract(html, with_metadata=True, favor_precision=True)
             paywall_signals = [

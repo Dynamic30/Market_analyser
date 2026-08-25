@@ -1,13 +1,3 @@
-"""
-run_raw_analysis:
-    load all stocks for date (one Mongo read)
-    group by sector
-    for each sector:
-        chained_analysis(sector's stocks)  → composites + sector ranks, held in memory
-    universal_score_sort(all composites)   → overall ranks
-    write everything to DB (one write)
-"""
-
 import math
 
 FACTORS = {
@@ -22,7 +12,10 @@ FACTORS = {
 MIN_FACTORS = 5
 _BAD = {"no data", "no data collected", "not configured", "none", ""}
 
-# helper fn
+BUY_THRESHOLD = 0.50
+SELL_THRESHOLD = -0.50
+
+
 def _num(v):
     if isinstance(v, str):
         if v.strip().lower() in _BAD:
@@ -144,9 +137,10 @@ def universal_score_sort(all_stocks):
         s["composite_rank"] = i + 1
         s["composite_score"] = s["sector_composite"]
         s["python_score"] = round(100 * (n - i - 0.5) / n, 2)
-        if s["python_score"] >= 80:
+        comp = s["sector_composite"]
+        if comp >= BUY_THRESHOLD:
             s["python_action"] = "BUY"
-        elif s["python_score"] <= 20:
+        elif comp <= SELL_THRESHOLD:
             s["python_action"] = "SELL"
         else:
             s["python_action"] = "HOLD"

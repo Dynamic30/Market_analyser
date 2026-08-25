@@ -112,7 +112,7 @@ if __name__ == "__main__":
     # parser.add_argument("--workers",type=int,default=2)
     parser.add_argument("--list-sectors", action="store_true", help="Show available sectors and exit")
     parser.add_argument("--fin-workers", type=int, default=2)
-    parser.add_argument("--sent-workers", type=int, default=6)
+    parser.add_argument("--sent-workers", type=int, default=1)
 
 
     args = parser.parse_args()
