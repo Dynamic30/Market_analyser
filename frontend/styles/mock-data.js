@@ -95,6 +95,85 @@ const MOCK_COMMODITIES = [
     { ticker:'HE=F',  name:'Lean Hogs',      category:'Livestock',   price:92.10,   p_change:-0.50, unit:'lb', as_of:'2026-08-21' },
 ];
 
+// ----- Mirrors GET /v1/all_stocks/card/{stock}/full_analysis → object -----
+// Full expanded analysis: reasoning, ranges, risks, and raw signals. Used by
+// the dialog's "View full analysis" section. Shaped like the real endpoint
+// target so this mock acts as the spec.
+const MOCK_FULL_ANALYSIS = {
+    'RELIANCE.NS': {
+        date: '2026-08-21',
+        overall_bias_label: 'Mixed',
+        overall_bias_score: 0.52,
+        short_term_action: 'HOLD',
+        long_term_action: 'BUY',
+        python_score: 58,
+        python_action: 'HOLD',
+        combined_score: 55,
+        combined_action: 'HOLD',
+        python_reasoning: 'Above 20D EMA with stable ROCE and improving delivery %. Momentum neutral; flows supportive. Score held back by elevated PE and modest revenue growth.',
+        llm_reasoning: {
+            technical: 'Price above 20D EMA but below 50D EMA — near-term momentum mixed.',
+            fundamental: 'ROCE healthy at 9.2%, retail/digital ramp offsetting O2C weakness.',
+            sentiment: 'News flow neutral; telecom ARPU tailwind priced in.',
+            synthesis: 'Technicals constructive with price above 20D EMA, ROCE healthy, FII flows turning supportive. Continue holding while support at ₹1,311 holds.'
+        },
+        risks: ['Earnings in 12 days; surprise history is mixed', 'Regulatory overhang on telecom AGR dues'],
+        hold_duration: '1–2 weeks',
+        hold_duration_days: 11,
+        hold_duration_reason: 'Hold through Q1 earnings on 3 Jul; re-evaluate the ₹1,434 breakout once the print lands.',
+        price_ranges: { buy_range: [1320, 1340], sell_range_short: [1420, 1450], sell_range_positional: [1480, 1520], stop_loss: 1295 },
+        raw_signals: { rsi_14: 48, ema_20: 1340, ema_50: 1311, ema_200: 1245, atr: 28, pe: 24.5, roce: 9.2, debt_to_equity: 0.42, operating_margin: 14.1, revenue_growth: 11.2 }
+    },
+    'TCS.NS': {
+        date: '2026-08-21',
+        overall_bias_label: 'Bullish',
+        overall_bias_score: 0.71,
+        short_term_action: 'BUY',
+        long_term_action: 'BUY',
+        python_score: 74,
+        python_action: 'BUY',
+        combined_score: 73,
+        combined_action: 'BUY',
+        python_reasoning: 'Breakout above 200D EMA with volume confirmation. High ROCE, low leverage, expanding margins. Strong composite.',
+        llm_reasoning: {
+            technical: 'Clean breakout above 200D EMA on rising volume.',
+            fundamental: 'Deal pipeline strong, margin resilience 24.8%.',
+            sentiment: 'Positive on US spend recovery commentary.',
+            synthesis: 'Bullish bias intact across timeframes. Revenue growth resilient, deal pipeline strong. Hold through Q1 results.'
+        },
+        risks: ['US tech spending slowdown could pressure FY revenue guidance'],
+        hold_duration: '2–3 weeks',
+        hold_duration_days: 18,
+        hold_duration_reason: 'Momentum breakout; reassess if price closes back below the 200D EMA.',
+        price_ranges: { buy_range: [3900, 3950], sell_range_short: [4150, 4200], sell_range_positional: [4300, 4400], stop_loss: 3820 },
+        raw_signals: { rsi_14: 62, ema_20: 3920, ema_50: 3810, ema_200: 3680, atr: 64, pe: 28.1, roce: 18.4, debt_to_equity: 0.08, operating_margin: 24.8, revenue_growth: 9.4 }
+    },
+    'HDFCBANK.NS': {
+        date: '2026-08-21',
+        overall_bias_label: 'Bullish',
+        overall_bias_score: 0.68,
+        short_term_action: 'BUY',
+        long_term_action: 'BUY',
+        python_score: 71,
+        python_action: 'BUY',
+        combined_score: 70,
+        combined_action: 'BUY',
+        python_reasoning: 'Stable ROCE, strong credit growth, low leverage. Technicals constructive above 50D EMA.',
+        llm_reasoning: {
+            technical: 'Holding above 50D EMA, accumulation visible.',
+            fundamental: 'Credit growth 16%, NIM stabilising.',
+            sentiment: 'Neutral post-merger integration.',
+            synthesis: 'Neutral signals across categories. NIM under pressure but credit growth steady. No urgent directional bias.'
+        },
+        risks: ['NIM compression from deposit competition'],
+        hold_duration: '2–4 weeks',
+        hold_duration_days: 21,
+        hold_duration_reason: 'Hold while the stock stays above the 50D EMA; reassess if NIM trends worsen.',
+        price_ranges: { buy_range: [1640, 1660], sell_range_short: [1720, 1750], sell_range_positional: [1780, 1820], stop_loss: 1600 },
+        raw_signals: { rsi_14: 55, ema_20: 1655, ema_50: 1620, ema_200: 1580, atr: 24, pe: 19.2, roce: 15.6, debt_to_equity: 0, operating_margin: 28, revenue_growth: 16.1 }
+    }
+};
+
 // ----- Watchlist (no live endpoint yet — mirrors mock-data.js) -----
 const MOCK_WATCHLIST = [
     { symbol:'RELIANCE.NS', name:'Reliance Industries', entryPrice:1340, entryDate:'15 Jun', currentPrice:1358, qty:5, llmAction:'HOLD', actionDaysTotal:7, actionDaysRemaining:4, llmSynthesis:'Technicals constructive with price above 20D EMA, ROCE healthy, FII flows turning supportive. Continue holding while support at ₹1,311 holds.', topRisk:'Earnings in 12 days; surprise history is mixed', personalizedAction:'HOLD', personalizedReason:'Bias supports your +1.3% position. Continue holding.' },
@@ -467,10 +546,108 @@ function renderHistoryRows(history) {
 function toggleDialogExpansion(symbol) {
     const expanded = document.getElementById('dialog-expanded'), btn = document.getElementById('dialog-expand-btn');
     if (expanded.classList.contains('hidden')) {
-        expanded.innerHTML = emptyState(`Full analysis isn't available yet — GET /v1/all_stocks/card/${symbol}/full_analysis is not implemented on the backend.`);
+        expanded.innerHTML = renderFullAnalysis(symbol);
         expanded.classList.remove('hidden'); btn.innerHTML = 'Hide full analysis ▲';
         setTimeout(() => expanded.scrollIntoView({ behavior:'smooth', block:'start' }), 60);
     } else { expanded.classList.add('hidden'); expanded.innerHTML = ''; btn.innerHTML = 'View full analysis ▼'; }
+}
+
+function renderFullAnalysis(symbol) {
+    const fa = MOCK_FULL_ANALYSIS[symbol];
+    if (!fa) return emptyState(`Full analysis isn't available yet — GET /v1/all_stocks/card/${symbol}/full_analysis is not implemented on the backend.`);
+    const sig = fa.raw_signals || {};
+    const py = fa.python_score;
+    const llmScore100 = fa.overall_bias_score == null ? null : Math.round(fa.overall_bias_score * 100);
+    const combined = combinedFor(fa.python_action, py, fa.short_term_action, llmScore100, fa.combined_action, fa.combined_score);
+    const ranges = fa.price_ranges || {};
+    const fmtRange = (arr) => (arr && arr.length === 2) ? `₹${arr[0].toLocaleString('en-IN')}–₹${arr[1].toLocaleString('en-IN')}` : '—';
+    const badge = (a) => a ? `<span class="text-xs font-semibold px-2 py-0.5 rounded border ${actionColor(a)}">${a}</span>` : '—';
+    const interp = (text, kind = 'neutral') => { const colors = { bull:'text-emerald-700 bg-emerald-50', bear:'text-rose-700 bg-rose-50', neutral:'text-slate-600 bg-slate-100' }; return `<span class="text-[10px] font-medium px-1.5 py-0.5 rounded ${colors[kind]}">${text}</span>`; };
+    const rsiInterp = sig.rsi_14 == null ? '' : sig.rsi_14 > 70 ? interp('Overbought','bear') : sig.rsi_14 < 30 ? interp('Oversold','bull') : sig.rsi_14 >= 55 ? interp('Bullish','bull') : interp('Neutral','neutral');
+    const emaInterp = (ema) => (ema == null) ? '' : (symbol in { 'RELIANCE.NS':1358, 'TCS.NS':3987, 'HDFCBANK.NS':1672 } ? (({ 'RELIANCE.NS':1358, 'TCS.NS':3987, 'HDFCBANK.NS':1672 }[symbol] > ema) ? interp('Above · Bullish','bull') : interp('Below · Bearish','bear')) : interp('Neutral','neutral'));
+    const peInterp = sig.pe == null ? '' : sig.pe < 20 ? interp('Cheap','bull') : sig.pe < 30 ? interp('Fair','neutral') : interp('Expensive','bear');
+    const roceInterp = sig.roce == null ? '' : sig.roce > 15 ? interp('High quality','bull') : sig.roce > 8 ? interp('Moderate','neutral') : interp('Weak','bear');
+    const deInterp = sig.debt_to_equity == null ? '' : sig.debt_to_equity < 0.5 ? interp('Low leverage','bull') : sig.debt_to_equity < 1.0 ? interp('Moderate','neutral') : interp('Leveraged','bear');
+    const marginInterp = sig.operating_margin == null ? '' : sig.operating_margin > 12 ? interp('Strong','bull') : sig.operating_margin > 6 ? interp('Average','neutral') : interp('Weak','bear');
+    const revInterp = sig.revenue_growth == null ? '' : sig.revenue_growth > 12 ? interp('Strong','bull') : sig.revenue_growth > 4 ? interp('Average','neutral') : interp('Weak','bear');
+    const rowHTML = (label, value, badge) => `<div class="grid grid-cols-12 items-center py-2.5 border-b border-slate-100 last:border-0"><span class="col-span-5 text-sm text-slate-600">${label}</span><span class="col-span-3 text-sm font-semibold text-slate-900">${value ?? '—'}</span><span class="col-span-4 text-right">${badge}</span></div>`;
+    const scoreBar = (label, v) => `<div><div class="flex items-center justify-between text-xs mb-1"><span class="text-slate-600">${label}</span><span class="font-semibold text-slate-900">${v == null ? '—' : v + '/100'}</span></div><div class="h-1.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-gradient-to-r from-sky-400 to-teal-400" style="width:${v ?? 0}%"></div></div></div>`;
+
+    return `
+        <div class="space-y-6">
+            <div class="flex items-center justify-between">
+                <div class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Full analysis</div>
+                ${fa.date ? `<span class="text-xs text-slate-400">${escAttr(fa.date)}</span>` : ''}
+            </div>
+
+            <!-- Verdict header -->
+            <div class="bg-gradient-to-br from-sky-50 to-teal-50 border border-sky-100 rounded-xl p-5">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-xs font-semibold text-sky-700 uppercase tracking-wide">Combined verdict</span>
+                    ${combined.action ? comboChip(combined.action, fa.short_term_action, fa.python_action, {}, null, combined.score, combined.mixed) : ''}
+                </div>
+                <div class="grid grid-cols-3 gap-4 text-center">
+                    <div><div class="text-xs text-slate-500 mb-1">LLM</div><div class="text-sm font-semibold">${badge(fa.short_term_action)}</div><div class="text-xs text-slate-600 mt-1">${llmScore100 ?? '—'}/100</div></div>
+                    <div><div class="text-xs text-slate-500 mb-1">Python</div><div class="text-sm font-semibold">${badge(fa.python_action)}</div><div class="text-xs text-slate-600 mt-1">${py ?? '—'}/100</div></div>
+                    <div><div class="text-xs text-slate-500 mb-1">Combined</div><div class="text-sm font-semibold">${badge(fa.combined_action)}</div><div class="text-xs text-slate-600 mt-1">${combined.score ?? '—'}/100</div></div>
+                </div>
+                ${fa.hold_duration ? `<div class="mt-4 pt-3 border-t border-sky-100/60"><div class="flex items-center gap-2 text-xs text-slate-600"><span class="font-semibold">Suggested hold · ${escAttr(fa.hold_duration)}</span><span class="text-slate-400">·</span><span>${escAttr(fa.hold_duration_reason || '')}</span></div></div>` : ''}
+            </div>
+
+            <!-- Trade ranges -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div class="bg-white border border-slate-200 rounded-xl p-3"><div class="text-[10px] font-semibold text-slate-400 uppercase tracking-wide mb-1">Buy range</div><div class="text-sm font-semibold text-slate-900">${fmtRange(ranges.buy_range)}</div></div>
+                <div class="bg-white border border-slate-200 rounded-xl p-3"><div class="text-[10px] font-semibold text-slate-400 uppercase tracking-wide mb-1">Short-term target</div><div class="text-sm font-semibold text-slate-900">${fmtRange(ranges.sell_range_short)}</div></div>
+                <div class="bg-white border border-slate-200 rounded-xl p-3"><div class="text-[10px] font-semibold text-slate-400 uppercase tracking-wide mb-1">Positional target</div><div class="text-sm font-semibold text-slate-900">${fmtRange(ranges.sell_range_positional)}</div></div>
+                <div class="bg-white border border-slate-200 rounded-xl p-3"><div class="text-[10px] font-semibold text-slate-400 uppercase tracking-wide mb-1">Stop loss</div><div class="text-sm font-semibold text-rose-600">${ranges.stop_loss ? '₹' + ranges.stop_loss.toLocaleString('en-IN') : '—'}</div></div>
+            </div>
+
+            <!-- Reasoning -->
+            <div class="space-y-4">
+                ${fa.llm_reasoning ? `
+                    <div class="bg-white border border-slate-200 rounded-xl p-5">
+                        <div class="text-xs font-semibold text-slate-600 uppercase tracking-wide mb-3">LLM reasoning</div>
+                        <div class="space-y-3">
+                            ${fa.llm_reasoning.technical ? `<div class="flex gap-3"><span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wide w-20 shrink-0 pt-0.5">Technical</span><p class="text-sm text-slate-700 leading-relaxed">${escAttr(fa.llm_reasoning.technical)}</p></div>` : ''}
+                            ${fa.llm_reasoning.fundamental ? `<div class="flex gap-3"><span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wide w-20 shrink-0 pt-0.5">Fundamental</span><p class="text-sm text-slate-700 leading-relaxed">${escAttr(fa.llm_reasoning.fundamental)}</p></div>` : ''}
+                            ${fa.llm_reasoning.sentiment ? `<div class="flex gap-3"><span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wide w-20 shrink-0 pt-0.5">Sentiment</span><p class="text-sm text-slate-700 leading-relaxed">${escAttr(fa.llm_reasoning.sentiment)}</p></div>` : ''}
+                            ${fa.llm_reasoning.synthesis ? `<div class="flex gap-3 pt-3 border-t border-slate-100"><span class="text-[10px] font-semibold text-sky-600 uppercase tracking-wide w-20 shrink-0 pt-0.5">Synthesis</span><p class="text-sm text-slate-700 leading-relaxed">${escAttr(fa.llm_reasoning.synthesis)}</p></div>` : ''}
+                        </div>
+                    </div>
+                ` : ''}
+                ${fa.python_reasoning ? `
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-5">
+                        <div class="text-xs font-semibold text-slate-600 uppercase tracking-wide mb-2">Python reasoning</div>
+                        <p class="text-sm text-slate-700 leading-relaxed">${escAttr(fa.python_reasoning)}</p>
+                    </div>
+                ` : ''}
+            </div>
+
+            <!-- Risks -->
+            ${fa.risks?.length ? `
+                <div>
+                    <div class="text-xs font-semibold text-amber-600 uppercase tracking-wide mb-2">Key risks</div>
+                    <ul class="space-y-2">
+                        ${fa.risks.map(r => `<li class="text-sm text-slate-700 leading-snug flex gap-2"><span class="text-rose-500 shrink-0">⚠</span><span>${escAttr(r)}</span></li>`).join('')}
+                    </ul>
+                </div>
+            ` : ''}
+
+            <!-- Raw signals -->
+            <div class="bg-white border-2 border-sky-100 rounded-2xl p-5">
+                <div class="flex items-center justify-between mb-4"><span class="text-xs font-semibold text-sky-700 uppercase tracking-wide">Raw signals</span><span class="text-xs text-slate-500">Rule-based · ${fa.date || 'no analysis yet'}</span></div>
+                <h4 class="text-[11px] font-semibold text-slate-400 uppercase tracking-widest mb-1">Technical Signals</h4>
+                <div class="mb-4">${rowHTML('RSI (14)', sig.rsi_14, rsiInterp)}${rowHTML('20D EMA', sig.ema_20 == null ? null : '₹' + sig.ema_20.toLocaleString('en-IN'), emaInterp(sig.ema_20))}${rowHTML('50D EMA', sig.ema_50 == null ? null : '₹' + sig.ema_50.toLocaleString('en-IN'), emaInterp(sig.ema_50))}${rowHTML('200D EMA', sig.ema_200 == null ? null : '₹' + sig.ema_200.toLocaleString('en-IN'), emaInterp(sig.ema_200))}${rowHTML('ATR (14)', sig.atr == null ? null : '₹' + sig.atr, sig.atr == null ? '' : interp('Normal vol','neutral'))}</div>
+                <h4 class="text-[11px] font-semibold text-slate-400 uppercase tracking-widest mb-1 mt-4">Fundamental Signals</h4>
+                <div class="mb-4">${rowHTML('PE Ratio', sig.pe == null ? null : sig.pe + 'x', peInterp)}${rowHTML('ROCE', sig.roce == null ? null : sig.roce + '%', roceInterp)}${rowHTML('Debt / Equity', sig.debt_to_equity == null ? null : sig.debt_to_equity + 'x', deInterp)}${rowHTML('Operating Margin', sig.operating_margin == null ? null : sig.operating_margin + '%', marginInterp)}${rowHTML('Revenue Growth YoY', sig.revenue_growth == null ? null : sig.revenue_growth + '%', revInterp)}</div>
+            </div>
+
+            <!-- Score breakdown -->
+            <div class="bg-slate-50 border border-slate-200 rounded-2xl p-5">
+                <div class="flex items-center justify-between mb-4"><span class="text-xs font-semibold text-slate-600 uppercase tracking-wide">Score breakdown</span><span class="text-xs text-slate-500">Composite</span></div>
+                <div class="space-y-3">${scoreBar('Technical', fa.raw_signals?.tech_score ?? null)}${scoreBar('Fundamental', fa.raw_signals?.fund_score ?? null)}${scoreBar('Flow', fa.raw_signals?.flow_score ?? null)}<div class="pt-3 mt-2 border-t border-slate-200 flex items-center justify-between"><span class="text-sm font-semibold text-slate-900">Python total</span><span class="text-lg font-bold text-sky-700">${py == null ? '—' : py + '/100'}</span></div></div>
+            </div>
+        </div>`;
 }
 function closeDialog() { closeHoldPopover(); document.getElementById('dialog-overlay').classList.add('hidden'); document.getElementById('dialog-overlay').classList.remove('flex'); }
 
