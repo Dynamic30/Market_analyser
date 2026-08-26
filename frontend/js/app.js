@@ -545,6 +545,7 @@ function mapStockRow(r) {
         combinedAction: r.combined_action ?? null,
         combinedScore:  r.combined_score  ?? null,
         analysisDate: r.analysis_date,
+        analysisForDate: r.analysis_for,
         // Column the `stocks` table carries but the list query only uses in the dialog.
         summary:   r.business_summary || 'No business summary available.',
     };
@@ -596,7 +597,10 @@ function stockCard(s) {
                 </div>
                 ${biasBadge}
             </div>
-            <div class="text-xs text-slate-500 mb-3">${s.sector} · ${s.industry}</div>
+            <div class="text-xs text-slate-500 mb-1">${s.sector} · ${s.industry}</div>
+            <div class="text-xs text-slate-400 mb-3">
+                Analysis for <span class="font-medium text-slate-600">${s.analysisForDate ? fmtDateShort(s.analysisForDate) : '—'}</span>
+            </div>
             <div class="flex items-baseline justify-between pt-3 border-t border-slate-100">
                 <div>
                     <div class="text-lg font-semibold text-slate-900">${fmtPrice(s.price)}</div>
@@ -1178,10 +1182,11 @@ function renderHistoryRows(history) {
     const header = `
         <div class="grid grid-cols-12 gap-2 px-3 pb-2 mb-1 border-b border-slate-100">
             <span class="col-span-2 text-xs font-semibold text-slate-400 uppercase tracking-wide">Date</span>
+            <span class="col-span-2 text-xs font-semibold text-slate-400 uppercase tracking-wide">Analysis for</span>
             <span class="col-span-2 text-xs font-semibold text-slate-400 uppercase tracking-wide">Python</span>
             <span class="col-span-2 text-xs font-semibold text-slate-400 uppercase tracking-wide">LLM</span>
-            <span class="col-span-3 text-xs font-semibold text-sky-600 uppercase tracking-wide">Combined</span>
-            <span class="col-span-2 text-xs font-semibold text-slate-400 uppercase tracking-wide">Actual</span>
+            <span class="col-span-2 text-xs font-semibold text-sky-600 uppercase tracking-wide">Combined</span>
+            <span class="col-span-1 text-xs font-semibold text-slate-400 uppercase tracking-wide">Actual</span>
             <span class="col-span-1 text-xs font-semibold text-slate-400 uppercase tracking-wide text-right">✓/✗</span>
         </div>
     `;
@@ -1211,17 +1216,18 @@ function renderHistoryRows(history) {
         return `
             <div class="grid grid-cols-12 gap-2 items-center py-2.5 px-3 ${i % 2 === 0 ? 'bg-slate-50' : 'bg-white'} rounded-lg">
                 <span class="col-span-2 text-xs font-medium text-slate-600">${fmtDateShort(r.analysis_date)}</span>
+                <span class="col-span-2 text-xs font-medium text-slate-600">${fmtDateShort(r.analysis_for_date || r.analysis_date)}</span>
                 <div class="col-span-2 flex items-center gap-1">
                     ${pyAct ? `<span class="text-xs font-medium px-2 py-0.5 rounded border ${actionColor(pyAct)}">${pyAct}</span><span class="text-xs text-slate-400">${pyScore ?? '—'}</span>` : '<span class="text-xs text-slate-300">—</span>'}
                 </div>
                 <div class="col-span-2 flex items-center gap-1">
                     ${llmAct ? `<span class="text-xs font-medium px-2 py-0.5 rounded border ${actionColor(llmAct)}">${llmAct}</span><span class="text-xs text-slate-400">${llmScore100 ?? '—'}</span>` : '<span class="text-xs text-slate-300">—</span>'}
                 </div>
-                <div class="col-span-3 flex items-center gap-1.5">
+                <div class="col-span-2 flex items-center gap-1.5">
                     ${combined.action ? comboChip(combined.action, llmAct, pyAct, {}, null, combined.score, combined.mixed) : '<span class="text-xs text-slate-300">—</span>'}
                     <span class="text-xs text-slate-600 font-semibold">${combined.score ?? ''}</span>
                 </div>
-                <div class="col-span-2">
+                <div class="col-span-1">
                     <span class="text-xs font-medium px-2 py-0.5 rounded-full ${actualColor}">${actualPct == null ? '—' : `${actualPct > 0 ? '+' : ''}${actualPct}%`}</span>
                 </div>
                 <div class="col-span-1 text-right">${matchBadge}</div>

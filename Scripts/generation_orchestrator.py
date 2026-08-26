@@ -8,6 +8,9 @@ import os
 from dotenv import load_dotenv
 from sqlalchemy import create_engine, text
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from analysis_for_date import next_trading_day
+from datetime import date
+
 
 import logging
 from datetime import datetime
@@ -103,6 +106,11 @@ def generate_data(sector=None, limit=None, fin_workers=2, sent_workers=6):
     log.info(f"Done: {ok} ok, {fail} failed, {round(time.time()-started,1)}s")
 
 if __name__ == "__main__":
+    analysis_for = next_trading_day(date.today())
+    print(f"Analysis for date: {analysis_for}")
+    log.info(f"Analysis for date: {analysis_for}")
+
+
     parser = argparse.ArgumentParser(
         prog='Market Analyser Generation Pipeline',
         description='Fetch news sentimens and daiy financials of the company'
@@ -123,5 +131,4 @@ if __name__ == "__main__":
         raise SystemExit(0)
 
     generate_data(args.sector, args.limit, args.fin_workers, args.sent_workers)
-    
-
+    log.info(f"Analysis for date: {analysis_for}")

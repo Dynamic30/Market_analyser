@@ -36,15 +36,20 @@ def push_sentiments_db(stock_name, article_url, title, source, content_md,
         "content_md": content_md,
     }
 
+    existing = collections.find_one(
+        {"_id": f"{stock_name}.NS", "articles.url": article_url},
+        {"_id": 1},
+    )
+
     collections.update_one(
         {"_id": f"{stock_name}.NS"},
         {
             "$set": {"company_name": stock_name, "last_updated": str(date.today())},
-            "$push": {"articles": article},
+            **({"$push": {"articles": article}} if not existing else {}),
         },
         upsert=True,
     )
-    
+
 
 # GOOGLE NEWS RSS 
 

@@ -18,6 +18,7 @@ class CardBasicData(BaseModel):
 # history of analysis
 class CardHistoryAnalysis(BaseModel):
     analysis_date: datetime.date
+    analysis_for_date: datetime.date | None = None
     python_score: float | None = None
     python_action: str | None = None
     python_reasoning : str | None=None
@@ -37,6 +38,14 @@ class StockCard(BaseModel):
 
 class ViewFullAnalysis():
     # used for getting data when we click on view full analysis
+    llm_score : str
+    raw_score : str
+    combined_score: str
+    hold_duration : str | None=None
+    python_reasoning:str
+    llm_reasoning : str
+    risk : str
+
     pass
 
 class SectorAnalysisCheck(BaseModel):

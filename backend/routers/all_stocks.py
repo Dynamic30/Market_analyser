@@ -32,6 +32,7 @@ CARD_META_SQL = text("""
 # Every analysis row, newest first — backed by idx_analysis_symbol_date.
 CARD_HISTORY_SQL = text("""
     SELECT analysis_date,
+           analysis_for AS analysis_for_date,
            python_score, python_action,
            overall_bias_score, short_term_action, long_term_action,
            combined_score, combined_action,
@@ -123,7 +124,7 @@ def get_stock(sector: str | None = None, limit: int = 50, offset: int = 0):
                a.overall_bias_score, a.overall_bias_label, a.short_term_action,
                a.python_score, a.python_action,
                a.llm_reasoning, a.python_reasoning,
-               a.combined_action, a.combined_score, a.analysis_date
+               a.combined_action, a.combined_score, a.analysis_date, a.analysis_for
         FROM stocks s
         -- Pick only the newest analysis row per stock. ROW_NUMBER numbers each
         -- stock's rows newest-first, so rn = 1 is the latest one.

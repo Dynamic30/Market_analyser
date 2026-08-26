@@ -17,6 +17,7 @@ from Analysis.combined_analysis import run_combined
 import logging
 import json
 from concurrent.futures import ThreadPoolExecutor
+from analysis_for_date import next_trading_day
 
 
 load_dotenv()
@@ -44,17 +45,18 @@ _sentiments = _db["Sentiments"]
 
 RAW_QUERY = """
     INSERT INTO stock_analysis (
-        nse_symbol, analysis_date, price, sector, passed_universe_gate,
+        nse_symbol, analysis_date, analysis_for, price, sector, passed_universe_gate,
         mom_12_1, vol_60, beta_252, roce, de_ratio, earnings_yield, delivery_pct_20,
         sector_score, sector_rank, composite_score, composite_rank,
         n_factors_used, python_score, python_action, python_reasoning
     ) VALUES (
-        :symbol, :date, :price, :sector, :gate,
+        :symbol, :date, :analysis_for, :price, :sector, :gate,
         :mom_12_1, :vol_60, :beta_252, :roce, :de_ratio, :earnings_yield, :delivery_pct_20,
         :sector_score, :sector_rank, :composite_score, :composite_rank,
         :n_factors_used, :python_score, :python_action, :python_reasoning
     )
     ON CONFLICT (nse_symbol, analysis_date) DO UPDATE SET
+        analysis_for = EXCLUDED.analysis_for,
         price = EXCLUDED.price, sector = EXCLUDED.sector,
         passed_universe_gate = EXCLUDED.passed_universe_gate,
         mom_12_1 = EXCLUDED.mom_12_1, vol_60 = EXCLUDED.vol_60,
@@ -64,14 +66,14 @@ RAW_QUERY = """
         sector_score = EXCLUDED.sector_score, sector_rank = EXCLUDED.sector_rank,
         composite_score = EXCLUDED.composite_score, composite_rank = EXCLUDED.composite_rank,
         n_factors_used = EXCLUDED.n_factors_used, python_score = EXCLUDED.python_score,
-        python_action = EXCLUDED.python_action, 
+        python_action = EXCLUDED.python_action,
         python_reasoning = EXCLUDED.python_reasoning,
         updated_at = CURRENT_TIMESTAMP
 """
 
 SENTIMENT_QUERY = """
     INSERT INTO stock_analysis (
-        nse_symbol, analysis_date,
+        nse_symbol, analysis_date, analysis_for,
         news_bias_score, news_bias_label,
         analysis_bias_score, analysis_bias_label,
         overall_bias_score, overall_bias_label,
@@ -80,7 +82,7 @@ SENTIMENT_QUERY = """
         sentiment_composite_score, sentiment_composite_rank,
         n_articles_used, llm_reasoning, price_ranges, risks
     ) VALUES (
-        :symbol, :date,
+        :symbol, :date, :analysis_for,
         :news_bias_score, :news_bias_label,
         :analysis_bias_score, :analysis_bias_label,
         :overall_bias_score, :overall_bias_label,
@@ -90,6 +92,7 @@ SENTIMENT_QUERY = """
         :n_articles_used, :llm_reasoning, :price_ranges, :risks
     )
     ON CONFLICT (nse_symbol, analysis_date) DO UPDATE SET
+        analysis_for = EXCLUDED.analysis_for,
         news_bias_score = EXCLUDED.news_bias_score,
         news_bias_label = EXCLUDED.news_bias_label,
         analysis_bias_score = EXCLUDED.analysis_bias_score,
@@ -188,9 +191,9 @@ def RunCombinedAnalysis(date):
 
     log.info(f"Combined: {len(today)} scored, {len([r for r in verified if r.get('matched')])} verified")
 
-def RunRawAnalysis(date, sector=None, limit=None):
+def RunRawAnalysis(date, analysis_for, sector=None, limit=None):
 
-    # call analysis function and run sector wise 
+    # call analysis function and run sector wise
     # push data to database
 
     payloads = load_payloads(_financial, date, sector, limit)
@@ -207,7 +210,8 @@ def RunRawAnalysis(date, sector=None, limit=None):
             continue
         f = r.get("factors", {})
         params.append({
-            "symbol": r["symbol"], "date": date, "price": r.get("price"),
+            "symbol": r["symbol"], "date": date, "analysis_for": analysis_for,
+            "price": r.get("price"),
             "sector": r.get("sector"), "gate": r.get("passed_gate",False),
             "mom_12_1": f.get("mom_12_1"), "vol_60": f.get("vol_60"),
             "beta_252": f.get("beta_252"), "roce": f.get("roce"),
@@ -238,7 +242,7 @@ def latest_sector_summary(sector=None):
     return {row["sector"]: row["summary"]} if row else {}
 
 
-def RunSentimentsAnalysis(date, sector=None, limit=None):
+def RunSentimentsAnalysis(date, analysis_for, sector=None, limit=None):
 
     financial_payloads = load_payloads(_financial, date, sector, limit)
     if not financial_payloads:
@@ -267,7 +271,7 @@ def RunSentimentsAnalysis(date, sector=None, limit=None):
         if not r.get("symbol"):
             continue
         params.append({
-            "symbol": r["symbol"], "date": date,
+            "symbol": r["symbol"], "date": date, "analysis_for": analysis_for,
             "news_bias_score": r.get("news_bias_score"),
             "news_bias_label": r.get("news_bias_label"),
             "analysis_bias_score": r.get("analysis_bias_score"),
@@ -303,6 +307,7 @@ if __name__ == "__main__":
     parser.add_argument("--sentiment", action="store_true", help="Run sentiment analysis only")
     parser.add_argument("--combined", action="store_true", help="Run combined analysis + verification only")
     parser.add_argument("--combined-all", action="store_true", help="Backfill combined analysis + verification for all unprocessed dates")
+    parser.add_argument("--analysis-for-backfill", action="store_true", help="Fill missing analysis_for dates for existing rows")
 
     args = parser.parse_args()
     if args.combined_all:
@@ -313,34 +318,50 @@ if __name__ == "__main__":
         for d in dates:
             RunCombinedAnalysis(str(d))
         raise SystemExit(0)
-    
+
+    if args.analysis_for_backfill:
+        with _engine.connect() as conn:
+            rows = conn.execute(text(
+                "SELECT DISTINCT nse_symbol, analysis_date FROM stock_analysis WHERE analysis_for IS NULL"
+            )).mappings().all()
+        if not rows:
+            log.info("No rows need analysis_for backfill")
+            raise SystemExit(0)
+        log.info(f"Backfilling analysis_for for {len(rows)} rows")
+        with _engine.begin() as conn:
+            for r in rows:
+                analysis_for = next_trading_day(str(r["analysis_date"]))
+                conn.execute(text(
+                    "UPDATE stock_analysis SET analysis_for = :af WHERE nse_symbol = :sym AND analysis_date = :ad"
+                ), {"af": analysis_for, "sym": r["nse_symbol"], "ad": r["analysis_date"]})
+        log.info("analysis_for backfill complete")
+        raise SystemExit(0)
+
     date = args.date or latest_date()
 
     if not date:
         log.error("No date found in Mongo")
         raise SystemExit(1)
 
-    log.info(f"Analysis for {date}")
+    analysis_for = next_trading_day(date)
+    log.info(f"Analysis date: {date}, analysis_for: {analysis_for}")
 
-    # no flag = both
     run_both = not args.raw and not args.sentiment
-
 
     if args.combined:
         RunCombinedAnalysis(date)
 
-
     elif run_both:
         with ThreadPoolExecutor(max_workers=2) as pool:
-            f1 = pool.submit(RunRawAnalysis, date, args.sector, args.limit)
-            f2 = pool.submit(RunSentimentsAnalysis, date, args.sector, args.limit)
+            f1 = pool.submit(RunRawAnalysis, date, analysis_for, args.sector, args.limit)
+            f2 = pool.submit(RunSentimentsAnalysis, date, analysis_for, args.sector, args.limit)
             f1.result()
             f2.result()
         RunCombinedAnalysis(date)
 
     else:
         if args.raw:
-            RunRawAnalysis(date, args.sector, args.limit)
+            RunRawAnalysis(date, analysis_for, args.sector, args.limit)
         if args.sentiment:
-            RunSentimentsAnalysis(date, args.sector, args.limit)
+            RunSentimentsAnalysis(date, analysis_for, args.sector, args.limit)
         RunCombinedAnalysis(date)

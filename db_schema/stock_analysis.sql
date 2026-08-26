@@ -98,6 +98,9 @@ ALTER TABLE stock_analysis ADD COLUMN IF NOT EXISTS n_articles_used SMALLINT;
 ALTER TABLE stock_analysis ADD COLUMN IF NOT EXISTS llm_reasoning JSONB;
 ALTER TABLE stock_analysis ADD COLUMN IF NOT EXISTS price_ranges JSONB;
 
+-- analysis for date 
+ALTER TABLE stock_analysis ADD COLUMN IF NOT EXISTS analysis_for DATE;
+
 CREATE INDEX IF NOT EXISTS idx_analysis_date ON stock_analysis(analysis_date);
 -- Backs the "latest analysis per symbol" join in backend/routers/all_stocks.py
 CREATE INDEX IF NOT EXISTS idx_analysis_symbol_date
